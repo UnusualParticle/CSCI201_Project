@@ -13,7 +13,7 @@ using string = std::string;
 
 namespace util
 {
-	// NameMap stores strings and a second data type, intended for enums
+	// NameVector stores strings, intended for enums
 	class NameVector
 	{
 	private:
@@ -22,17 +22,46 @@ namespace util
 		void add(const string& name);
 	public:
 		NameVector() = default;
-		NameVector(const string& filename);
+		NameVector(const string& title);
 		~NameVector() = default;
 
-		// Clears the vector and adds data line by line to the vector
-		void loadFromFile(const string& filename);
+		// Get the name associated with an ID
+		const string& getName(int id) const;
 
-			// Get the name associated with an ID
-			const string& getName(int id) const;
+		// Get the ID associated with a name
+		int getID(const string& name) const;
+	};
 
-			// Get the ID associated with a name
-			int getID(const string& name) const;
+	template<typename data_t>
+	// DataList stores a data type
+	class DataVector
+	{
+	private:
+		std::vector<string> v;
+	public:
+		DataVector() = default;
+		DataVector(const string& filename)
+		{
+			loadFromFile(filename);
+		}
+		~DataVector() = default;
+
+		// Clears the vector and adds data
+		void loadFromFile(const string& filename)
+		{
+			std::ifstream file{ filename };
+			while (file)
+			{
+				data_t data;
+				file >> data;
+				if (file.fail())
+					throw std::invalid_argument{ "Input file not formatted correctly" };
+				add(data);
+			}
+
+		}
+		data_t& getdata(int id);
+		data_t& getdatabyname(const string& name);
 	};
 
 	// My basic string prompter
@@ -41,4 +70,7 @@ namespace util
 	int promptint(const string& prompt);
 	// My basic char prompter
 	char promptchar(const string& prompt);
+
+	// Getline without leading whitepace
+	void getline(std::istream& stream, string& str, char delim = '\n');
 }

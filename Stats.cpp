@@ -1,42 +1,27 @@
 #include "Stats.h"
 
-namespace eff
+Effect EffectData::make(int stacks)
 {
-	Effect EffectData::make(int stacks)
-	{
-		return { this, stacks };
-	}
-	std::ifstream& operator>>(std::ifstream& stream, EffectData& data)
-	{
-		std::getline(stream >> std::ws, data.name, ';');
-		stream >> data.power;
+	return { this, stacks };
+}
+std::ifstream& operator>>(std::ifstream& stream, EffectData& data)
+{
+	// Look for an opening bracket
+	stream.ignore('[');
 
-	}
+	// Get the data
+	string temp;
+	util::getline(stream, data.name);
+	util::getline(stream, temp);
+	data.stat = (StatBlock::Stats)StatBlock::statnames.getID(temp);
+	stream >> data.power;
+	util::getline(stream, temp);
+	if (temp == "boon")
+		data.boon = true;
+	else if (temp == "curse")
+		data.boon = false;
+	else
+		stream.setstate(std::ios_base::failbit);
 
-	void loadFromFile(const string& filename)
-	{
-		datalist.clear();
-		std::ifstream file{ filename };
-
-		while (file)
-		{
-			EffectData data;
-			file >> data;
-			data.id = datalist.size();
-			datalist.push_back(data);
-		}
-	}
-
-	EffectData& getdata(int id)
-	{
-		return datalist.at(id);
-	}
-
-	EffectData& getdata(const string& name)
-	{
-		auto ptr{ std::find(datalist.begin(), datalist.end(), [name](const EffectData& d) {return d.name == name; }) };
-		if (ptr == datalist.end())
-			throw std::invalid_argument("Not a valid effect");
-		return *ptr;
-	}
+	stream.ignore(']');
 }

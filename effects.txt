@@ -1,0 +1,36 @@
+[
+	Heal
+	Health
+	-1
+	boon
+]
+[
+	Burn
+	Health
+	2
+	curse
+]
+[
+	Protection
+	Armor
+	5
+	boon
+]
+[
+	Weakness
+	Strength
+	1
+	curse
+]
+[
+	Disease
+	Aura
+	1
+	curse
+]
+[
+	Cure
+	Aura
+	1
+	boon
+]

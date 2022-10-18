@@ -6,43 +6,36 @@ struct StatBlock
 {
 	enum Stats
 	{
+		Armor,
+		Aura,
 		Health,
-		Strength,
 		Magika,
-		Aura
+		Strength
 	};
-	static util::NameVector names;
+	static util::NameVector statnames;
 
-	int health;
-	int strength;
-	int magika;
-	int aura;
 	int armor;
+	int aura;
+	int health;
+	int magika;
+	int strength;
 };
 
-namespace eff
+struct EffectData;
+struct Effect
 {
-	struct EffectData;
-	struct Effect
-	{
-		EffectData* data;
-		int stacks;
-	};
-	struct EffectData
-	{
-		string name;
-		StatBlock::Stats stat;
-		int power;
-		bool buff;
-		size_t id;
+	const EffectData* data;
+	int stacks;
+};
+struct EffectData
+{
+	string name;
+	StatBlock::Stats stat;
+	int power;
+	bool boon;
+	size_t id;
 
-		Effect make(int stacks);
-	};
+	Effect make(int stacks);
+};
 
-	std::vector<EffectData> datalist;
-
-	void loadFromFile(const string& filename);
-
-	EffectData& getdata(int id);
-	EffectData& getdata(const string& name);
-}
+using EffectDataList = util::DataVector<EffectData>;

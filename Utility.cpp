@@ -1,7 +1,10 @@
+#include <iostream>
 #include "Utility.h"
 
 namespace util
 {
+	const auto STREAMMAX{ std::numeric_limits<std::streamsize>::max() };
+
 	void NameVector::add(const string& name)
 	{
 		auto pt{ std::find(v.begin(), v.end(), name) };
@@ -11,23 +14,24 @@ namespace util
 		v.push_back(name);
 	}
 
-	NameVector::NameVector(const string& filename)
+	NameVector::NameVector(const string& title)
 	{
-		loadFromFile(filename);
-	}
+		std::ifstream file{ "namelists.txt" };
+		string temp;
 
-	// Clears the vector and adds data line by line to the vector
-	void NameVector::loadFromFile(const string& filename)
-	{
-		v.clear();
-		std::ifstream file{ filename };
-
-		while (file)
+		// Look for the desired list
+		while (temp != title)
 		{
-			string name;
-			std::getline(file, name);
-			if (name.size() != 0)
-				add(name);
+			file.ignore('[');
+			file.ignore('#');
+			util::getline(file, temp);
+		}
+
+		// List found, Get data
+		while (file.peek() != ']')
+		{
+			util::getline(file, temp);
+			add(temp);
 		}
 	}
 
@@ -102,5 +106,10 @@ namespace util
 
         // Return the value
         return value;
+	}
+
+	void getline(std::istream& stream, string& str, char delim = '\n')
+	{
+		std::getline(stream >> std::ws, str, delim);
 	}
 }

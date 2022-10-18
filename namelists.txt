@@ -1,0 +1,26 @@
+[
+# Stats
+    Armor
+    Aura
+    Health
+    Magika
+    Strength
+]
+[
+# Slots
+    Armor
+    Slot 1
+    Slot 2
+    Slot 3
+    Slot 4
+    Consumable
+]
+[
+# Item Types
+    Empty
+    Taken
+    Armor
+    Weapon
+    Shield
+    Consumable
+]
