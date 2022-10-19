@@ -4,7 +4,7 @@ Item::Type Item::getType() const { return type; }
 const string& Item::getName() const { return name; }
 int Item::getWeight() const { return weight; }
 Effect Item::getEffect() const { return effect; }
-int Item::getMagika() const { return magika; }
+int Item::getMana() const { return mana; }
 int Item::getPrice() const { return price; }
 Item& Item::operator=(const Item& other)
 {
@@ -13,7 +13,7 @@ Item& Item::operator=(const Item& other)
 	name = other.name;
 	effect.data = other.effect.data;
 	effect.stacks = other.effect.stacks;
-	magika = other.magika;
+	mana = other.mana;
 	price = other.price;
 
 	return *this;
@@ -24,11 +24,11 @@ void Inventory::sort()
 {
 	// Verify inventory is not broken
 	if (items[Armor].getType() != Item::Empty
-		|| items[Armor].getType() != Item::Armor)
+		&& items[Armor].getType() != Item::Armor)
 		throw std::overflow_error{ "Armor slot has something other than armor" };
 
 	if (items[Consumable].getType() != Item::Empty
-		|| items[Consumable].getType() != Item::Consumable)
+		&& items[Consumable].getType() != Item::Consumable)
 		throw std::overflow_error{ "Consumable slot has something other than consumable" };
 
 	int shield{ -1 };

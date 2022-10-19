@@ -22,14 +22,14 @@ private:
 	int weight;
 	string name;
 	Effect effect;
-	int magika;
+	int mana;
 	int price;
 public:
 	Type getType() const;
 	int getWeight() const;
 	const string& getName() const;
 	Effect getEffect() const;
-	int getMagika() const;
+	int getMana() const;
 	int getPrice() const;
 
 	Item& operator=(const Item& other);

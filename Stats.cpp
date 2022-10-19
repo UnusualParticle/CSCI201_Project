@@ -2,6 +2,7 @@
 
 util::NameMap<StatBlock::Stats>* StatBlock::_namemap{};
 util::NameArray<StatBlock::STATS_TOTAL> StatBlock::statnames{};
+
 Effect EffectData::make(int stacks)
 {
 	return { this, stacks };

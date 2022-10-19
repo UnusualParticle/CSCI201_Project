@@ -9,7 +9,7 @@ struct StatBlock
 		Armor,
 		Aura,
 		Health,
-		Magika,
+		Mana,
 		Strength,
 		STATS_TOTAL
 	};
@@ -20,7 +20,9 @@ struct StatBlock
 	int armor;
 	int aura;
 	int health;
-	int magika;
+	int healthMax;
+	int mana;
+	int manaMax;
 	int strength;
 };
 

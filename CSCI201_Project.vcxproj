@@ -147,19 +147,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actors.cpp" />
     <ClCompile Include="CSCI201_Project.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Stats.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actors.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Stats.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="effects.txt" />
+    <Text Include="items.txt" />
     <Text Include="namelists.txt" />
+    <Text Include="enemies.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

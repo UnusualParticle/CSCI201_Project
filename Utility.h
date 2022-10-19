@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <array>
 #include <exception>
 #include <fstream>
 #include <map>
@@ -15,13 +16,16 @@ using string = std::string;
 namespace util
 {
 	inline const auto STREAMMAX{ std::numeric_limits<std::streamsize>::max() };
+	
+	template<size_t n> class NameArray;
+	template<typename id_t> class NameMap;
 
 	template<size_t n>
 	// NameArray stores strings, intended for enums
 	class NameArray
 	{
 	private:
-		std::array<string, n> arr;
+		std::array<string, n> arr{};
 		using const_iterator = std::array<string, n>::const_iterator;
 	public:
 		NameArray() = default;
@@ -33,9 +37,22 @@ namespace util
 			return arr.at(id);
 		}
 
+		// For use in a range-based for loop
 		const const_iterator begin() const { return arr.begin(); }
 		const const_iterator end() const { return arr.end(); }
+		
+		// Just some friend template function fun, don't mind me
+		template<typename id_t>
+		template<size_t size>
+		friend void NameMap<id_t>::exportToArray(NameArray<size>& names) const;
 	};
+
+	template<size_t size>
+	bool verifyNameArray(const NameArray<size>& arr)
+	{
+		auto ptr{ std::find(arr.begin(), arr.end(), "") };
+		return ptr == arr.end();
+	}
 
 	template<typename id_t>
 	// NameMap sores strings and ids, intended for enums
@@ -100,12 +117,11 @@ namespace util
 		}
 
 		// Export a NameArray for use in the program
-		template<int size>
-		void exportToArray(NameArray<size> names) const
+		template<size_t size>
+		void exportToArray(NameArray<size>& names) const
 		{
 			for(const auto& p : mp)
-				names[p.second] = p.first;
-			return names;
+				names.arr.at(p.second) = p.first;
 		}
 	};
 
@@ -115,6 +131,7 @@ namespace util
 	{
 	private:
 		std::vector<data_t> v;
+		using const_iterator = std::vector<data_t>::const_iterator;
 	public:
 		DataVector() = default;
 		DataVector(const string& filename)
@@ -144,6 +161,10 @@ namespace util
 		{
 			return std::find_if(v.begin(), v.end(), [name](const data_t& data) {return data.name == name; });
 		}
+
+		// For use in a range-based for loop
+		const const_iterator begin() const { return v.begin(); }
+		const const_iterator end() const { return v.end(); }
 	};
 
 	// My basic string prompter

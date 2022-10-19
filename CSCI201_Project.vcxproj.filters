@@ -27,6 +27,9 @@
     <ClCompile Include="Inventory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Actors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility.h">
@@ -38,12 +41,21 @@
     <ClInclude Include="Inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Actors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="effects.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="namelists.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="enemies.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="items.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
