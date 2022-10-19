@@ -9,13 +9,14 @@ public:
 	enum Type
 	{
 		Empty,
-		Taken,
+		Full,
 		Armor,
-		Weapon,
+		Tool,
 		Shield,
-		Consumable
+		Consumable,
+		TYPES_TOTAL
 	};
-	static util::NameVector typenames;
+	static util::NameArray<TYPES_TOTAL> typenames;
 private:
 	Type type;
 	int weight;
@@ -36,17 +37,30 @@ public:
 
 struct Inventory
 {
+public:
+	enum Slots
+	{
+		Armor,
+		Slot1,
+		Slot2,
+		Slot3,
+		Slot4,
+		Consumable,
+		SLOTS_TOTAL
+	};
+	static util::NameArray<SLOTS_TOTAL> slotnames;
 private:
-	std::array<Item, 6> items;
-
-	static util::NameVector slotnames;
+	std::array<Item, SLOTS_TOTAL> items;
 public:
 	void sort();
 	int slotsAvailable();
 
-	void equipArmor(Item armor);
-	void equipItem(Item item);
-	void equipConsumable(Item consumable);
+	const Item& getArmor();
+	const Item& getConsumable();
+
+	void equipArmor(const Item& armor);
+	void equipItem(const Item& item);
+	void equipConsumable(const Item& consumable);
 
 	void useItem(int slot);
 	void dropItem(int slot);

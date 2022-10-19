@@ -3,53 +3,6 @@
 
 namespace util
 {
-	const auto STREAMMAX{ std::numeric_limits<std::streamsize>::max() };
-
-	void NameVector::add(const string& name)
-	{
-		auto pt{ std::find(v.begin(), v.end(), name) };
-		if (pt != v.end())
-			throw std::range_error{ "Name already exists" };
-
-		v.push_back(name);
-	}
-
-	NameVector::NameVector(const string& title)
-	{
-		std::ifstream file{ "namelists.txt" };
-		string temp;
-
-		// Look for the desired list
-		while (temp != title)
-		{
-			file.ignore('[');
-			file.ignore('#');
-			util::getline(file, temp);
-		}
-
-		// List found, Get data
-		while (file.peek() != ']')
-		{
-			util::getline(file, temp);
-			add(temp);
-		}
-	}
-
-	// Get the name associated with an ID
-	const string& NameVector::getName(int id) const
-	{
-		return v.at(id);
-	}
-
-	// Get the ID associated with a name
-	int NameVector::getID(const string& name) const
-	{
-		auto ptr{ std::find(v.begin(), v.end(), name) };
-		if (ptr == v.end())
-			throw std::invalid_argument{ "Name does not exist" };
-		return 
-	}
-
 	// My basic string prompter
 	string promptstr(const string& prompt)
 	{
@@ -108,8 +61,8 @@ namespace util
         return value;
 	}
 
-	void getline(std::istream& stream, string& str, char delim = '\n')
+    std::istream& getline(std::istream& stream, string& str, char delim)
 	{
-		std::getline(stream >> std::ws, str, delim);
+		return std::getline(stream >> std::ws, str, delim);
 	}
 }

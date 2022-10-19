@@ -18,9 +18,9 @@
 [
 # Item Types
     Empty
-    Taken
+    Full
     Armor
-    Weapon
+    Tool
     Shield
     Consumable
 ]

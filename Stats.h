@@ -10,9 +10,12 @@ struct StatBlock
 		Aura,
 		Health,
 		Magika,
-		Strength
+		Strength,
+		STATS_TOTAL
 	};
-	static util::NameVector statnames;
+	// namemap is temprorary, for loading purposes ONLY
+	static util::NameMap<Stats>* _namemap;
+	static util::NameArray<STATS_TOTAL> statnames;
 
 	int armor;
 	int aura;
@@ -37,5 +40,6 @@ struct EffectData
 
 	Effect make(int stacks);
 };
+std::ifstream& operator>>(std::ifstream& stream, EffectData& data);
 
-using EffectDataList = util::DataVector<EffectData>;
+inline util::DataVector<EffectData> EffectDataList;
