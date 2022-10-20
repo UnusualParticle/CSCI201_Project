@@ -161,9 +161,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="effects.txt" />
-    <Text Include="items.txt" />
+    <Text Include="itembases.txt" />
+    <Text Include="itemmodifiers.txt" />
     <Text Include="namelists.txt" />
     <Text Include="enemies.txt" />
+    <Text Include="playerpresets.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

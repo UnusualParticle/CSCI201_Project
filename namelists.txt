@@ -3,7 +3,7 @@
     Armor
     Aura
     Health
-    Magika
+    Mana
     Strength
 ]
 [
@@ -18,7 +18,7 @@
 [
 # Item Types
     Empty
-    Full
+    Modifier
     Armor
     Tool
     Shield

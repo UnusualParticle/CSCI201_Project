@@ -55,7 +55,13 @@
     <Text Include="enemies.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="items.txt">
+    <Text Include="itembases.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="itemmodifiers.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="playerpresets.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

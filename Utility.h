@@ -148,7 +148,9 @@ namespace util
 			{
 				data_t data{};
 				file >> data;
-				if (file.fail() && !file.eof())
+				if (file.eof())
+					break;
+				if (file.fail())
 					throw std::invalid_argument{ "Input file not formatted correctly" };
 				v.push_back(data);
 			}
@@ -157,9 +159,12 @@ namespace util
 		{
 			return v[id];
 		}
-		const data_t* getdatabyname(const string& name)
+		const_iterator getdatabyname(const string& name)
 		{
-			return std::find_if(v.begin(), v.end(), [name](const data_t& data) {return data.name == name; });
+			auto ptr{ std::find_if(v.begin(), v.end(), [name](const data_t& data) {return data.name == name; }) };
+			if (ptr == v.end())
+				throw std::invalid_argument{ "Name <" + name + "> is not in data" };
+			return ptr;
 		}
 
 		// For use in a range-based for loop

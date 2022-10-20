@@ -1,0 +1,18 @@
+[
+	of Singeing
+	Modifier
+	0
+	Singe
+	2
+	0
+	70
+]
+[
+	of Defense
+	Modifier
+	0
+	Defense
+	5
+	0
+	70
+]

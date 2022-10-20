@@ -1,11 +1,29 @@
 [
+	Damage
+	Health
+	-1
+	curse
+]
+[
+	Burn
+	Health
+	-1
+	curse
+]
+[
+	Defense
+	Armor
+	-1
+	boon
+]
+[
 	Heal
 	Health
 	-1
 	boon
 ]
 [
-	Burn
+	Singe
 	Health
 	2
 	curse

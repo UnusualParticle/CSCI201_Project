@@ -40,7 +40,7 @@ struct EffectData
 	bool boon;
 	size_t id;
 
-	Effect make(int stacks);
+	Effect make(int stacks) const;
 };
 std::ifstream& operator>>(std::ifstream& stream, EffectData& data);
 

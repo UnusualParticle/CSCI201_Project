@@ -9,21 +9,23 @@ public:
 	enum Type
 	{
 		Empty,
-		Full,
+		Modifier,
 		Armor,
 		Tool,
 		Shield,
 		Consumable,
 		TYPES_TOTAL
 	};
+	static util::NameMap<Type>* _typemap;
 	static util::NameArray<TYPES_TOTAL> typenames;
 private:
-	Type type;
-	int weight;
-	string name;
-	Effect effect;
-	int mana;
-	int price;
+	string name{};
+	Type type{};
+	int weight{};
+	Effect effect{};
+	Effect special{};
+	int mana{};
+	int price{};
 public:
 	Type getType() const;
 	int getWeight() const;
@@ -33,7 +35,11 @@ public:
 	int getPrice() const;
 
 	Item& operator=(const Item& other);
+	friend std::ifstream& operator>>(std::ifstream& stream, Item& item);
 };
+std::ifstream& operator>>(std::ifstream& stream, Item& item);
+inline util::DataVector<Item> ItemBaseList{};
+inline util::DataVector<Item> ItemModifierList{};
 
 struct Inventory
 {

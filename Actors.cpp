@@ -1,6 +1,6 @@
 #include "Actors.h"
 
-Actor::Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {})
+Actor::Actor(const string& _name, const StatBlock& _stats, const Inventory& _inventory)
 	: name(_name), stats(_stats), inventory(_inventory)
 {}
 const string& Actor::getName()
@@ -37,7 +37,7 @@ int Actor::getStrength()
 	return stats.strength;
 }
 
-Enemy::Enemy(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {})
+Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inventory)
 	: Actor(_name, _stats, _inventory)
 {}
 const Item& Enemy::useItem()
@@ -56,7 +56,7 @@ Enemy ActorData::makeEnemy()
 std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 {
 	// Look for an opening bracket
-	stream.ignore('[');
+	stream.ignore(util::STREAMMAX, '[');
 	if (!stream.good())
 		return stream;
 
@@ -78,7 +78,7 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 	
 
 	// Look for a closing bracket
-	stream.ignore(']');
+	stream.ignore(util::STREAMMAX, ']');
 
 	return stream;
 }

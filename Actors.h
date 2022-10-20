@@ -43,5 +43,5 @@ struct ActorData
 };
 std::ifstream& operator>>(std::ifstream& stream, ActorData& data);
 
-inline util::DataVector<ActorData> PresetDataList{};
+inline util::DataVector<ActorData> PlayerDataList{};
 inline util::DataVector<ActorData> EnemyDataList{};

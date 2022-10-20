@@ -3,14 +3,14 @@
 util::NameMap<StatBlock::Stats>* StatBlock::_namemap{};
 util::NameArray<StatBlock::STATS_TOTAL> StatBlock::statnames{};
 
-Effect EffectData::make(int stacks)
+Effect EffectData::make(int stacks) const
 {
 	return { this, stacks };
 }
 std::ifstream& operator>>(std::ifstream& stream, EffectData& data)
 {
 	// Look for an opening bracket
-	stream.ignore('[');
+	stream.ignore(util::STREAMMAX, '[');
 	if (!stream.good())
 		return stream;
 
@@ -29,7 +29,7 @@ std::ifstream& operator>>(std::ifstream& stream, EffectData& data)
 		stream.setstate(std::ios_base::failbit);
 
 	// Look for a closing bracket
-	stream.ignore(']');
+	stream.ignore(util::STREAMMAX, ']');
 
 	return stream;
 }

@@ -18,7 +18,39 @@ Item& Item::operator=(const Item& other)
 
 	return *this;
 }
+util::NameMap<Item::Type>* Item::_typemap{};
 util::NameArray<Item::TYPES_TOTAL> Item::typenames{};
+
+std::ifstream& operator>>(std::ifstream& stream, Item& item)
+{
+	// Look for an opening bracket
+	stream.ignore(util::STREAMMAX, '[');
+	if (!stream.good())
+		return stream;
+
+	// Get the data
+	string str;
+	int num;
+
+	util::getline(stream, item.name);
+	
+	util::getline(stream, str);
+	item.type = Item::_typemap->getID(str);
+
+	stream >> item.weight;
+
+	util::getline(stream, str);
+	stream >> num;
+	item.effect = EffectDataList.getdatabyname(str)->make(num);
+
+	stream >> item.mana;
+	stream >> item.price;
+
+	// Look for a closing bracket
+	stream.ignore(util::STREAMMAX, ']');
+
+	return stream;
+}
 
 void Inventory::sort()
 {
