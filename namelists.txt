@@ -3,7 +3,9 @@
     Armor
     Aura
     Health
+    Maximum Health
     Mana
+    Maximum Mana
     Strength
 ]
 [
@@ -21,6 +23,7 @@
     Modifier
     Armor
     Shield
+    Unarmed
     Weapon
     Tool
     Spell

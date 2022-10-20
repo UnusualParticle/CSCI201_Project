@@ -9,7 +9,9 @@ struct StatBlock
 		Armor,
 		Aura,
 		Health,
+		HealthMax,
 		Mana,
+		ManaMax,
 		Strength,
 		STATS_TOTAL
 	};
@@ -40,6 +42,7 @@ struct EffectData
 	bool boon;
 	size_t id;
 
+	const string& getName() const;
 	Effect make(int stacks) const;
 };
 std::ifstream& operator>>(std::ifstream& stream, EffectData& data);

@@ -12,6 +12,7 @@ public:
 		Modifier,
 		Armor,
 		Shield,
+		Unarmed,
 		Weapon,
 		Tool,
 		Spell,
@@ -22,6 +23,7 @@ public:
 	static util::NameArray<TYPES_TOTAL> typenames;
 private:
 	string name{};
+	int level{};
 	Type type{};
 	int weight{};
 	Effect effect{};
@@ -62,12 +64,14 @@ private:
 	std::array<Item, SLOTS_TOTAL> items;
 
 	std::array<Item, SLOTS_TOTAL>::iterator findtype(Item::Type type);
+	using const_iterator = std::array<Item, SLOTS_TOTAL>::const_iterator;
 public:
 	void sort();
 	int slotsAvailable();
 
-	const Item& getItem(int slot);
+	const Item& getItem(int slot) const;
 	const Item& getArmor();
+	Slots hasShield() const;
 	const Item& getConsumable();
 
 	void equipArmor(const Item& armor);

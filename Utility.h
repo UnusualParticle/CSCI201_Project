@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <exception>
 #include <fstream>
 #include <map>
@@ -161,7 +162,7 @@ namespace util
 		}
 		const_iterator getdatabyname(const string& name)
 		{
-			auto ptr{ std::find_if(v.begin(), v.end(), [name](const data_t& data) {return data.name == name; }) };
+			auto ptr{ std::find_if(v.begin(), v.end(), [name](const data_t& data) {return data.getName() == name; })};
 			if (ptr == v.end())
 				throw std::invalid_argument{ "Name <" + name + "> is not in data" };
 			return ptr;
@@ -178,10 +179,22 @@ namespace util
 	int promptint(const string& prompt);
 	// My basic char prompter
 	char promptchar(const string& prompt);
+	// Choice prompter for an int range, [low, high]
+	int promptchoice(int low, int high);
 
 	// Getline without leading whitepace
 	std::istream& getline(std::istream& stream, string& str, char delim = '\n');
 
 	// Generate a random int, inclusive
 	int randint(int low, int high);
+
+	class Timer
+	{
+	private:
+		static std::chrono::steady_clock clock;
+		std::chrono::time_point<std::chrono::steady_clock> setpoint;
+	public:
+		void start(int milliseconds);
+		bool isDone() const;
+	};
 }

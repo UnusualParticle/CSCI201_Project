@@ -63,6 +63,18 @@ namespace util
         return value;
 	}
 
+    // Choice prompter for an int range, [low, high]
+    int promptchoice(int low, int high)
+    {
+        int value{ promptint("> ") };
+        while (value < low || high < value)
+        {
+            std::cout << "Not a valid option\n";
+            value = promptint("> ");
+        }
+        return value;
+    }
+
     std::istream& getline(std::istream& stream, string& str, char delim)
 	{
 		return std::getline(stream >> std::ws, str, delim);
@@ -73,5 +85,14 @@ namespace util
         static std::mt19937 mt{ static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count()) };
         std::uniform_int_distribution distr{ low, high };
         return distr(mt);
+    }
+
+    void Timer::start(int ms)
+    {
+        setpoint = clock.now() + std::chrono::milliseconds(ms);
+    }
+    bool Timer::isDone() const
+    {
+        return clock.now() > setpoint;
     }
 }

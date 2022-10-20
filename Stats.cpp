@@ -3,6 +3,7 @@
 util::NameMap<StatBlock::Stats>* StatBlock::_namemap{};
 util::NameArray<StatBlock::STATS_TOTAL> StatBlock::statnames{};
 
+const string& EffectData::getName() const { return name; }
 Effect EffectData::make(int stacks) const
 {
 	return { this, stacks };

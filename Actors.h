@@ -9,6 +9,7 @@ protected:
 	string name{};
 	StatBlock stats{};
 	std::vector<Effect> effects{};
+	void _addeffect(const Effect& e);
 public:
 	Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {});
 	Inventory inventory{};
@@ -16,14 +17,25 @@ public:
 	const string& getName();
 
 	// Stat Accessors
-	int getArmor();
-	int getAura();
-	int getHealth();
-	int getHealthMax();
-	int getMana();
-	int getManaMax();
-	int getStrength();
+	int getArmor() const;
+	int getAura() const;
+	int getHealth() const;
+	int getHealthMax() const;
+	int getMana() const;
+	int getManaMax() const;
+	int getStrength() const;
 
+	// Basic Stat Modification
+	void takeDamage(int n);
+	
+	// Effect Methods
+	void startBattle();
+	void endBattle();
+	void startTurn();
+	void addEffect(const Effect& effect);
+	int getStatModifier(StatBlock::Stats stat) const;
+
+	std::pair<Effect, Effect> getItemEffects(int slot) const;
 	void useItem(int slot);
 };
 
@@ -40,6 +52,7 @@ struct ActorData
 	StatBlock stats;
 	Inventory inventory;
 
+	const string& getName() const;
 	Actor makeActor() const;
 	Enemy makeEnemy() const;
 };

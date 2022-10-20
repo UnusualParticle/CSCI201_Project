@@ -1,5 +1,6 @@
 /*
 * Project Name: Game Title Pending
+* Version: C++17
 * Author: Donovan Blake
 * Purpose: An RPG that runs in the console
 */
@@ -43,7 +44,7 @@ void startGame(Actor& player)
     int i{};
     for (auto ptr{ PlayerDataList.begin() }; ptr != PlayerDataList.end(); ++ptr)
         std::cout << ++i << ". " << ptr->name << '\n';
-    i = util::promptint(": ");
+    i = util::promptchoice(1,i)-1;
     auto temp{ PlayerDataList.getdata(i) };
     std::cout << "You chose: " << temp.name << '\n';
     temp.name = util::promptstr("Enter a name for your character: ");
@@ -60,17 +61,23 @@ void startBattle(Actor& player, int level)
     } battlestate{};
 
     Enemy enemy{ EnemyDataList.getdatabyname("Imp")->makeEnemy() };
+    player.startBattle();
+    enemy.startBattle();
+    std::cout << "\n= You encounter a " << enemy.getName() << "!\n\n";
+    
     while (battlestate != Win && battlestate != Lose)
     {
         if (battlestate == PlayerTurn)
         {
+            player.startTurn();
+
             // Display Stats
             std::cout << player.getName()
-                << ":: Hp(" << player.getHealth() << '/' << player.getHealthMax()
+                << ": Hp(" << player.getHealth() << '/' << player.getHealthMax()
                 << ") Mp(" << player.getMana() << '/' << player.getManaMax()
                 << ")\n\n";
             std::cout << enemy.getName()
-                << ":: Hp(" << enemy.getHealth() << '/' << enemy.getHealthMax()
+                << ": Hp(" << enemy.getHealth() << '/' << enemy.getHealthMax()
                 << ") Mp(" << enemy.getMana() << '/' << enemy.getManaMax()
                 << ")\n\n";
 
@@ -84,6 +91,7 @@ void startBattle(Actor& player, int level)
                 viewing = &player.inventory.getItem((Inventory::Slots)i);
                 switch (viewing->getType())
                 {
+                case Item::Unarmed:
                 case Item::Weapon:
                 case Item::Tool:
                 case Item::Spell:
@@ -97,50 +105,65 @@ void startBattle(Actor& player, int level)
 
             // Display options to user
             std::cout << "Choose an action: \n";
-            for (int i{}; i < choices.size(); ++i)
+            for (size_t i{}; i < choices.size(); ++i)
             {
-                viewing = &player.inventory.getItem((Inventory::Slots)i);
+                viewing = &player.inventory.getItem(choices[i]);
                 std::cout << '\t' << (i + 1) << ". " << viewing->getName();
                 if (viewing->getType() == Item::Spell || viewing->getType() == Item::Crystal)
                     std::cout << " Mp: " << viewing->getMana() << '\n';
+                else
+                    std::cout << '\n';
             }
 
             // Get user choice
-            int opt{util::promptint(": ")-1};
-            while (opt < 0 || choices.size() <= opt)
-            {
-                std::cout << "Not a valid option\n";
-                int opt{ util::promptint(": ") - 1 };
-            }
+            int opt{ choices[ util::promptchoice(1, (int)choices.size()) - 1] };
+
+            std::cout << "You use " << player.inventory.getItem(opt).getName() << "\n\n";
 
             // Use Item
-            viewing = &player.inventory.getItem((Inventory::Slots)opt);
-            Effect eff1{ viewing->getEffect() };
-            Effect eff2{ viewing->getSpecial() };
+            auto pair = player.getItemEffects(opt);
+            viewing = &player.inventory.getItem(opt);
+            Effect& eff1{ pair.first };
+            Effect& eff2{ pair.second };
             if (eff1.data->boon)
             {
-                player;
+                player.addEffect(eff1);
                 if (eff2.stacks)
-                    player;
+                    player.addEffect(eff2);
             }
             else
             {
-                enemy;
+                enemy.addEffect(eff1);
                 if (eff2.stacks)
-                    enemy;
+                    enemy.addEffect(eff2);
             }
             player.useItem(opt);
 
-            if (enemy.getHealth())
-                battlestate = EnemyTurn;
-            else
+
+            // Update Game State
+            if (player.getHealth() < 1)
+                battlestate = Lose;
+            else if (enemy.getHealth() < 1)
                 battlestate = Win;
+            else
+                battlestate = EnemyTurn;
         }
         else if (battlestate == EnemyTurn)
         {
-
+            battlestate = PlayerTurn;
         }
     }
+
+    if (battlestate == Win)
+        std::cout << "\nYou have defeated the " << enemy.getName() << '\n';
+    else
+        std::cout << "\nYou died to the " << enemy.getName() << '\n';
+
+    player.endBattle();
+}
+void visitTown(Actor& player, int level)
+{
+
 }
 
 int main()
@@ -159,9 +182,7 @@ int main()
             << err << "\n\n";
     }
 
-    char opt;
-    std::cout << "View Data [y,n]? ";
-    std::cin >> opt;
+    char opt{ util::promptchar("View Data [y,n]? ") };
 
     if (opt == 'y')
     {
@@ -222,16 +243,39 @@ int main()
     } gamestate{};
 
     Actor player{};
-    while (!gamestate.state == GameState::Dead)
+    util::Timer tmr{};
+    while (!(gamestate.state == GameState::Dead))
     {
         switch (gamestate.state)
         {
         case GameState::Start:
             startGame(player);
-            gamestate.state == GameState::Battle;
+            gamestate.state = GameState::Battle;
+            tmr.start(1000);
             break;
         case GameState::Battle:
-
+            if (tmr.isDone())
+            {
+                startBattle(player, gamestate.playerlevel);
+                if (player.getHealth() > 0)
+                {
+                    --gamestate.untiltown;
+                    std::cout << "== == == ==\n\nAfter defeating the enemy, you continue your journey\n\n";
+                    if (gamestate.untiltown == 0)
+                        gamestate.state = GameState::Town;
+                }
+                else
+                    gamestate.state = GameState::Dead;
+                tmr.start(1000);
+            }
+            break;
+        case GameState::Town:
+            if (tmr.isDone())
+            {
+                visitTown(player, gamestate.playerlevel);
+                gamestate.state = GameState::Battle;
+            }
+            break;
         default:
             break;
         }

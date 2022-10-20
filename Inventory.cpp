@@ -34,7 +34,8 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	int num;
 
 	util::getline(stream, item.name);
-	
+	// stream >> item.level;
+
 	util::getline(stream, str);
 	item.type = Item::_typemap->getID(str);
 
@@ -94,34 +95,41 @@ void Inventory::sort()
 			return item1.getWeight() > item2.getWeight();
 		});
 
-	// If there is an available slot, add an unarmed weapon
+	// If there is an available slot, and no unarmed weapon, add one
 	if (slotsAvailable() > 0)
 	{
-		auto ptr{ findtype(Item::Empty) };
-		*ptr = *ItemBaseList.getdatabyname("Unarmed");
+		equipItem(*ItemBaseList.getdatabyname("Unarmed"));
 	}
 }
 std::array<Item, Inventory::SLOTS_TOTAL>::iterator Inventory::findtype(Item::Type type)
 {
-	return std::find_if(items.begin(), items.end(), [type](const Item& i) {return i.getType() == type; });
+	return std::find_if(items.begin()+Slot1, items.begin()+Slot4+1, [type](const Item& i) {return i.getType() == type; });
 }
 
-const Item& Inventory::getItem(int slot)
+const Item& Inventory::getItem(int slot) const
 {
 	return items[slot];
 }
 const Item& Inventory::getArmor() { return items[SlotArmor]; }
+Inventory::Slots Inventory::hasShield() const
+{
+	for (int i{ Slot1 }; i < SLOTS_TOTAL; ++i)
+		if (items[i].getType() == Item::Shield)
+			return (Slots)i;
+	return SLOTS_TOTAL;
+}
 const Item& Inventory::getConsumable() { return items[SlotConsumable]; }
 int Inventory::slotsAvailable()
 {
 	int sum{};
-	for (const auto& i : items)
-		sum += i.getWeight();
-	return sum;
+	for (int i{Slot1}; i <= Slot4; ++i)
+		sum += items[i].getWeight();
+	return Slot4 - sum;
 }
 void Inventory::equipArmor(const Item& armor)
 { 
-	if (armor.getType() != Item::Armor)
+	if (armor.getType() != Item::Armor
+		&& armor.getType() != Item::Empty)
 		throw std::invalid_argument{ "Cannot put non armor in the armor slot" };
 	items[SlotArmor] = armor;
 }
@@ -130,12 +138,12 @@ void Inventory::equipItem(const Item& item)
 	if (item.getType() == Item::Armor)
 		throw std::invalid_argument{ "Cannot put armor in a non-armor slot" };
 	if (item.getType() == Item::Shield && findtype(Item::Shield) != items.end())
-	{
-		if (findtype(Item::Shield) != items.end())
-			throw std::range_error{ "Cannot have more than one shield equipped" };
-	}
+		throw std::range_error{ "Cannot have more than one shield equipped" };
 	if (item.getWeight() > slotsAvailable())
 		throw std::range_error{ "Not enough slots for the item" };
+	if (item.getType() == Item::Unarmed && findtype(Item::Unarmed) != items.end())
+		return;
+
 
 	auto ptr{ findtype(Item::Empty)};
 	*ptr = item;
@@ -143,7 +151,8 @@ void Inventory::equipItem(const Item& item)
 void Inventory::equipConsumable(const Item& tool)
 {
 	if (tool.getType() != Item::Tool
-		&& tool.getType() != Item::Crystal)
+		&& tool.getType() != Item::Crystal
+		&& tool.getType() != Item::Empty)
 		throw std::invalid_argument{ "Cannot put non consumable in the consumable slot" };
 	items[SlotConsumable] = tool;
 }

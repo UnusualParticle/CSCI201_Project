@@ -8,40 +8,156 @@ const string& Actor::getName()
 	return name;
 }
 // Stat Accessors
-int Actor::getArmor()
+int Actor::getArmor() const
 {
-	return stats.armor + inventory.getArmor().getEffect().stacks;
+	return stats.armor + getStatModifier(StatBlock::Armor);
 }
-int Actor::getAura()
+int Actor::getAura() const
 {
-	return stats.aura;
+	return stats.aura + getStatModifier(StatBlock::Aura);
 }
-int Actor::getHealth()
+int Actor::getHealth() const
 {
-	return stats.health;
+	return stats.health + getStatModifier(StatBlock::HealthMax);
 }
-int Actor::getHealthMax()
+int Actor::getHealthMax() const
 {
-	return stats.healthMax;
+	return stats.healthMax + getStatModifier(StatBlock::HealthMax);
 }
-int Actor::getMana()
+int Actor::getMana() const
 {
-	return stats.mana;
+	return stats.mana + getStatModifier(StatBlock::ManaMax);
 }
-int Actor::getManaMax()
+int Actor::getManaMax() const
 {
-	return stats.manaMax;
+	return stats.manaMax + getStatModifier(StatBlock::ManaMax);
 }
-int Actor::getStrength()
+int Actor::getStrength() const
 {
-	return stats.strength;
+	return stats.strength + getStatModifier(StatBlock::Strength);
+}
+std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
+{
+	std::pair<Effect, Effect> pair{};
+	const Item& item{ inventory.getItem(slot) };
+	pair.first = item.getEffect();
+	pair.second = item.getSpecial();
+	
+	switch (item.getType())
+	{
+	case Item::Unarmed:
+	case Item::Weapon:
+	case Item::Tool:
+		pair.first.stacks += getStrength();
+		break;
+	case Item::Spell:
+	case Item::Crystal:
+		pair.first.stacks += getAura();
+		break;
+	}
+
+	return pair;
 }
 void Actor::useItem(int slot)
 {
 	stats.mana -= inventory.getItem(slot).getMana();
 	inventory.useItem(slot);
 }
+void Actor::takeDamage(int n)
+{
+	n -= getArmor();
+	if (n < 1)
+		n = 1;
+	stats.health -= n;
+}
+// Effect Methods
+void Actor::startBattle()
+{
+	inventory.sort();
 
+	if (inventory.getArmor().getEffect().stacks > 0)
+	{
+		const auto& armor{ inventory.getArmor() };
+		_addeffect(armor.getEffect());
+		if(armor.getSpecial().stacks > 0)
+			_addeffect(armor.getSpecial());
+	}
+
+	auto shieldpos{ inventory.hasShield() };
+	if (shieldpos != Inventory::SLOTS_TOTAL)
+	{
+		const auto& shield{ inventory.getItem(shieldpos) };
+		_addeffect(shield.getEffect());
+		if (shield.getSpecial().stacks > 0)
+			_addeffect(shield.getSpecial());
+	}
+}
+void Actor::endBattle()
+{
+	if (getHealth())
+	{
+		effects.clear();
+		if (getHealth() < 0)
+			stats.health = 1;
+	}
+}
+void Actor::startTurn()
+{
+	for (Effect& e : effects)
+	{
+		if (e.data->stat == StatBlock::Health)
+			takeDamage(e.data->power);
+		else if (e.data->stat == StatBlock::Mana)
+			stats.aura -= e.data->power;
+
+		if (e.stacks > 0)
+		{
+			--e.stacks;
+		}
+	}
+	std::remove_if(effects.begin(), effects.end(), [](const Effect& e) { return e.stacks == 0; });
+}
+void Actor::_addeffect(const Effect& effect)
+{
+	auto ptr{ std::find_if(effects.begin(), effects.end(), [effect](const Effect& e) {return e.data->id == effect.data->id; }) };
+	if (ptr == effects.end())
+		effects.push_back(effect);
+	else if (ptr->stacks < effect.stacks)
+		ptr->stacks = effect.stacks;
+}
+void Actor::addEffect(const Effect& effect)
+{
+	if (effect.data->power == -1)
+	{
+		if (effect.data->stat == StatBlock::Health)
+			takeDamage(effect.stacks);
+		else if (effect.data->stat == StatBlock::Mana)
+			stats.aura -= effect.stacks;
+		else
+			_addeffect(effect);
+	}
+	else
+	{
+		_addeffect(effect);
+	}
+}
+int Actor::getStatModifier(StatBlock::Stats stat) const
+{
+	int value{};
+	for (const auto& e : effects)
+	{
+		if (e.data->stat == stat)
+		{
+			if (e.data->power == -1)
+				value += e.stacks;
+			else
+				value += e.data->power;
+		}
+	}
+	return value;
+}
+
+// Enemy Methods
 Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inventory)
 	: Actor(_name, _stats, _inventory)
 {}
@@ -49,6 +165,9 @@ const Item& Enemy::taketurn()
 {
 	return inventory.getItem(Inventory::Slot1);
 }
+
+// Actor Data Methods
+const string& ActorData::getName() const { return name; }
 Actor ActorData::makeActor() const
 {
 	return { name, stats, inventory };
@@ -57,7 +176,6 @@ Enemy ActorData::makeEnemy() const
 {
 	return { name, stats, inventory };
 }
-
 std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 {
 	// Look for an opening bracket
@@ -80,7 +198,17 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 
 	// Get Inventory
 	util::getline(stream, temp);
-	
+	data.inventory.equipArmor(*ItemBaseList.getdatabyname(temp));
+	util::getline(stream, temp);
+	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	util::getline(stream, temp);
+	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	util::getline(stream, temp);
+	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	util::getline(stream, temp);
+	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	util::getline(stream, temp);
+	data.inventory.equipConsumable(*ItemBaseList.getdatabyname(temp));
 
 	// Look for a closing bracket
 	stream.ignore(util::STREAMMAX, ']');

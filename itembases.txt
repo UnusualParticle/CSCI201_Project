@@ -1,6 +1,15 @@
 [
+	Empty
+	Empty
+	1
+	Damage
+	0
+	0
+	0
+]
+[
 	Unarmed
-	Weapon
+	Unarmed
 	1
 	Damage
 	0
