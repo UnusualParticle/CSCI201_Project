@@ -1,4 +1,6 @@
+#include <chrono>
 #include <iostream>
+#include <random>
 #include "Utility.h"
 
 namespace util
@@ -65,4 +67,11 @@ namespace util
 	{
 		return std::getline(stream >> std::ws, str, delim);
 	}
+
+    int randint(int low, int high)
+    {
+        static std::mt19937 mt{ static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count()) };
+        std::uniform_int_distribution distr{ low, high };
+        return distr(mt);
+    }
 }

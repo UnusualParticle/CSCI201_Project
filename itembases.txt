@@ -1,6 +1,6 @@
 [
 	Unarmed
-	Tool
+	Weapon
 	1
 	Damage
 	0
@@ -27,7 +27,7 @@
 ]
 [
 	Rusty Sword
-	Tool
+	Weapon
 	1
 	Damage
 	2
@@ -36,16 +36,25 @@
 ]
 [
 	Scroll of Burning
-	Consumable
+	Weapon
 	1
 	Singe
 	2
 	0
-	30
+	40
+]
+[
+	Crytal of Burning
+	Crystal
+	1
+	Singe
+	2
+	0
+	20
 ]
 [
 	Flame
-	Tool
+	Spell
 	1
 	Burn
 	4
@@ -53,8 +62,17 @@
 	30
 ]
 [
+	Infect
+	Spell
+	1
+	Disease
+	4
+	2
+	30
+]
+[
 	Log Hammer
-	Tool
+	Weapon
 	3
 	Damage
 	15

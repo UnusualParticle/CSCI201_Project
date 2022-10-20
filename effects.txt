@@ -1,4 +1,10 @@
 [
+	No Effect
+	Armor
+	0
+	curse
+]
+[
 	Damage
 	Health
 	-1

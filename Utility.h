@@ -181,4 +181,7 @@ namespace util
 
 	// Getline without leading whitepace
 	std::istream& getline(std::istream& stream, string& str, char delim = '\n');
+
+	// Generate a random int, inclusive
+	int randint(int low, int high);
 }

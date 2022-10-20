@@ -11,9 +11,11 @@ public:
 		Empty,
 		Modifier,
 		Armor,
-		Tool,
 		Shield,
-		Consumable,
+		Weapon,
+		Tool,
+		Spell,
+		Crystal,
 		TYPES_TOTAL
 	};
 	static util::NameMap<Type>* _typemap;
@@ -31,6 +33,7 @@ public:
 	int getWeight() const;
 	const string& getName() const;
 	Effect getEffect() const;
+	Effect getSpecial() const;
 	int getMana() const;
 	int getPrice() const;
 
@@ -46,21 +49,24 @@ struct Inventory
 public:
 	enum Slots
 	{
-		Armor,
+		SlotArmor,
 		Slot1,
 		Slot2,
 		Slot3,
 		Slot4,
-		Consumable,
+		SlotConsumable,
 		SLOTS_TOTAL
 	};
 	static util::NameArray<SLOTS_TOTAL> slotnames;
 private:
 	std::array<Item, SLOTS_TOTAL> items;
+
+	std::array<Item, SLOTS_TOTAL>::iterator findtype(Item::Type type);
 public:
 	void sort();
 	int slotsAvailable();
 
+	const Item& getItem(int slot);
 	const Item& getArmor();
 	const Item& getConsumable();
 

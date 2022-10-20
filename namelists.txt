@@ -20,7 +20,9 @@
     Empty
     Modifier
     Armor
-    Tool
     Shield
-    Consumable
+    Weapon
+    Tool
+    Spell
+    Crystal
 ]
