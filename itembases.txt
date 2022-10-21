@@ -12,7 +12,16 @@
 	Unarmed
 	1
 	Damage
+	1
 	0
+	0
+]
+[
+	Bite
+	Unarmed
+	1
+	Damage
+	1
 	0
 	0
 ]

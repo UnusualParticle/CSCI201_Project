@@ -82,9 +82,8 @@ namespace util
 
     int randint(int low, int high)
     {
-        static std::mt19937 mt{ static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count()) };
         std::uniform_int_distribution distr{ low, high };
-        return distr(mt);
+        return distr(randengine);
     }
 
     void Timer::start(int ms)

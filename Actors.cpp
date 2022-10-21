@@ -1,12 +1,13 @@
 #include "Actors.h"
 
-Actor::Actor(const string& _name, const StatBlock& _stats, const Inventory& _inventory)
-	: name(_name), stats(_stats), inventory(_inventory)
+Actor::Actor(const string& _name, const StatBlock& _stats, const Inventory& _inventory, int _level)
+	: name(_name), stats(_stats), inventory(_inventory), level(_level)
 {}
-const string& Actor::getName()
+const string& Actor::getName() const
 {
 	return name;
 }
+int Actor::getLevel() const { return level; }
 // Stat Accessors
 int Actor::getArmor() const
 {
@@ -36,6 +37,41 @@ int Actor::getStrength() const
 {
 	return stats.strength + getStatModifier(StatBlock::Strength);
 }
+// Basic Stat Modification
+void Actor::takeDamage(int n)
+{
+	n -= getArmor();
+	if (n < 1)
+		n = 1;
+	stats.health -= n;
+}
+void Actor::heal(int n)
+{
+	stats.health += n;
+	if (stats.health > stats.healthMax)
+		stats.health = stats.healthMax;
+}
+void Actor::_levelup()
+{
+	heal(stats.healthMax / 4);
+	stats.mana = stats.manaMax;
+	++level;
+}
+void Actor::levelPhysical(int maxhealth, int strength)
+{
+	stats.health += maxhealth;
+	stats.healthMax += maxhealth;
+	stats.strength += strength;
+	_levelup();
+}
+void Actor::levelMagikal(int maxmana, int aura)
+{
+	stats.mana += maxmana;
+	stats.manaMax += maxmana;
+	stats.aura += aura;
+	_levelup();
+}
+// Item Methods
 std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 {
 	std::pair<Effect, Effect> pair{};
@@ -58,17 +94,53 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 
 	return pair;
 }
-void Actor::useItem(int slot)
+string Actor::itemStr(int slot) const
 {
+	auto& item{ inventory.getItem(slot) };
+	std::ostringstream str{};
+
+	int stacks{ item.getEffect().stacks };
+	switch (item.getType())
+	{
+	case Item::Unarmed:
+	case Item::Weapon:
+	case Item::Tool:
+		stacks += stats.strength;
+		break;
+	case Item::Spell:
+	case Item::Crystal:
+		stacks += stats.aura;
+		break;
+	}
+
+	str << item.getName() << ' ' << item.getEffect().data->name << '(' << stacks << ')';
+	if (item.getSpecial().stacks > 0)
+		str << ' ' << item.getSpecial().data->name << '(' << item.getEffect().stacks << ')';
+
+	if (item.getMana())
+		str << " Mp(" << item.getMana() << ')';
+
+	return str.str();
+}
+void Actor::useItem(int slot, Actor& enemy)
+{
+	const auto pair{ getItemEffects(slot) };
+
+	if (pair.first.data->boon)
+	{
+		addEffect(pair.first);
+		if (pair.second.stacks)
+			addEffect(pair.second);
+	}
+	else
+	{
+		enemy.addEffect(pair.first);
+		if (pair.second.stacks)
+			enemy.addEffect(pair.second);
+	}
+	
 	stats.mana -= inventory.getItem(slot).getMana();
 	inventory.useItem(slot);
-}
-void Actor::takeDamage(int n)
-{
-	n -= getArmor();
-	if (n < 1)
-		n = 1;
-	stats.health -= n;
 }
 // Effect Methods
 void Actor::startBattle()
@@ -94,7 +166,7 @@ void Actor::startBattle()
 }
 void Actor::endBattle()
 {
-	if (getHealth())
+	if (getHealth() > 0)
 	{
 		effects.clear();
 		if (getHealth() < 0)
@@ -115,7 +187,7 @@ void Actor::startTurn()
 			--e.stacks;
 		}
 	}
-	std::remove_if(effects.begin(), effects.end(), [](const Effect& e) { return e.stacks == 0; });
+	auto discard{ std::remove_if(effects.begin(), effects.end(), [](const Effect& e) { return e.stacks == 0; }) };
 }
 void Actor::_addeffect(const Effect& effect)
 {
@@ -158,23 +230,23 @@ int Actor::getStatModifier(StatBlock::Stats stat) const
 }
 
 // Enemy Methods
-Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inventory)
-	: Actor(_name, _stats, _inventory)
+Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inventory, int _level)
+	: Actor(_name, _stats, _inventory, _level)
 {}
-const Item& Enemy::taketurn()
+int Enemy::taketurn() const
 {
-	return inventory.getItem(Inventory::Slot1);
+	return Inventory::Slot1;
 }
 
 // Actor Data Methods
 const string& ActorData::getName() const { return name; }
 Actor ActorData::makeActor() const
 {
-	return { name, stats, inventory };
+	return { name, stats, inventory, level };
 }
 Enemy ActorData::makeEnemy() const
 {
-	return { name, stats, inventory };
+	return { name, stats, inventory, level };
 }
 std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 {
@@ -186,7 +258,8 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 	// Get the data
 	string temp;
 	util::getline(stream, data.name);
-	
+	stream >> data.level;
+
 	// Get StatBlock
 	stream >> data.stats.armor
 		>> data.stats.aura
@@ -214,6 +287,24 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 	stream.ignore(util::STREAMMAX, ']');
 
 	return stream;
+}
+
+// Generates a random enemy from two levels below up to one level above
+Enemy generateEnemy(int level)
+{
+	int maxlevel{ EnemyDataList.rbegin()->level };
+
+	int lowlevel{ (level > 2) ? level - 2 : 1 };
+	int highlevel{ (level > maxlevel - 1) ? maxlevel : level + 1 };
+	auto first{ std::find_if(EnemyDataList.begin(), EnemyDataList.end(), [&](const ActorData& data) {return data.level >= lowlevel; }) };
+	auto rlast{ std::find_if(EnemyDataList.rbegin(), EnemyDataList.rend(), [&](const ActorData& data) {return data.level <= highlevel; }) };
+	
+	ActorData* data{new ActorData()};
+	std::ranges::sample(first, rlast.base(), data, 1, util::randengine);
+	Enemy enemy{ data->makeEnemy() };
+	delete data;
+	
+	return enemy;
 }
 
 int Town::counter_armor{};

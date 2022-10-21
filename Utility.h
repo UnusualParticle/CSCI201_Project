@@ -6,6 +6,7 @@
 #include <exception>
 #include <fstream>
 #include <map>
+#include <random>
 #include <string>
 #include <vector>
 using string = std::string;
@@ -133,6 +134,8 @@ namespace util
 	private:
 		std::vector<data_t> v;
 		using const_iterator = std::vector<data_t>::const_iterator;
+		using iterator = std::vector<data_t>::iterator;
+		using reverse_iterator = std::vector<data_t>::reverse_iterator;
 	public:
 		DataVector() = default;
 		DataVector(const string& filename)
@@ -169,8 +172,12 @@ namespace util
 		}
 
 		// For use in a range-based for loop
-		const const_iterator begin() const { return v.begin(); }
-		const const_iterator end() const { return v.end(); }
+		const_iterator begin() const { return v.begin(); }
+		const_iterator end() const { return v.end(); }
+		iterator begin() { return v.begin(); }
+		iterator end() { return v.end(); }
+		reverse_iterator rbegin() { return v.rbegin(); }
+		reverse_iterator rend() { return v.rend(); }
 	};
 
 	// My basic string prompter
@@ -186,6 +193,7 @@ namespace util
 	std::istream& getline(std::istream& stream, string& str, char delim = '\n');
 
 	// Generate a random int, inclusive
+	inline std::mt19937 randengine{ static_cast<unsigned int>(std::chrono::steady_clock::now().time_since_epoch().count()) };
 	int randint(int low, int high);
 
 	class Timer

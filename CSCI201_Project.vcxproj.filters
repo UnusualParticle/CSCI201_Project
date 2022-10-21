@@ -73,5 +73,8 @@
     <Text Include="greetings.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="templates.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

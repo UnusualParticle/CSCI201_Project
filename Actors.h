@@ -8,13 +8,16 @@ class Actor
 protected:
 	string name{};
 	StatBlock stats{};
+	int level{};
 	std::vector<Effect> effects{};
 	void _addeffect(const Effect& e);
+	void _levelup();
 public:
-	Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {});
+	Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1);
 	Inventory inventory{};
 
-	const string& getName();
+	const string& getName() const;
+	int getLevel() const;
 
 	// Stat Accessors
 	int getArmor() const;
@@ -27,7 +30,10 @@ public:
 
 	// Basic Stat Modification
 	void takeDamage(int n);
-	
+	void heal(int n);
+	void levelPhysical(int maxhealth, int strength);
+	void levelMagikal(int maxmana, int aura);
+
 	// Effect Methods
 	void startBattle();
 	void endBattle();
@@ -35,15 +41,17 @@ public:
 	void addEffect(const Effect& effect);
 	int getStatModifier(StatBlock::Stats stat) const;
 
+	// Inventory Methods
 	std::pair<Effect, Effect> getItemEffects(int slot) const;
-	void useItem(int slot);
+	string itemStr(int slot) const;
+	void useItem(int slot, Actor& target);
 };
 
 class Enemy : public Actor
 {
 public:
-	Enemy(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {});
-	const Item& taketurn();
+	Enemy(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1);
+	int taketurn() const;
 };
 
 struct ActorData
@@ -51,6 +59,7 @@ struct ActorData
 	string name;
 	StatBlock stats;
 	Inventory inventory;
+	int level;
 
 	const string& getName() const;
 	Actor makeActor() const;
@@ -60,6 +69,7 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data);
 
 inline util::DataVector<ActorData> PlayerDataList{};
 inline util::DataVector<ActorData> EnemyDataList{};
+Enemy generateEnemy(int level);
 
 class Town
 {

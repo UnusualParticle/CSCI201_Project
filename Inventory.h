@@ -32,6 +32,7 @@ private:
 	int price{};
 public:
 	Type getType() const;
+	int getLevel() const;
 	int getWeight() const;
 	const string& getName() const;
 	Effect getEffect() const;
@@ -62,9 +63,12 @@ public:
 	static util::NameArray<SLOTS_TOTAL> slotnames;
 private:
 	std::array<Item, SLOTS_TOTAL> items;
-
-	std::array<Item, SLOTS_TOTAL>::iterator findtype(Item::Type type);
+	using iterator = std::array<Item, SLOTS_TOTAL>::iterator;
 	using const_iterator = std::array<Item, SLOTS_TOTAL>::const_iterator;
+
+	const iterator begin();
+	const iterator end();
+	iterator findtype(Item::Type type);
 public:
 	void sort();
 	int slotsAvailable();

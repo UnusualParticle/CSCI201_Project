@@ -28,160 +28,29 @@ void loadGameFiles()
     if (!util::verifyNameArray(Item::typenames))
         throw std::invalid_argument{ "Item type names array not full" };
 
+    // Load data lists
     EffectDataList.loadFromFile("effects.txt");
     ItemBaseList.loadFromFile("itembases.txt");
+    // ItemBaseList.loadFromFile("defaults.txt");
+    // ItemBaseList.loadFromFile("weapons.txt");
+    // ItemBaseList.loadFromFile("tools.txt");
+    // ItemBaseList.loadFromFile("spells.txt");
+    // ItemBaseList.loadFromFile("crystals.txt");
     ItemModifierList.loadFromFile("itemmodifiers.txt");
     PlayerDataList.loadFromFile("playerpresets.txt");
     EnemyDataList.loadFromFile("enemies.txt");
+
+    // Sort Lists
+    std::sort(ItemBaseList.begin(), ItemBaseList.end(), [](const Item& first, const Item& last) {return first.getLevel() < last.getLevel(); });
+    std::sort(EnemyDataList.begin(), EnemyDataList.end(), [](const ActorData& first, const ActorData& last) {return first.level < last.level; });
+
     Town::load();
 
     delete Item::_typemap;
     delete StatBlock::_namemap;
 }
-void startGame(Actor& player)
+void debugGameFiles()
 {
-    std::cout << "Starting a new game\n\nChoose your class:\n";
-    int i{};
-    for (auto ptr{ PlayerDataList.begin() }; ptr != PlayerDataList.end(); ++ptr)
-        std::cout << ++i << ". " << ptr->name << '\n';
-    i = util::promptchoice(1,i)-1;
-    auto temp{ PlayerDataList.getdata(i) };
-    std::cout << "You chose: " << temp.name << '\n';
-    temp.name = util::promptstr("Enter a name for your character: ");
-    player = temp.makeActor();
-    std::cout << "\nWelcome, " << player.getName() << " you may begin your journey.\n\n";
-}
-void startBattle(Actor& player, int level)
-{
-    enum BattleState {
-        PlayerTurn,
-        EnemyTurn,
-        Win,
-        Lose
-    } battlestate{};
-
-    Enemy enemy{ EnemyDataList.getdatabyname("Imp")->makeEnemy() };
-    player.startBattle();
-    enemy.startBattle();
-    std::cout << "\n= You encounter a " << enemy.getName() << "!\n\n";
-    
-    while (battlestate != Win && battlestate != Lose)
-    {
-        if (battlestate == PlayerTurn)
-        {
-            player.startTurn();
-
-            // Display Stats
-            std::cout << player.getName()
-                << ": Hp(" << player.getHealth() << '/' << player.getHealthMax()
-                << ") Mp(" << player.getMana() << '/' << player.getManaMax()
-                << ")\n\n";
-            std::cout << enemy.getName()
-                << ": Hp(" << enemy.getHealth() << '/' << enemy.getHealthMax()
-                << ") Mp(" << enemy.getMana() << '/' << enemy.getManaMax()
-                << ")\n\n";
-
-
-            const Item* viewing{};
-
-            // Get valid options from inventory
-            std::vector<Inventory::Slots> choices;
-            for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
-            {
-                viewing = &player.inventory.getItem((Inventory::Slots)i);
-                switch (viewing->getType())
-                {
-                case Item::Unarmed:
-                case Item::Weapon:
-                case Item::Tool:
-                case Item::Spell:
-                case Item::Crystal:
-                    choices.push_back((Inventory::Slots)i);
-                    break;
-                default:
-                    break;
-                }
-            }
-
-            // Display options to user
-            std::cout << "Choose an action: \n";
-            for (size_t i{}; i < choices.size(); ++i)
-            {
-                viewing = &player.inventory.getItem(choices[i]);
-                std::cout << '\t' << (i + 1) << ". " << viewing->getName();
-                if (viewing->getType() == Item::Spell || viewing->getType() == Item::Crystal)
-                    std::cout << " Mp: " << viewing->getMana() << '\n';
-                else
-                    std::cout << '\n';
-            }
-
-            // Get user choice
-            int opt{ choices[ util::promptchoice(1, (int)choices.size()) - 1] };
-
-            std::cout << "You use " << player.inventory.getItem(opt).getName() << "\n\n";
-
-            // Use Item
-            auto pair = player.getItemEffects(opt);
-            viewing = &player.inventory.getItem(opt);
-            Effect& eff1{ pair.first };
-            Effect& eff2{ pair.second };
-            if (eff1.data->boon)
-            {
-                player.addEffect(eff1);
-                if (eff2.stacks)
-                    player.addEffect(eff2);
-            }
-            else
-            {
-                enemy.addEffect(eff1);
-                if (eff2.stacks)
-                    enemy.addEffect(eff2);
-            }
-            player.useItem(opt);
-
-
-            // Update Game State
-            if (player.getHealth() < 1)
-                battlestate = Lose;
-            else if (enemy.getHealth() < 1)
-                battlestate = Win;
-            else
-                battlestate = EnemyTurn;
-        }
-        else if (battlestate == EnemyTurn)
-        {
-            battlestate = PlayerTurn;
-        }
-    }
-
-    if (battlestate == Win)
-        std::cout << "\nYou have defeated the " << enemy.getName() << '\n';
-    else
-        std::cout << "\nYou died to the " << enemy.getName() << '\n';
-
-    player.endBattle();
-}
-void visitTown(Actor& player, int level)
-{
-
-}
-
-int main()
-{
-    string err{};
-    try
-    {
-        std::cout << "Loading Data...\n" << std::endl;
-        loadGameFiles();
-        std::cout << "No errors occured\n\n";
-    }
-    catch (std::invalid_argument& e)
-    {
-        err = e.what();
-        std::cout << "== Error ==\n"
-            << err << "\n\n";
-    }
-
     char opt{ util::promptchar("View Data [y,n]? ") };
 
     if (opt == 'y')
@@ -226,6 +95,286 @@ int main()
             std::cout << n.name << '\n';
         std::cout << std::endl;
     }
+}
+void startGame(Actor& player)
+{
+    std::cout << "Starting a new game\n\nChoose your class:\n";
+    int i{};
+    for (auto ptr{ PlayerDataList.begin() }; ptr != PlayerDataList.end(); ++ptr)
+        std::cout << ++i << ". " << ptr->name << '\n';
+    i = util::promptchoice(1,i)-1;
+    auto temp{ PlayerDataList.getdata(i) };
+    std::cout << "You chose: " << temp.name << '\n';
+    temp.name = util::promptstr("Enter a name for your character: ");
+    player = temp.makeActor();
+    std::cout << "\nWelcome, " << player.getName() << ". You begin your journey to defeat a god.\n\n";
+}
+
+struct BattleManager
+{
+public:
+    enum States {
+        Start,
+        Wait,
+        PlayerTurn,
+        EnemyTurn,
+        Win,
+        Lose
+    };
+private:
+    States state{};
+    bool wait{};
+    util::Timer tmr{};
+
+    Actor* player{};
+    Enemy* enemy{};
+
+    int playerpre{};
+    int enemypre{};
+
+    bool pointersOK() const
+    {
+        if (player && enemy)
+            return true;
+        else
+            throw std::exception{ "Battle Manager not set up" };
+    }
+    void startPlayerTurn()
+    {
+        recordHealth();
+        player->startTurn();
+
+        if (!checkDone())
+        {
+            state = PlayerTurn;
+        }
+    }
+    void startEnemyTurn()
+    {
+        recordHealth();
+        enemy->startTurn();
+
+        if (!checkDone())
+            state = EnemyTurn;
+    }
+    bool checkDone()
+    {
+        if (player->getHealth() < 0)
+            state == Lose;
+        else if (enemy->getHealth() < 0)
+            state == Win;
+        else
+            return false;
+        return true;
+    }
+public:
+    void assign(Actor& _player, Enemy& _enemy)
+    {
+        player = &_player;
+        enemy = &_enemy;
+    }
+    void recordHealth()
+    {
+        if (!pointersOK())
+            throw std::exception{ "Manager was not set up" };
+
+        playerpre = player->getHealth();
+        enemypre = enemy->getHealth();
+    }
+    std::pair<int, int> healthChanges()
+    {
+        if (!pointersOK())
+            throw std::exception{ "Manager was not set up" };
+
+        std::pair<int, int> pair;
+        if (playerpre != player->getHealth())
+            pair.first = player->getHealth() - playerpre;
+        if (enemypre < enemy->getHealth())
+            pair.second = enemy->getHealth() - enemypre;
+
+        return pair;
+    }
+    void next()
+    {
+        pointersOK();
+
+        switch (state)
+        {
+        case Start:
+            if (!wait)
+            {
+                tmr.start(700);
+                wait = true;
+            }
+            else if(tmr.isDone())
+            {
+                startPlayerTurn();
+                wait = false;
+            }
+            break;
+        case PlayerTurn:
+            if (!wait)
+            {
+                tmr.start(700);
+                wait = true;
+            }
+            else if (tmr.isDone())
+            {
+                startEnemyTurn();
+                wait = false;
+            }
+            break;
+        case EnemyTurn:
+            if (!wait)
+            {
+                tmr.start(700);
+                wait = true;
+            }
+            else if (tmr.isDone())
+            {
+                startPlayerTurn();
+                wait = false;
+            }
+            break;
+        }
+    }
+
+    States getState() const
+    { 
+        if (wait)
+            return Wait;
+        else
+            return state;
+    }
+    bool done() const
+    {
+        return state == Win || state == Lose;
+    }
+};
+void startBattle(Actor& player)
+{
+    // Prepare Actors
+    Enemy enemy{ generateEnemy(player.getLevel())};
+    player.startBattle();
+    enemy.startBattle();
+    std::cout << "\n= You encounter a " << enemy.getName() << "!\n\n";
+
+    // Prepare Manager
+    BattleManager manager{};
+    manager.assign(player, enemy);
+    manager.next();
+
+    // Run Battle
+    while (!manager.done())
+    {
+        // Wait for the manager to be ready
+        if (manager.getState() == BattleManager::Wait)
+            continue;
+
+        if (manager.getState() == BattleManager::PlayerTurn)
+        {
+            std::cout << "It is your turn.\n";
+
+            // Display Stats
+            std::cout << player.getName()
+                << ": Hp(" << player.getHealth() << '/' << player.getHealthMax()
+                << ") Mp(" << player.getMana() << '/' << player.getManaMax()
+                << ")\n\n";
+            std::cout << enemy.getName()
+                << ": Hp(" << enemy.getHealth() << '/' << enemy.getHealthMax()
+                << ") Mp(" << enemy.getMana() << '/' << enemy.getManaMax()
+                << ")\n\n";
+
+            // Get valid options from inventory
+            std::vector<Inventory::Slots> choices;
+            for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+            {
+                switch (player.inventory.getItem(i).getType())
+                {
+                case Item::Unarmed:
+                case Item::Weapon:
+                case Item::Tool:
+                case Item::Spell:
+                case Item::Crystal:
+                    choices.push_back((Inventory::Slots)i);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            // Display options to user
+            bool choiceOK{};
+            int opt{};
+            std::cout << "Choose an action: \n";
+            for (size_t i{}; i < choices.size(); ++i)
+            {
+                std::cout << '\t' << (i + 1) << ". " << player.itemStr(choices[i]) << '\n';
+            }
+            while (!choiceOK)
+            {
+                // Get user choice
+                opt = choices[util::promptchoice(1, (int)choices.size()) - 1 ];
+
+                // Verify choice
+                if (player.inventory.getItem(opt).getMana() > player.getMana())
+                    std::cout << "Not enough Mana!\n";
+                else
+                    choiceOK = true;
+            }
+
+            // Use Item
+            manager.recordHealth();
+            std::cout << "You use " << player.inventory.getItem(opt).getName() << "\n\n";
+            player.useItem(opt, enemy);
+            manager.displayHealthChanges();
+        }
+        else if (manager.getState() == BattleManager::EnemyTurn)
+        {
+            std::cout << "It is the " << enemy->getName() << "'s turn.\n";
+
+            int slot{ enemy.taketurn() };
+
+            manager.recordHealth();
+            std::cout << "The " << enemy.getName() << " uses " << enemy.inventory.getItem(slot).getName() << "\n\n";
+            enemy.useItem(slot, player);
+            manager.displayHealthChanges();
+        }
+
+        manager.next();
+    }
+
+    if (manager.getState() == BattleManager::Win)
+        std::cout << "\nYou have defeated the " << enemy.getName() << '\n';
+    else
+        std::cout << "\nYou died to the " << enemy.getName() << '\n';
+
+    player.endBattle();
+}
+
+void visitTown(Actor& player)
+{
+
+}
+
+int main()
+{
+    string err{};
+    try
+    {
+        std::cout << "Loading Data...\n" << std::endl;
+        loadGameFiles();
+        std::cout << "No errors occured\n\n";
+    }
+    catch (std::invalid_argument& e)
+    {
+        err = e.what();
+        std::cout << "== Error ==\n"
+            << err << "\n\n";
+    }
+
+    if (false)
+        debugGameFiles();
 
     struct GameState
     {
@@ -239,7 +388,6 @@ int main()
         const int until_min{ 3 };
         const int until_max{ 7 };
         int untiltown{};
-        int playerlevel;
     } gamestate{};
 
     Actor player{};
@@ -256,23 +404,22 @@ int main()
         case GameState::Battle:
             if (tmr.isDone())
             {
-                startBattle(player, gamestate.playerlevel);
+                startBattle(player);
                 if (player.getHealth() > 0)
                 {
                     --gamestate.untiltown;
-                    std::cout << "== == == ==\n\nAfter defeating the enemy, you continue your journey\n\n";
+                    std::cout << "After defeating the enemy, you continue your journey\n== == == == == ==\n\n";
                     if (gamestate.untiltown == 0)
                         gamestate.state = GameState::Town;
                 }
                 else
                     gamestate.state = GameState::Dead;
-                tmr.start(1000);
             }
             break;
         case GameState::Town:
             if (tmr.isDone())
             {
-                visitTown(player, gamestate.playerlevel);
+                visitTown(player);
                 gamestate.state = GameState::Battle;
             }
             break;

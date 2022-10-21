@@ -1,0 +1,47 @@
+Name List
+[
+	# Title
+	name1
+	name2
+	name3
+]
+
+Effect
+[
+	Name
+	Stat
+	Power
+	boon/curse
+]
+
+Item
+[
+	Name
+	Type
+	Level
+	Slots
+	Mana Cost
+	Gold Price
+
+	Effect Name
+	Effect Stats
+]
+
+Actor
+[
+	Name
+	Level
+
+	Armor
+	Aura
+	Health Max
+	Mana Max
+	Stength
+
+	Armor Slot
+	Slot 1
+	Slot 2
+	Slot 3
+	Slot 4
+	Consumable Slot
+]

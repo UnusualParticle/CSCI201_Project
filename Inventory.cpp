@@ -1,6 +1,7 @@
 #include "Inventory.h"
 
 Item::Type Item::getType() const { return type; }
+int Item::getLevel() const { return level; }
 const string& Item::getName() const { return name; }
 int Item::getWeight() const { return weight; }
 Effect Item::getEffect() const { return effect; }
@@ -54,6 +55,12 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	return stream;
 }
 
+const Inventory::iterator Inventory::begin() { return items.begin() + Slot1; }
+const Inventory::iterator Inventory::end() { return items.begin() + Slot4 + 1; }
+std::array<Item, Inventory::SLOTS_TOTAL>::iterator Inventory::findtype(Item::Type type)
+{
+	return std::find_if(begin(), end(), [type](const Item& i) {return i.getType() == type; });
+}
 void Inventory::sort()
 {
 	// Verify inventory is not broken
@@ -98,12 +105,9 @@ void Inventory::sort()
 	// If there is an available slot, and no unarmed weapon, add one
 	if (slotsAvailable() > 0)
 	{
-		equipItem(*ItemBaseList.getdatabyname("Unarmed"));
+		if(findtype(Item::Unarmed) == end())
+			equipItem(*ItemBaseList.getdatabyname("Unarmed"));
 	}
-}
-std::array<Item, Inventory::SLOTS_TOTAL>::iterator Inventory::findtype(Item::Type type)
-{
-	return std::find_if(items.begin()+Slot1, items.begin()+Slot4+1, [type](const Item& i) {return i.getType() == type; });
 }
 
 const Item& Inventory::getItem(int slot) const
@@ -137,13 +141,12 @@ void Inventory::equipItem(const Item& item)
 {
 	if (item.getType() == Item::Armor)
 		throw std::invalid_argument{ "Cannot put armor in a non-armor slot" };
-	if (item.getType() == Item::Shield && findtype(Item::Shield) != items.end())
+	if (item.getType() == Item::Shield && findtype(Item::Shield) != end())
 		throw std::range_error{ "Cannot have more than one shield equipped" };
 	if (item.getWeight() > slotsAvailable())
 		throw std::range_error{ "Not enough slots for the item" };
-	if (item.getType() == Item::Unarmed && findtype(Item::Unarmed) != items.end())
+	if (item.getType() == Item::Unarmed && findtype(Item::Unarmed) != end())
 		return;
-
 
 	auto ptr{ findtype(Item::Empty)};
 	*ptr = item;
