@@ -10,9 +10,9 @@ public:
 	{
 		Empty,
 		Modifier,
+		Unarmed,
 		Armor,
 		Shield,
-		Unarmed,
 		Weapon,
 		Tool,
 		Spell,
@@ -40,6 +40,8 @@ public:
 	int getMana() const;
 	int getPrice() const;
 
+	string getEffectStr() const;
+	string getPriceStr() const;
 	Item& operator=(const Item& other);
 	friend std::ifstream& operator>>(std::ifstream& stream, Item& item);
 };
@@ -69,6 +71,8 @@ private:
 	const iterator begin();
 	const iterator end();
 	iterator findtype(Item::Type type);
+
+	int gold{};
 public:
 	void sort();
 	int slotsAvailable();
@@ -84,4 +88,8 @@ public:
 
 	void useItem(int slot);
 	void dropItem(int slot);
+
+	int getGold() const;
+	void addGold(int _gold);
+	void spendGold(int _gold);
 };

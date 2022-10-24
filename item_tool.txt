@@ -1,0 +1,24 @@
+[
+	Small Health Potion
+	1
+
+	Tool
+	1
+	0
+	40
+	
+	Heal
+	5
+]
+[
+	Small Mana Potion
+	1
+
+	Tool
+	1
+	0
+	40
+	
+	Restore
+	2
+]

@@ -57,21 +57,21 @@ void Actor::_levelup()
 	stats.mana = stats.manaMax;
 	++level;
 }
-void Actor::levelPhysical(int maxhealth, int strength)
+void Actor::levelPhysical(std::pair<int, int> p)
 {
-	stats.health += maxhealth;
-	stats.healthMax += maxhealth;
-	stats.strength += strength;
+	stats.health += p.first;
+	stats.healthMax += p.first;
+	stats.strength += p.second;
 	_levelup();
 }
-void Actor::levelMagikal(int maxmana, int aura)
+void Actor::levelMagikal(std::pair<int, int> p)
 {
-	stats.mana += maxmana;
-	stats.manaMax += maxmana;
-	stats.aura += aura;
+	stats.mana += p.first;
+	stats.manaMax += p.first;
+	stats.aura += p.second;
 	_levelup();
 }
-// Item Methods
+// Inventory Methods
 std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 {
 	std::pair<Effect, Effect> pair{};
@@ -93,6 +93,24 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 	}
 
 	return pair;
+}
+void Actor::getChoices(ChoiceList& choices) const
+{
+	for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+	{
+		switch (inventory.getItem(i).getType())
+		{
+		case Item::Unarmed:
+		case Item::Weapon:
+		case Item::Tool:
+		case Item::Spell:
+		case Item::Crystal:
+			choices.push_back((Inventory::Slots)i);
+			break;
+		default:
+			break;
+		}
+	}
 }
 string Actor::itemStr(int slot) const
 {
@@ -230,12 +248,25 @@ int Actor::getStatModifier(StatBlock::Stats stat) const
 }
 
 // Enemy Methods
-Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inventory, int _level)
+Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inventory, int _level, int _gold)
 	: Actor(_name, _stats, _inventory, _level)
-{}
+{
+	inventory.addGold(_gold);
+}
 int Enemy::taketurn() const
 {
-	return Inventory::Slot1;
+	ChoiceList choices;
+	getChoices(choices);
+	int max = choices.size() - 1;
+	bool choiceOK{};
+	int choice;
+	while (!choiceOK)
+	{
+		choice = util::randint(0, max);
+		if (inventory.getItem(choices[choice]).getMana() <= getMana())
+			choiceOK = true;
+	}
+	return choices[choice];
 }
 
 // Actor Data Methods
@@ -246,7 +277,8 @@ Actor ActorData::makeActor() const
 }
 Enemy ActorData::makeEnemy() const
 {
-	return { name, stats, inventory, level };
+	int gold{ _basegold + (level * _goldperlevel) };
+	return { name, stats, inventory, level, gold};
 }
 std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 {
@@ -310,72 +342,120 @@ Enemy generateEnemy(int level)
 int Town::counter_armor{};
 std::vector<string> Town::firstnames{};
 std::vector<string> Town::lastnames{};
+std::vector<string> Town::townsuffix{};
 std::vector<string> Town::greetings{};
-void Town::generatename(string& name)
+std::vector<string> Town::offers{};
+
+void Town::generatetownname(string& name)
+{
+	int index_name{ util::randint(0,lastnames.size() - 1) };
+	int index_suffix{ util::randint(0,townsuffix.size() - 1) };
+	name = lastnames[index_name] + townsuffix[index_suffix];
+}
+void Town::generatenpc(NPC& npc)
 {
 	int index_first{ util::randint(0,firstnames.size() - 1) };
-	int index_last{ util::randint(0,firstnames.size() - 1) };
-	name = firstnames[index_first] + ' ' + lastnames[index_last];
+	npc.firstname = firstnames[index_first];
+	int index_last{ util::randint(0,lastnames.size() - 1) };
+	npc.lastname = firstnames[index_first];
+
+	int index_greet{ util::randint(0,greetings.size() - 1) };
+	int index_offer{ util::randint(0,offers.size() - 1) };
+	npc.greeting = greetings[index_greet] + ' ' + offers[index_offer];
+
+	if (util::randint(0, 2))
+		npc.shopname = npc.lastname;
+	else
+		npc.shopname = npc.firstname;
 }
 const Item& getitembyname(const string& name)
 {
-	auto ptr{ std::find_if(ItemBaseList.begin(), ItemBaseList.end(), [name](const Item& data) {return data.getName() == name; })};
+	auto ptr{ std::find_if(ItemBaseList.begin(), ItemBaseList.end(), [name](const Item& data) {return data.getName() == name; }) };
 	if (ptr == ItemBaseList.end())
 		throw std::invalid_argument{ "Name <" + name + "> is not in items" };
 	return *ptr;
 }
-Town::Town()
+Town::Town(int level)
 {
+	generatetownname(name);
+
+	// Generate a black smith with a chance for armor
+	generatenpc(npcs[Blacksmith]);
+	npcs[Blacksmith].shopname += "'s Blacksmith";
+	items[Weapon1] = getitembyname("Rusty Sword");
+	items[Weapon2] = getitembyname("Small Buckler");
 	bool addarmor{ (bool)util::randint(0,1) };
 	if (addarmor || counter_armor == target_armor)
 	{
 		counter_armor = 0;
-		armor = getitembyname("Leather Armor");
-		generatename(armorer);
+		items[Armor] = getitembyname("Leather Armor");
 	}
 	else
 		++counter_armor;
 
-	tool1 = getitembyname("Rusty Sword");
-	tool2 = getitembyname("Small Buckler");
-	generatename(toolmaster);
+	// Generate a spell master with a chance for a scroll
+	generatenpc(npcs[Spellmaster]);
+	npcs[Spellmaster].shopname += "'s Spells";
+	items[Spell1] = getitembyname("Flame");
+	items[Spell2] = getitembyname("Flame");
+	if (util::randint(0, 1) == 1)
+		items[Scroll] = getitembyname("Scroll of Burning");
 
-	spell1 = getitembyname("Flame");
-	spell2 = getitembyname("Flame");
-	generatename(spellmaster);
+	// Generate a trader
+	generatenpc(npcs[Trader]);
+	npcs[Trader].shopname += " Trader";
+	items[Tool] = getitembyname("Small Healing Potion");
+	items[Crystal] = getitembyname("Crystal of Burning");
+	if (util::randint(0, 1) == 1)
+		items[Extra] = getitembyname("Small Mana Potion");
 
-	consumable = getitembyname("Scroll of Burning");
-	generatename(trader);
-
-	roomprice = util::randint(roomprice_low, roomprice_high);
-	generatename(innowner);
+	// Generate an inn owner with a random room cost
+	generatenpc(npcs[Inn]);
+	npcs[Inn].shopname += " Inn";
+	roomprice = util::randint(roomprice_low + (level * roomprice_level), roomprice_high + (level * roomprice_level));
 }
 void Town::load()
 {
 	std::ifstream file;
 	string str;
 
-	file.open("firstnames.txt");
+	file.open("town_firstname.txt");
 	while (file)
 	{
-		util::getline(file, str);
+		std::getline(file, str);
 		firstnames.push_back(str);
 	}
 	file.close();
 
-	file.open("lastnames.txt");
+	file.open("town_lastname.txt");
 	while (file)
 	{
-		util::getline(file, str);
+		std::getline(file, str);
 		lastnames.push_back(str);
 	}
 	file.close();
 
-	file.open("greetings.txt");
+	file.open("town_suffix.txt");
 	while (file)
 	{
-		util::getline(file, str);
+		std::getline(file, str);
+		townsuffix.push_back(str);
+	}
+	file.close();
+
+	file.open("town_greeting.txt");
+	while (file)
+	{
+		std::getline(file, str);
 		greetings.push_back(str);
+	}
+	file.close();
+
+	file.open("town_offer.txt");
+	while (file)
+	{
+		std::getline(file, str);
+		offers.push_back(str);
 	}
 	file.close();
 }
@@ -383,3 +463,35 @@ void Town::reset()
 {
 	counter_armor = 0;
 }
+
+const string& Town::getName() const { return name; }
+const Town::NPC& Town::getNPC(int shop) const
+{
+	return npcs[shop];
+}
+void Town::getBlacksmithItems(Town::SaleItems& v) const
+{
+	v.push_back(Weapon1);
+	v.push_back(Weapon2);
+	if (items[Armor].getType() != Item::Empty)
+		v.push_back(Armor);
+}
+void Town::getSpellmasterItems(Town::SaleItems& v) const
+{
+	v.push_back(Spell1);
+	v.push_back(Spell2);
+	if (items[Scroll].getType() != Item::Empty)
+		v.push_back(Scroll);
+}
+void Town::getTraderItems(Town::SaleItems& v) const
+{
+	v.push_back(Tool);
+	v.push_back(Crystal);
+	if (items[Extra].getType() != Item::Empty)
+		v.push_back(Extra);
+}
+const Item& Town::getItem(int i) const
+{
+	return items[i];
+}
+int Town::getRoomPrice() const { return roomprice; }

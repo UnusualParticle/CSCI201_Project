@@ -21,9 +21,9 @@
 # Item Types
     Empty
     Modifier
+    Unarmed
     Armor
     Shield
-    Unarmed
     Weapon
     Tool
     Spell

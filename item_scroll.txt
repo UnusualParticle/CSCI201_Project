@@ -1,0 +1,12 @@
+[
+	Scroll of Burning
+	1
+
+	Weapon
+	1
+	0
+	40
+	
+	Singe
+	2
+]

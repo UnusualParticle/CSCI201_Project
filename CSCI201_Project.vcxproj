@@ -150,26 +150,39 @@
     <ClCompile Include="Actors.cpp" />
     <ClCompile Include="CSCI201_Project.cpp" />
     <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="Stages.cpp" />
     <ClCompile Include="Stats.cpp" />
     <ClCompile Include="Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actors.h" />
     <ClInclude Include="Inventory.h" />
+    <ClInclude Include="Stages.h" />
     <ClInclude Include="Stats.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="effects.txt" />
-    <Text Include="firstnames.txt" />
-    <Text Include="greetings.txt" />
-    <Text Include="itembases.txt" />
+    <Text Include="item_scroll.txt" />
+    <Text Include="town_firstname.txt" />
+    <Text Include="town_greeting.txt" />
     <Text Include="itemmodifiers.txt" />
-    <Text Include="lastnames.txt" />
+    <Text Include="item_armor.txt" />
+    <Text Include="item_crystal.txt" />
+    <Text Include="item_tool.txt" />
+    <Text Include="item_spell.txt" />
+    <Text Include="item_weapon.txt" />
+    <Text Include="town_lastname.txt" />
     <Text Include="namelists.txt" />
     <Text Include="enemies.txt" />
     <Text Include="playerpresets.txt" />
     <Text Include="templates.txt" />
+    <Text Include="item_default.txt" />
+    <Text Include="town_offer.txt" />
+    <Text Include="town_suffix.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

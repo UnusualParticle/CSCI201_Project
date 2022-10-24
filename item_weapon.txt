@@ -1,0 +1,24 @@
+[
+	Rusty Sword
+	1
+
+	Weapon
+	1
+	0
+	7
+	
+	Damage
+	2
+]
+[
+	Log Hammer
+	1
+
+	Weapon
+	3
+	0
+	15
+	
+	Damage
+	15
+]

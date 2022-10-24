@@ -1,0 +1,48 @@
+[
+	Leather Armor
+	1
+
+	Armor
+	1
+	0
+	25
+	
+	Defense
+	2
+]
+[
+	Iron Armor
+	3
+
+	Armor
+	1
+	0
+	60
+
+	Defense
+	4
+]
+[
+	Steel Armor
+	8
+
+	Armor
+	1
+	0
+	100
+
+	Defense
+	7
+]
+[
+	Small Buckler
+	1
+
+	Shield
+	1
+	0
+	20
+	
+	Defense
+	2
+]

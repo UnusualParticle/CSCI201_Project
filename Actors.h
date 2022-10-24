@@ -15,6 +15,7 @@ protected:
 public:
 	Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1);
 	Inventory inventory{};
+	using ChoiceList = std::vector<Inventory::Slots>;
 
 	const string& getName() const;
 	int getLevel() const;
@@ -31,8 +32,8 @@ public:
 	// Basic Stat Modification
 	void takeDamage(int n);
 	void heal(int n);
-	void levelPhysical(int maxhealth, int strength);
-	void levelMagikal(int maxmana, int aura);
+	void levelPhysical(std::pair<int, int>);
+	void levelMagikal(std::pair<int,int>);
 
 	// Effect Methods
 	void startBattle();
@@ -43,6 +44,7 @@ public:
 
 	// Inventory Methods
 	std::pair<Effect, Effect> getItemEffects(int slot) const;
+	void getChoices(ChoiceList& choices) const;
 	string itemStr(int slot) const;
 	void useItem(int slot, Actor& target);
 };
@@ -50,7 +52,7 @@ public:
 class Enemy : public Actor
 {
 public:
-	Enemy(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1);
+	Enemy(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1, int gold = 0);
 	int taketurn() const;
 };
 
@@ -61,6 +63,8 @@ struct ActorData
 	Inventory inventory;
 	int level;
 
+	static const int _basegold{ 5 };
+	static const int _goldperlevel{ 2 };
 	const string& getName() const;
 	Actor makeActor() const;
 	Enemy makeEnemy() const;
@@ -73,34 +77,68 @@ Enemy generateEnemy(int level);
 
 class Town
 {
+public:
+	enum Shop
+	{
+		Blacksmith,
+		Spellmaster,
+		Trader,
+		Inn,
+		SHOPS_TOTAL
+	};
+	enum Items
+	{
+		Weapon1,
+		Weapon2,
+		Armor,
+		Spell1,
+		Spell2,
+		Scroll,
+		Tool,
+		Crystal,
+		Extra,
+		ITEMS_TOTAL
+	};
+	struct NPC
+	{
+		string firstname;
+		string lastname;
+		string greeting;
+		string shopname;
+	};
 private:
-	string armorer{};
-	string toolmaster{};
-	string spellmaster{};
-	string trader{};
-	string innowner{};
-
-	Item armor{};
-	Item tool1{};
-	Item tool2{};
-	Item spell1{};
-	Item spell2{};
-	Item consumable{};
+	string name{};
+	std::array<NPC, SHOPS_TOTAL> npcs;
+	
+	std::array<Item, ITEMS_TOTAL> items;
 	int roomprice{};
 
 	static const int roomprice_low{ 5 };
-	static const int roomprice_high{ 20 };
+	static const int roomprice_high{ 15 };
+	static const int roomprice_level{ 3 };
 	static const int target_armor{3};
 	static int counter_armor;
 	static std::vector<string> firstnames;
 	static std::vector<string> lastnames;
+	static std::vector<string> townsuffix;
 	static std::vector<string> greetings;
-	static void generatename(string& name);
+	static std::vector<string> offers;
+	static void generatetownname(string& name);
+	static void generatenpc(NPC& npc);
 public:
-	Town();
+	Town(int level);
 	~Town() = default;
 
 	static void load();
-
 	void reset();
+
+	const string& getName() const;
+	const NPC& getNPC(int shop) const;
+
+	using SaleItems = std::vector<Items>;
+	void getBlacksmithItems(SaleItems& v) const;
+	void getSpellmasterItems(SaleItems& v) const;
+	void getTraderItems(SaleItems& v) const;
+	const Item& getItem(int i) const;
+	int getRoomPrice() const;
 };

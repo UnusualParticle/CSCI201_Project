@@ -8,6 +8,18 @@ Effect Item::getEffect() const { return effect; }
 Effect Item::getSpecial() const { return special; }
 int Item::getMana() const { return mana; }
 int Item::getPrice() const { return price; }
+string Item::getEffectStr() const
+{
+	std::ostringstream str{};
+	str << '[' << effect.data->name << ": " << effect.stacks << ']';
+	return str.str();
+}
+string Item::getPriceStr() const
+{
+	std::ostringstream str{};
+	str << '[' << price << " gp]";
+	return str.str();
+}
 Item& Item::operator=(const Item& other)
 {
 	type = other.type;
@@ -35,19 +47,18 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	int num;
 
 	util::getline(stream, item.name);
-	// stream >> item.level;
+	stream >> item.level;
 
 	util::getline(stream, str);
 	item.type = Item::_typemap->getID(str);
 
 	stream >> item.weight;
+	stream >> item.mana;
+	stream >> item.price;
 
 	util::getline(stream, str);
 	stream >> num;
 	item.effect = EffectDataList.getdatabyname(str)->make(num);
-
-	stream >> item.mana;
-	stream >> item.price;
 
 	// Look for a closing bracket
 	stream.ignore(util::STREAMMAX, ']');
@@ -168,5 +179,18 @@ void Inventory::useItem(int slot)
 void Inventory::dropItem(int slot)
 {
 	items[slot] = Item{};
+}
+int Inventory::getGold() const { return gold; }
+void Inventory::addGold(int _gold)
+{
+	if (_gold < 0)
+		throw std::invalid_argument{ "Cannot add negative gold. Use spendGold() instead." };
+	gold += _gold;
+}
+void Inventory::spendGold(int _gold)
+{
+	if (_gold > gold)
+		throw std::underflow_error{ "Not enough gold in inventory. Verify amount before calling spendGold()" };
+	gold -= _gold;
 }
 util::NameArray<Inventory::SLOTS_TOTAL> Inventory::slotnames{};

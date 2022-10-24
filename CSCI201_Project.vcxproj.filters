@@ -30,6 +30,9 @@
     <ClCompile Include="Actors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Stages.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utility.h">
@@ -44,6 +47,9 @@
     <ClInclude Include="Actors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Stages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="effects.txt">
@@ -55,26 +61,55 @@
     <Text Include="enemies.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="itembases.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="itemmodifiers.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="playerpresets.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="firstnames.txt">
+    <Text Include="town_firstname.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="lastnames.txt">
+    <Text Include="town_lastname.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="greetings.txt">
+    <Text Include="town_greeting.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="templates.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="item_default.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="item_armor.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="item_weapon.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="item_tool.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="item_spell.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="item_crystal.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="town_offer.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="town_suffix.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="item_scroll.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

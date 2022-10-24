@@ -17,8 +17,9 @@ Effect
 Item
 [
 	Name
-	Type
 	Level
+
+	Type
 	Slots
 	Mana Cost
 	Gold Price

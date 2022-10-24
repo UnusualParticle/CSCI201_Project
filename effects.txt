@@ -29,6 +29,12 @@
 	boon
 ]
 [
+	Restore
+	Mana
+	-1
+	boon
+]
+[
 	Singe
 	Health
 	2
