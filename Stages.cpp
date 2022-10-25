@@ -1,5 +1,5 @@
 #include "Stages.h"
-
+#include <iostream>
 
 BattleManager::BattleManager(Actor& _player, Enemy& _enemy)
 {
@@ -148,6 +148,73 @@ bool TownManager::pointersOK() const
     else
         throw std::exception{ "Town Manager not set up" };
 }
+void TownManager::showinventory() const
+{
+    std::cout << "Your inventory:";
+    for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+    {
+        const auto& item{ player->inventory.getItem(i) };
+
+        if (item.isEmpty())
+            continue;
+
+        std::cout << "\n\t" << item.getStr();
+        if (i == Inventory::SlotArmor)
+            std::cout << " [Armor Slot]";
+        else if (i == Inventory::SlotConsumable)
+            std::cout << " [Consumable Slot]";
+    }
+}
+int TownManager::promptitems(const NPC::SaleItems& items) const
+{
+    int opt{};
+    int max{0};
+
+    for (int i{}; i < items.size(); ++i)
+    {
+        if (items[i].isEmpty())
+            continue;
+
+        ++max;
+        std::cout << "\n\t" << max << ": " << items[i].getStr();
+    }
+    ++max;
+    std::cout << "\n\t" << max << ": Exit Shop\n";
+    
+    opt = util::promptchoice(1, max);
+    return (opt != max) ? opt-1 : -1;
+}
+bool TownManager::promptdrop()
+{
+    int opt{};
+    int max{ 0 };
+    Inventory& items{ player->inventory };
+
+    for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+    {
+        if (items.getItem(i).isEmpty())
+            continue;
+
+        ++max;
+        std::cout << "\n\t" << max << ": " << items.getItem(i).getStr();
+        if (i == Inventory::SlotArmor)
+            std::cout << " [Armor Slot]";
+        else if (i == Inventory::SlotConsumable)
+            std::cout << " [Consumable Slot]";
+    }
+    ++max;
+    std::cout << "\n\t" << max << ": Cancel\n";
+
+    opt = util::promptchoice(1, max);
+    
+    if (opt < max)
+    {
+        items.dropItem(opt);
+        return true;
+    }
+    else
+        return false;
+}
 
 std::pair<int, int> TownManager::physicallevel()
 {
@@ -191,3 +258,90 @@ TownManager::Location TownManager::getLocation() const
     else
         return location;
 }
+
+void TownManager::visitBlacksmith()
+{
+    // Introduction
+    NPC* npc = &town->npcs[Town::Blacksmith];
+    const NPC::SaleItems& items(npc->items());
+    int opt{};
+
+    std::cout << npc->greet();
+    opt = promptitems(items);
+
+    bool internal_loop_ok;
+    while (opt > 0)
+    {
+        const auto& item{ npc->items()[opt] };
+        if (player->inventory.getGold() < item.getPrice())
+            std::cout << "You cannot afford this item.\n\n";
+        else
+        {
+            if(player->inventory.hasRoomFor(item))
+                player->inventory.buyItem(item);
+            else
+            {
+                switch (item.getType())
+                {
+                case Item::Armor:
+                    std::cout << "You already have armor: " << player->inventory.getArmor().getEffectStr()
+                        << "\n Would you like to drop it and take the new armor?";
+                    if (util::promptyn())
+                    {
+                        player->inventory.dropItem(Inventory::SlotArmor);
+                        player->inventory.buyItem(item);
+                    }
+                    break;
+                case Item::Shield:
+                    if (player->inventory.hasShield())
+                    {
+                        std::cout << "You already have a shield " << player->inventory.getItem(Inventory::Slot1).getEffectStr()
+                            << "\n Would you like to drop it and take the new shield?";
+
+                        if (util::promptyn())
+                        {
+                            player->inventory.dropItem(Inventory::Slot1);
+                            player->inventory.buyItem(item);
+                        }
+                    }
+                    else if (player->inventory.weightAvailable() < item.getWeight())
+                    {
+                        internal_loop_ok = true;
+                        while (internal_loop_ok && player->inventory.weightAvailable() < item.getWeight())
+                        {
+                            std::cout << "You do not have room for the shield. You need " << item.getWeight() << " space,\nbut you only have "
+                                << player->inventory.weightAvailable() << " space available.";
+
+                            if (!promptdrop())
+                                internal_loop_ok = false;
+                        }
+                    }
+                    break;
+                default:
+                    internal_loop_ok = true;
+                    while (internal_loop_ok && player->inventory.weightAvailable() < item.getWeight())
+                    {
+                        std::cout << "You do not have room for the item. You need " << item.getWeight() << " space,\nbut you only have "
+                            << player->inventory.weightAvailable() << " space available.";
+
+                        if (!promptdrop())
+                            internal_loop_ok = false;
+                    }
+                    break;
+                    // End switch
+                } 
+
+                //End !hasroom
+            }
+
+            // End buy
+        }
+
+        // Prompt player for item again
+        std::cout << "Will you buy anything else?";
+        opt = promptitems(items);
+    }
+}
+void TownManager::visitSpellmaster();
+void TownManager::visitTrader();
+void TownManager::visitInn();

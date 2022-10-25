@@ -10,14 +10,32 @@ int Item::getMana() const { return mana; }
 int Item::getPrice() const { return price; }
 string Item::getEffectStr() const
 {
-	std::ostringstream str{};
-	str << '[' << effect.data->name << ": " << effect.stacks << ']';
-	return str.str();
+	return getStr(flag_effects);
 }
 string Item::getPriceStr() const
 {
+	return getStr(flag_price);
+}
+string Item::getWeightStr() const
+{
+	return getStr(flag_weight);
+}
+string Item::getStr(int flags) const
+{
 	std::ostringstream str{};
-	str << '[' << price << " gp]";
+	str << name;
+	if (flags & flag_effects)
+	{
+		str << " [" << effect.data->name << ": " << effect.stacks;
+		if (special.stacks)
+			str << ", " << special.data->name << ": " << special.stacks;
+		str << ']';
+	}
+	if(flags & flag_weight)
+		str << '[' << weight << " slots]";
+	if(flags & flag_price)
+		str << '[' << price << " gp]";
+
 	return str.str();
 }
 Item& Item::operator=(const Item& other)
@@ -31,6 +49,13 @@ Item& Item::operator=(const Item& other)
 	price = other.price;
 
 	return *this;
+}
+bool Item::isEmpty() const { return type == Empty; }
+bool Item::isConsumable() const { return type == Tool || type == Crystal; }
+void Item::remove()
+{
+	type = Empty;
+	weight = 0;
 }
 util::NameMap<Item::Type>* Item::_typemap{};
 util::NameArray<Item::TYPES_TOTAL> Item::typenames{};
@@ -66,41 +91,73 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	return stream;
 }
 
-const Inventory::iterator Inventory::begin() { return items.begin() + Slot1; }
-const Inventory::iterator Inventory::end() { return items.begin() + Slot4 + 1; }
-std::array<Item, Inventory::SLOTS_TOTAL>::iterator Inventory::findtype(Item::Type type)
+const Inventory::iterator Inventory::slot_begin() { return items.begin() + Slot1; }
+const Inventory::iterator Inventory::slot_end() { return items.begin() + Slot4 + 1; }
+Inventory::iterator Inventory::findempty()
 {
-	return std::find_if(begin(), end(), [type](const Item& i) {return i.getType() == type; });
+	return std::find_if(slot_begin(), slot_end(), [](const Item& i) {return i.isEmpty(); });
 }
-void Inventory::sort()
+
+void Inventory::verify() const
 {
-	// Verify inventory is not broken
+	// Armor Check
 	if (items[SlotArmor].getType() != Item::Empty
 		&& items[SlotArmor].getType() != Item::Armor)
 		throw std::overflow_error{ "Armor slot has something other than armor" };
 
+	// Consumable Check
 	if (items[SlotConsumable].getType() != Item::Empty
-		&& items[SlotConsumable].getType() != Item::Tool
-		&& items[SlotConsumable].getType() != Item::Crystal)
+		&& items[SlotConsumable].isConsumable())
 		throw std::overflow_error{ "Consumable slot has something other than consumable" };
 
-	int shield{ -1 };
-	for (int i{ Slot1 }; i <= Slot4; ++i)
+	// Shield and Weight Check
+	bool hasshield{};
+	int weightsum{};
+	for (int i{}; i < SLOTS_TOTAL; ++i)
 	{
-		if (items[i].getType() == Item::Armor)
-			throw std::overflow_error{ "Item slot has armor" };
-
 		if (items[i].getType() == Item::Shield)
 		{
-			if (shield >= Slot1)
-				throw std::overflow_error{ "Inventory has two shields" };
+			if (hasshield)
+				throw std::overflow_error{ "More than one shield in inventory" };
 			else
-				shield = i;
+				hasshield = true;
 		}
+
+		if (i != SlotArmor && items[i].getType() == Item::Armor)
+			throw std::overflow_error{ "Armor is in a non-armor slot" };
+
+		weightsum += items[i].getWeight();
 	}
 
-	// Move the shield to the first slot
+	if (weightsum > MAX_WEIGHT)
+		throw std::overflow_error{ "Too much being carried" };
+}
+void Inventory::sort()
+{
+	if (m_sorted)
+		return;
+
+	// Verify inventory is not broken
+	verify();
+
 	int start = Slot1;
+	int shield{-1};
+	int consumable{-1};
+
+	// Get indices
+	for (int i{ Slot1 }; i <= Slot4; ++i)
+	{
+		if (items[i].getType() == Item::Shield)
+			shield = i;
+		else if (items[i].isConsumable())
+			consumable = i;
+	}
+
+	// Move a consumable to the consumable slot (if there's room)
+	if (consumable > 0 && items[SlotConsumable].isEmpty())
+		std::swap(items[SlotConsumable], items[consumable]);
+
+	// Move shield to the first slot
 	if (shield > Slot1)
 	{
 		std::swap(items[Slot1], items[shield]);
@@ -114,11 +171,77 @@ void Inventory::sort()
 		});
 
 	// If there is an available slot, and no unarmed weapon, add one
-	if (slotsAvailable() > 0)
+	for (int i{ start }; i <= Slot4; ++i)
 	{
-		if(findtype(Item::Unarmed) == end())
-			equipItem(*ItemBaseList.getdatabyname("Unarmed"));
+		if (items[i].getType() == Item::Unarmed)
+			break;
+
+		if (items[i].getType() == Item::Empty)
+			items[i] = *ItemBaseList.getdatabyname("Unarmed");
 	}
+
+	m_sorted = true;
+}
+int Inventory::slotsAvailable() const
+{
+	if (!m_sorted)
+		throw std::range_error{ "Inventory not sorted" };
+
+	int empty{ std::count_if(items.begin() + Slot1, items.begin() + Slot4 + 1,
+		[](const Item& i)
+		{
+			return i.isEmpty();
+		}) };
+
+	return MULTI_SLOTS - empty;
+}
+int Inventory::weightAvailable() const
+{
+	int sum{};
+	for (const Item& i : items)
+		sum += i.getWeight();
+	return MAX_WEIGHT - sum;
+}
+bool Inventory::hasRoomFor(const Item& item) const
+{
+	if (!m_sorted)
+		throw std::range_error{ "Inventory not sorted" };
+
+	bool hasroom{};
+	switch (item.getType())
+	{
+	case Item::Armor:
+		if(items[SlotArmor].isEmpty())
+			hasroom = true;
+		break;
+	case Item::Shield:
+		if (items[Slot1].getType() != Item::Shield
+			&& slotsAvailable() >= item.getWeight())
+			hasroom = true;
+		break;
+	case Item::Tool:
+	case Item::Crystal:
+		if (items[SlotConsumable].isEmpty())
+			hasroom = true;
+		break;
+	}
+
+	// Could have used a fallthrough in the switch,
+	//   but those can be hard to read.
+	// In the interest of consistency, chose to also
+	//   avoid using a return in the switch.
+
+	if (!hasroom && item.getType() != Item::Armor && item.getType() != Item::Shield)
+		hasroom = slotsAvailable() && weightAvailable() >= item.getWeight();
+
+	return hasroom;
+}
+bool Inventory::hasShield() const
+{
+	if (!m_sorted)
+		throw std::range_error{ "Inventory not sorted" };
+
+	return items[i].getType() == Item::Shield;
 }
 
 const Item& Inventory::getItem(int slot) const
@@ -126,49 +249,34 @@ const Item& Inventory::getItem(int slot) const
 	return items[slot];
 }
 const Item& Inventory::getArmor() { return items[SlotArmor]; }
-Inventory::Slots Inventory::hasShield() const
-{
-	for (int i{ Slot1 }; i < SLOTS_TOTAL; ++i)
-		if (items[i].getType() == Item::Shield)
-			return (Slots)i;
-	return SLOTS_TOTAL;
-}
 const Item& Inventory::getConsumable() { return items[SlotConsumable]; }
-int Inventory::slotsAvailable()
-{
-	int sum{};
-	for (int i{Slot1}; i <= Slot4; ++i)
-		sum += items[i].getWeight();
-	return Slot4 - sum;
-}
-void Inventory::equipArmor(const Item& armor)
-{ 
-	if (armor.getType() != Item::Armor
-		&& armor.getType() != Item::Empty)
-		throw std::invalid_argument{ "Cannot put non armor in the armor slot" };
-	items[SlotArmor] = armor;
-}
 void Inventory::equipItem(const Item& item)
 {
-	if (item.getType() == Item::Armor)
-		throw std::invalid_argument{ "Cannot put armor in a non-armor slot" };
-	if (item.getType() == Item::Shield && findtype(Item::Shield) != end())
-		throw std::range_error{ "Cannot have more than one shield equipped" };
-	if (item.getWeight() > slotsAvailable())
-		throw std::range_error{ "Not enough slots for the item" };
-	if (item.getType() == Item::Unarmed && findtype(Item::Unarmed) != end())
-		return;
+	// Verify that there is room
+	if(!hasRoomFor(item))
+		throw std::range_error{ "Not enough room for the item, drop something first" };
 
-	auto ptr{ findtype(Item::Empty)};
+	// Where is the room
+	auto ptr{ items.end() };
+	switch (item.getType())
+	{
+	case Item::Armor:
+		ptr = items.begin() + SlotArmor;
+		break;
+	case Item::Tool:
+	case Item::Crystal:
+		if (items[SlotConsumable].isEmpty())
+			ptr = items.begin() + SlotConsumable;
+		break;
+	}
+
+	// Room not found yet
+	if (ptr == items.end())
+		ptr = findempty();
+
+	// Assign the item and sort the inventory
 	*ptr = item;
-}
-void Inventory::equipConsumable(const Item& tool)
-{
-	if (tool.getType() != Item::Tool
-		&& tool.getType() != Item::Crystal
-		&& tool.getType() != Item::Empty)
-		throw std::invalid_argument{ "Cannot put non consumable in the consumable slot" };
-	items[SlotConsumable] = tool;
+	sort();
 }
 void Inventory::useItem(int slot)
 {
@@ -178,7 +286,8 @@ void Inventory::useItem(int slot)
 }
 void Inventory::dropItem(int slot)
 {
-	items[slot] = Item{};
+	items[slot].remove();
+	sort();
 }
 int Inventory::getGold() const { return gold; }
 void Inventory::addGold(int _gold)
@@ -192,5 +301,10 @@ void Inventory::spendGold(int _gold)
 	if (_gold > gold)
 		throw std::underflow_error{ "Not enough gold in inventory. Verify amount before calling spendGold()" };
 	gold -= _gold;
+}
+void Inventory::buyItem(const Item& item)
+{
+	spendGold(item.getPrice());
+	equipItem(item);
 }
 util::NameArray<Inventory::SLOTS_TOTAL> Inventory::slotnames{};

@@ -339,34 +339,86 @@ Enemy generateEnemy(int level)
 	return enemy;
 }
 
+std::vector<string> NPC::s_firstnames{};
+std::vector<string> NPC::s_lastnames{};
+std::vector<string> NPC::s_greetings{};
+std::vector<string> NPC::s_offers{};
+
+NPC::NPC(const string& shop)
+{
+	string fname{};
+	string lname{};
+	string greeting{};
+
+	int index_first{ util::randint(0,s_firstnames.size() - 1) };
+	fname = s_firstnames[index_first];
+	int index_last{ util::randint(0,s_lastnames.size() - 1) };
+	lname = s_firstnames[index_first];
+
+	int index_greet{ util::randint(0,s_greetings.size() - 1) };
+	int index_offer{ util::randint(0,s_offers.size() - 1) };
+	greeting = s_greetings[index_greet] + ' ' + s_offers[index_offer];
+
+	m_firstname = fname;
+	m_name = fname + ' ' + lname;
+	m_greeting = m_name + ": " + greeting;
+	if (util::randint(0, 2))
+		m_shopname = lname + shop;
+	else
+		m_shopname = fname + shop;
+}
+void NPC::load()
+{
+	std::ifstream file;
+	string str;
+
+	file.open("town_firstname.txt");
+	while (file)
+	{
+		std::getline(file, str);
+		s_firstnames.push_back(str);
+	}
+	file.close();
+
+	file.open("town_lastname.txt");
+	while (file)
+	{
+		std::getline(file, str);
+		s_lastnames.push_back(str);
+	}
+	file.close();
+
+	file.open("town_greeting.txt");
+	while (file)
+	{
+		std::getline(file, str);
+		s_greetings.push_back(str);
+	}
+	file.close();
+
+	file.open("town_offer.txt");
+	while (file)
+	{
+		std::getline(file, str);
+		s_offers.push_back(str);
+	}
+	file.close();
+}
+string NPC::firstname() const { return m_firstname; }
+string NPC::name() const { return m_name; }
+string NPC::greet() const { return m_greeting; }
+string NPC::shopname() const { return m_shopname; }
+const NPC::SaleItems& NPC::items() const { return m_items; }
+void NPC::removeItem(int slot) { m_items[slot].remove(); }
+
 int Town::counter_armor{};
-std::vector<string> Town::firstnames{};
-std::vector<string> Town::lastnames{};
 std::vector<string> Town::townsuffix{};
-std::vector<string> Town::greetings{};
-std::vector<string> Town::offers{};
 
 void Town::generatetownname(string& name)
 {
-	int index_name{ util::randint(0,lastnames.size() - 1) };
+	int index_name{ util::randint(0,npc_lastnames().size() - 1)};
 	int index_suffix{ util::randint(0,townsuffix.size() - 1) };
-	name = lastnames[index_name] + townsuffix[index_suffix];
-}
-void Town::generatenpc(NPC& npc)
-{
-	int index_first{ util::randint(0,firstnames.size() - 1) };
-	npc.firstname = firstnames[index_first];
-	int index_last{ util::randint(0,lastnames.size() - 1) };
-	npc.lastname = firstnames[index_first];
-
-	int index_greet{ util::randint(0,greetings.size() - 1) };
-	int index_offer{ util::randint(0,offers.size() - 1) };
-	npc.greeting = greetings[index_greet] + ' ' + offers[index_offer];
-
-	if (util::randint(0, 2))
-		npc.shopname = npc.lastname;
-	else
-		npc.shopname = npc.firstname;
+	name = npc_lastnames()[index_name] + townsuffix[index_suffix];
 }
 const Item& getitembyname(const string& name)
 {
@@ -419,43 +471,11 @@ void Town::load()
 	std::ifstream file;
 	string str;
 
-	file.open("town_firstname.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		firstnames.push_back(str);
-	}
-	file.close();
-
-	file.open("town_lastname.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		lastnames.push_back(str);
-	}
-	file.close();
-
 	file.open("town_suffix.txt");
 	while (file)
 	{
 		std::getline(file, str);
 		townsuffix.push_back(str);
-	}
-	file.close();
-
-	file.open("town_greeting.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		greetings.push_back(str);
-	}
-	file.close();
-
-	file.open("town_offer.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		offers.push_back(str);
 	}
 	file.close();
 }
@@ -465,33 +485,4 @@ void Town::reset()
 }
 
 const string& Town::getName() const { return name; }
-const Town::NPC& Town::getNPC(int shop) const
-{
-	return npcs[shop];
-}
-void Town::getBlacksmithItems(Town::SaleItems& v) const
-{
-	v.push_back(Weapon1);
-	v.push_back(Weapon2);
-	if (items[Armor].getType() != Item::Empty)
-		v.push_back(Armor);
-}
-void Town::getSpellmasterItems(Town::SaleItems& v) const
-{
-	v.push_back(Spell1);
-	v.push_back(Spell2);
-	if (items[Scroll].getType() != Item::Empty)
-		v.push_back(Scroll);
-}
-void Town::getTraderItems(Town::SaleItems& v) const
-{
-	v.push_back(Tool);
-	v.push_back(Crystal);
-	if (items[Extra].getType() != Item::Empty)
-		v.push_back(Extra);
-}
-const Item& Town::getItem(int i) const
-{
-	return items[i];
-}
 int Town::getRoomPrice() const { return roomprice; }

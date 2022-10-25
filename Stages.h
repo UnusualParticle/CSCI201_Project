@@ -96,7 +96,7 @@ public:
         Inn,
         Exit
     };
-    using SaleItems = std::vector<const Item*>;
+
 private:
     TownManager() = delete;
 
@@ -116,6 +116,13 @@ private:
     static const int mana_high{ 4 };
     static const int mana_level{ 1 };
     bool pointersOK() const;
+    void showinventory() const;
+    int promptitems(const NPC::SaleItems& items) const;
+    bool promptdrop();
+
+    void visitBlacksmith();
+    void visitSpellmaster();
+    void visitTrader();
 public:
     TownManager(Actor& _player, Town& _town);
     // Assign the player and enemy to the manager
@@ -127,4 +134,7 @@ public:
     void walkto(Location);
     void update();
     Location getLocation() const;
+
+    void visitLocation(Location);
+    void visitInn();
 };

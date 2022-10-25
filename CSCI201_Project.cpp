@@ -217,29 +217,6 @@ void startBattle(Actor& player)
     player.endBattle();
 }
 
-bool promptyn()
-{
-    std::cout << "\n\t1. Yes"
-        << "\n\t2. No\n";
-    return util::promptchoice(0, 1);
-}
-void greet(const Town::NPC* npc)
-{
-    std::cout << npc->firstname << ' ' << npc->lastname << " greets you,\n"
-        << "\"" << npc->greeting << "\"";
-}
-int promptShopItems(const Town& town, const Town::SaleItems& items)
-{
-    for (int i{}; i < items.size(); ++i)
-    {
-        const Item& item{ town.getItem(i) };
-        string eff{ item.getEffect().data->getName() };
-        std::cout << "\n\t" << (i + 1) << ". " << item.getName() << item.getEffectStr() << ' ' << item.getPriceStr();
-    }
-    std::cout << "\n\t" << (items.size() + 1) << ". Exit shop\n";
-
-    return util::promptchoice(1, items.size() + 1) - 1;
-}
 void visitTown(Actor& player)
 {
     // Prepare town
@@ -328,57 +305,7 @@ void visitTown(Actor& player)
             }
             break;
         case TownManager::Blacksmith:
-            npc = &town.getNPC(Town::Blacksmith);
-            greet(npc);
-            town.getBlacksmithItems(items);
-            opt = promptShopItems(town, items);
-            while (opt != items.size())
-            {
-                const auto& item{ town.getItem(opt) };
-                if (player.inventory.getGold() < item.getPrice())
-                    std::cout << "You cannot afford this item.\n\n";
-                else
-                {
-                    switch (item.getType())
-                    {
-                    case Item::Armor:
-                        if (player.inventory.getArmor().getType() != Item::Empty)
-                        {
-                            std::cout << "You already have armor " << player.inventory.getArmor().getEffectStr()
-                                << "\n Would you like to drop it and take the new armor?";
-                            if (promptyn())
-                            {
-                                player.inventory.spendGold(item.getPrice());
-                                player.inventory.dropItem(Inventory::SlotArmor);
-                                player.inventory.equipArmor(item);
-                            }
-                        }
-                        else
-                        {
-                            player.inventory.spendGold(item.getPrice());
-                            player.inventory.equipArmor(item);
-                        }
-                        break;
-                    case Item::Shield:
-                        if (player.inventory.getItem(Inventory::Slot1).getType() == Item::Shield)
-                        {
-                            std::cout << "You already have a shield " << player.inventory.getItem(Inventory::Slot1).getEffectStr()
-                                << "\n Would you like to drop it and take the new shield?";
-                            if (promptyn())
-                            {
-                                player.inventory.spendGold(item.getPrice());
-                                player.inventory.dropItem(Inventory::Slot1);
-                                player.inventory.equipArmor(item);
-                            }
-                        }
-                        else
-                        {
-                            player.inventory.spendGold(item.getPrice());
-                            player.inventory.equipArmor(item);
-                        }
-                    }
-                }
-            }
+            manager.visitBlacksmith();
             std::cout << "You exit " << npc->shopname << "\n\n";
             manager.walkto(TownManager::Square);
         }

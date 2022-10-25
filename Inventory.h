@@ -21,6 +21,10 @@ public:
 	};
 	static util::NameMap<Type>* _typemap;
 	static util::NameArray<TYPES_TOTAL> typenames;
+
+	static const int flag_effects{ 1 };
+	static const int flag_weight{ 2 };
+	static const int flag_price{ 4 };
 private:
 	string name{};
 	int level{};
@@ -42,6 +46,13 @@ public:
 
 	string getEffectStr() const;
 	string getPriceStr() const;
+	string getWeightStr() const;
+	string getStr(int flags = flag_effects | flag_weight | flag_effects) const;
+
+	bool isEmpty() const;
+	bool isConsumable() const;
+	void remove();
+
 	Item& operator=(const Item& other);
 	friend std::ifstream& operator>>(std::ifstream& stream, Item& item);
 };
@@ -63,28 +74,32 @@ public:
 		SLOTS_TOTAL
 	};
 	static util::NameArray<SLOTS_TOTAL> slotnames;
+	static const int MULTI_SLOTS{ 4 };
+	static const int MAX_WEIGHT{ SLOTS_TOTAL };
 private:
+	bool m_sorted{};
 	std::array<Item, SLOTS_TOTAL> items;
 	using iterator = std::array<Item, SLOTS_TOTAL>::iterator;
 	using const_iterator = std::array<Item, SLOTS_TOTAL>::const_iterator;
 
-	const iterator begin();
-	const iterator end();
-	iterator findtype(Item::Type type);
+	const iterator slot_begin();
+	const iterator slot_end();
+	iterator findempty();
+	void verify() const;
 
 	int gold{};
 public:
 	void sort();
-	int slotsAvailable();
+	int slotsAvailable() const;
+	int weightAvailable() const;
+	bool hasRoomFor(const Item& item) const;
+	bool hasShield() const;
 
 	const Item& getItem(int slot) const;
 	const Item& getArmor();
-	Slots hasShield() const;
 	const Item& getConsumable();
 
-	void equipArmor(const Item& armor);
 	void equipItem(const Item& item);
-	void equipConsumable(const Item& consumable);
 
 	void useItem(int slot);
 	void dropItem(int slot);
@@ -92,4 +107,5 @@ public:
 	int getGold() const;
 	void addGold(int _gold);
 	void spendGold(int _gold);
+	void buyItem(const Item&);
 };

@@ -75,6 +75,40 @@ inline util::DataVector<ActorData> PlayerDataList{};
 inline util::DataVector<ActorData> EnemyDataList{};
 Enemy generateEnemy(int level);
 
+class NPC
+{
+public:
+	using SaleItems = std::array<Item, 3>;
+private:
+	string m_firstname;
+	string m_name;
+	string m_greeting;
+	string m_shopname;
+
+	SaleItems m_items;
+
+	using namelist = std::vector<string>;
+	static namelist s_firstnames;
+	static namelist s_lastnames;
+	static namelist s_greetings;
+	static namelist s_offers;
+public:
+	NPC() = default;
+	NPC(const string& shop);
+
+	static void load();
+
+	string firstname() const;
+	string name() const;
+	string greet() const;
+	string shopname() const;
+
+	const SaleItems& items() const;
+	void removeItem(int slot);
+
+	friend namelist Town::npc_lastnames();
+};
+
 class Town
 {
 public:
@@ -99,16 +133,9 @@ public:
 		Extra,
 		ITEMS_TOTAL
 	};
-	struct NPC
-	{
-		string firstname;
-		string lastname;
-		string greeting;
-		string shopname;
-	};
+	std::array<NPC, SHOPS_TOTAL> npcs;
 private:
 	string name{};
-	std::array<NPC, SHOPS_TOTAL> npcs;
 	
 	std::array<Item, ITEMS_TOTAL> items;
 	int roomprice{};
@@ -118,13 +145,9 @@ private:
 	static const int roomprice_level{ 3 };
 	static const int target_armor{3};
 	static int counter_armor;
-	static std::vector<string> firstnames;
-	static std::vector<string> lastnames;
 	static std::vector<string> townsuffix;
-	static std::vector<string> greetings;
-	static std::vector<string> offers;
+	static std::vector<string> npc_lastnames();
 	static void generatetownname(string& name);
-	static void generatenpc(NPC& npc);
 public:
 	Town(int level);
 	~Town() = default;
@@ -133,12 +156,5 @@ public:
 	void reset();
 
 	const string& getName() const;
-	const NPC& getNPC(int shop) const;
-
-	using SaleItems = std::vector<Items>;
-	void getBlacksmithItems(SaleItems& v) const;
-	void getSpellmasterItems(SaleItems& v) const;
-	void getTraderItems(SaleItems& v) const;
-	const Item& getItem(int i) const;
 	int getRoomPrice() const;
 };

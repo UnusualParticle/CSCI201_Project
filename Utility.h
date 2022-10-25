@@ -188,6 +188,9 @@ namespace util
 	char promptchar(const string& prompt);
 	// Choice prompter for an int range, [low, high]
 	int promptchoice(int low, int high);
+	// Int-based yes/no prompt
+	bool promptyn();
+
 
 	// Getline without leading whitepace
 	std::istream& getline(std::istream& stream, string& str, char delim = '\n');

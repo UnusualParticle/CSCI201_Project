@@ -47,7 +47,6 @@ namespace util
         // Return the value
         return value;
 	}
-
 	// My basic char prompter
 	char promptchar(const string& prompt)
 	{
@@ -62,7 +61,6 @@ namespace util
         // Return the value
         return value;
 	}
-
     // Choice prompter for an int range, [low, high]
     int promptchoice(int low, int high)
     {
@@ -73,6 +71,12 @@ namespace util
             value = promptint("> ");
         }
         return value;
+    }
+    // Int-based yes/no prompt
+    bool promptyn(const string& prompt)
+    {
+        std::cout << "\n\t1. Yes" << "\n\t2. No";
+        return promptchoice(1, 2)-1;
     }
 
     std::istream& getline(std::istream& stream, string& str, char delim)
