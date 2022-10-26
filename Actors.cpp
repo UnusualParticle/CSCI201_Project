@@ -9,7 +9,7 @@ const string& Actor::getName() const
 }
 int Actor::getLevel() const { return level; }
 // Stat Accessors
-int Actor::getArmor() const
+int Actor::getClothing() const
 {
 	return stats.armor + getStatModifier(StatBlock::Armor);
 }
@@ -40,7 +40,7 @@ int Actor::getStrength() const
 // Basic Stat Modification
 void Actor::takeDamage(int n)
 {
-	n -= getArmor();
+	n -= getClothing();
 	if (n < 1)
 		n = 1;
 	stats.health -= n;
@@ -165,9 +165,9 @@ void Actor::startBattle()
 {
 	inventory.sort();
 
-	if (inventory.getArmor().getEffect().stacks > 0)
+	if (inventory.getClothing().getEffect().stacks > 0)
 	{
-		const auto& armor{ inventory.getArmor() };
+		const auto& armor{ inventory.getClothing() };
 		_addeffect(armor.getEffect());
 		if(armor.getSpecial().stacks > 0)
 			_addeffect(armor.getSpecial());

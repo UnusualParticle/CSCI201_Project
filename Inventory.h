@@ -9,50 +9,87 @@ public:
 	enum Type
 	{
 		Empty,
-		Modifier,
 		Unarmed,
 		Armor,
+		Cloak,
+		Robe,
 		Shield,
-		Weapon,
-		Tool,
+		Bow,
+		Focus,
+		Melee,
+		Quiver,
+		Scroll,
 		Spell,
+		Potion,
+		Arrow,
+		Tool,
 		Crystal,
 		TYPES_TOTAL
 	};
+	enum class Super
+	{
+		Empty,
+		Unarmed,
+		Clothing,
+		Auxiliary,
+		Weapon,
+		Consumable,
+		MAJOR_TOTAL
+	};
 	static util::NameMap<Type>* _typemap;
+	static util::NameMap<Type>* _supermap;
 	static util::NameArray<TYPES_TOTAL> typenames;
+	static util::NameArray<(size_t)Super::MAJOR_TOTAL> supernames;
 
+	// String method flags
 	static const int flag_effects{ 1 };
 	static const int flag_weight{ 2 };
 	static const int flag_price{ 4 };
 private:
+	Type type{};
+	Super super{};
+
 	string name{};
 	int level{};
-	Type type{};
 	int weight{};
 	Effect effect{};
 	Effect special{};
 	int mana{};
 	int price{};
+
+	bool m_infused{};
 public:
+	// Type Methods
 	Type getType() const;
+	Super getSuper() const;
+
+	// Accessor Methods
+	const string& getName() const;
 	int getLevel() const;
 	int getWeight() const;
-	const string& getName() const;
 	Effect getEffect() const;
 	Effect getSpecial() const;
 	int getMana() const;
 	int getPrice() const;
 
-	string getEffectStr() const;
-	string getPriceStr() const;
-	string getWeightStr() const;
+	// String Methods
+	string strEffect() const;
+	string strPrice() const;
+	string strWeight() const;
 	string getStr(int flags = flag_effects | flag_weight | flag_effects) const;
 
+	// Type Methods cont.
 	bool isEmpty() const;
+	bool isClothing() const;
+	bool isAuxiliary() const;
+	bool isWeapon() const;
 	bool isConsumable() const;
-	void remove();
 
+	// Mutator Methods
+	void remove();
+	void infuse(const Item& item);
+
+	// Operator Methods/Functions
 	Item& operator=(const Item& other);
 	friend std::ifstream& operator>>(std::ifstream& stream, Item& item);
 };
@@ -65,39 +102,45 @@ struct Inventory
 public:
 	enum Slots
 	{
-		SlotArmor,
+		SlotClothing,
 		Slot1,
 		Slot2,
 		Slot3,
 		Slot4,
 		SlotConsumable,
+		SlotConsumableExtra,
 		SLOTS_TOTAL
 	};
-	static util::NameArray<SLOTS_TOTAL> slotnames;
 	static const int MULTI_SLOTS{ 4 };
-	static const int MAX_WEIGHT{ SLOTS_TOTAL };
+	static const int MAX_WEIGHT{ SLOTS_TOTAL-1 };
+
+	bool m_extraconsumable{};
+	Item m_tempconsumable{};
 private:
-	bool m_sorted{};
-	std::array<Item, SLOTS_TOTAL> items;
+	std::array<Item, SLOTS_TOTAL> m_items;
 	using iterator = std::array<Item, SLOTS_TOTAL>::iterator;
 	using const_iterator = std::array<Item, SLOTS_TOTAL>::const_iterator;
 
-	const iterator slot_begin();
-	const iterator slot_end();
-	iterator findempty();
+	iterator slot_begin();
+	iterator slot_end();
+	const_iterator slot_begin() const;
+	const_iterator slot_end() const;
+
+	iterator findgeneralempty();
+	void slotsverify() const;
 	void verify() const;
 
-	int gold{};
+	int m_gold{};
 public:
 	void sort();
-	int slotsAvailable() const;
+	int generalSlotsAvailable() const;
 	int weightAvailable() const;
 	bool hasRoomFor(const Item& item) const;
-	bool hasShield() const;
+	bool hasAuxiliary() const;
 
 	const Item& getItem(int slot) const;
-	const Item& getArmor();
-	const Item& getConsumable();
+	const Item& getClothing();
+	const Item& getConsumable(bool extra = false);
 
 	void equipItem(const Item& item);
 

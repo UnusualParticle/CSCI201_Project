@@ -20,15 +20,15 @@ void loadGameFiles()
     if (!util::verifyNameArray(StatBlock::statnames))
         throw std::invalid_argument{ "Stat names array not full" };
 
-    util::NameMap<size_t> slotnames("Slots");
-    slotnames.exportToArray(Inventory::slotnames);
-    if (!util::verifyNameArray(Inventory::slotnames))
-        throw std::invalid_argument{ "Slot names array not full" };
-
     Item::_typemap = new util::NameMap<Item::Type>("Item Types");
     Item::_typemap->exportToArray(Item::typenames);
     if (!util::verifyNameArray(Item::typenames))
         throw std::invalid_argument{ "Item type names array not full" };
+
+    Item::_supermap = new util::NameMap<Item::Type>("Item Super Types");
+    Item::_supermap->exportToArray(Item::supernames);
+    if (!util::verifyNameArray(Item::supernames))
+        throw std::invalid_argument{ "Item super type names array not full" };
 
     // Load data lists
     EffectDataList.loadFromFile("effects.txt");
@@ -49,6 +49,7 @@ void loadGameFiles()
     Town::load();
 
     delete Item::_typemap;
+    delete Item::_supermap;
     delete StatBlock::_namemap;
 }
 void debugGameFiles()
@@ -366,7 +367,7 @@ void visitTown(Actor& player)
     tmr.start(500);
     while (!tmr.isDone());
     std::cout << "Your new stats:"
-        << "\n\tArmor: " << player.getArmor()
+        << "\n\tArmor: " << player.getClothing()
         << "\n\tHealth: " << player.getHealth() << '/' << player.getHealthMax()
         << "\n\tStrength: " << player.getStrength()
         << "\n\tMana: " << player.getMana() << '/' << player.getManaMax()

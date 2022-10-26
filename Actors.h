@@ -21,7 +21,7 @@ public:
 	int getLevel() const;
 
 	// Stat Accessors
-	int getArmor() const;
+	int getClothing() const;
 	int getAura() const;
 	int getHealth() const;
 	int getHealthMax() const;

@@ -9,23 +9,30 @@
     Strength
 ]
 [
-# Slots
-    Armor
-    Slot 1
-    Slot 2
-    Slot 3
-    Slot 4
-    Consumable
-]
-[
 # Item Types
     Empty
-    Modifier
     Unarmed
     Armor
+    Cloak
+    Robe
     Shield
-    Weapon
-    Tool
+    Bow
+    Focus
+    Melee
+    Quiver
+    Scroll
     Spell
+    Potion
+    Arrow
+    Tool
     Crystal
+]
+[
+# Item Super Types
+    Empty
+    Unarmed
+    Clothing
+    Auxiliary
+    Weapon
+    Consumable
 ]

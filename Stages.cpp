@@ -159,7 +159,7 @@ void TownManager::showinventory() const
             continue;
 
         std::cout << "\n\t" << item.getStr();
-        if (i == Inventory::SlotArmor)
+        if (i == Inventory::SlotClothing)
             std::cout << " [Armor Slot]";
         else if (i == Inventory::SlotConsumable)
             std::cout << " [Consumable Slot]";
@@ -197,7 +197,7 @@ bool TownManager::promptdrop()
 
         ++max;
         std::cout << "\n\t" << max << ": " << items.getItem(i).getStr();
-        if (i == Inventory::SlotArmor)
+        if (i == Inventory::SlotClothing)
             std::cout << " [Armor Slot]";
         else if (i == Inventory::SlotConsumable)
             std::cout << " [Consumable Slot]";
@@ -284,18 +284,18 @@ void TownManager::visitBlacksmith()
                 switch (item.getType())
                 {
                 case Item::Armor:
-                    std::cout << "You already have armor: " << player->inventory.getArmor().getEffectStr()
+                    std::cout << "You already have armor: " << player->inventory.getClothing().strEffect()
                         << "\n Would you like to drop it and take the new armor?";
                     if (util::promptyn())
                     {
-                        player->inventory.dropItem(Inventory::SlotArmor);
+                        player->inventory.dropItem(Inventory::SlotClothing);
                         player->inventory.buyItem(item);
                     }
                     break;
                 case Item::Shield:
                     if (player->inventory.hasShield())
                     {
-                        std::cout << "You already have a shield " << player->inventory.getItem(Inventory::Slot1).getEffectStr()
+                        std::cout << "You already have a shield " << player->inventory.getItem(Inventory::Slot1).strEffect()
                             << "\n Would you like to drop it and take the new shield?";
 
                         if (util::promptyn())
