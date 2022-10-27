@@ -45,17 +45,23 @@ public:
 	static const int flag_effects{ 1 };
 	static const int flag_weight{ 2 };
 	static const int flag_price{ 4 };
-private:
-	Type type{};
-	Super super{};
 
-	string name{};
-	int level{};
-	int weight{};
-	Effect effect{};
-	Effect special{};
-	int mana{};
-	int price{};
+	// Use type flags
+	static const int flag_usable{ 1 };
+	static const int flag_physical{ 2 };
+	static const int flag_magikal{ 4 };
+private:
+	Type m_type{};
+	Super m_super{};
+	int m_usetype{};
+
+	string m_name{};
+	int m_level{};
+	int m_weight{};
+	Effect m_effect{};
+	Effect m_special{};
+	int m_mana{};
+	int m_price{};
 
 	bool m_infused{};
 public:
@@ -85,6 +91,11 @@ public:
 	bool isWeapon() const;
 	bool isConsumable() const;
 
+	// Use Check Methods
+	bool usable() const;
+	bool physical() const;
+	bool magikal() const;
+
 	// Mutator Methods
 	void remove();
 	void infuse(const Item& item);
@@ -96,6 +107,11 @@ public:
 std::ifstream& operator>>(std::ifstream& stream, Item& item);
 inline util::DataVector<Item> ItemBaseList{};
 inline util::DataVector<Item> ItemModifierList{};
+
+// Generates a random item of the player's level, or a small chance one level above
+Item generateItem(int level);
+// Generates a random item (of a specific type) of the player's level, or a small chance one level above
+Item generateItemByType(int level, Item::Type type);
 
 struct Inventory
 {
@@ -132,22 +148,24 @@ private:
 
 	int m_gold{};
 public:
+	// Check Methods
 	void sort();
 	int generalSlotsAvailable() const;
 	int weightAvailable() const;
 	bool hasRoomFor(const Item& item) const;
 	bool hasAuxiliary() const;
 
+	// Accessor Methods
 	const Item& getItem(int slot) const;
-	const Item& getClothing();
-	const Item& getConsumable(bool extra = false);
+	const Item& getClothing() const;
+	const Item& getAuxiliary() const;
+	const Item& getConsumable(bool extra = false) const;
+	int getGold() const;
 
-	void equipItem(const Item& item);
-
+	// Mutator Methods
+	void addItem(const Item& item);
 	void useItem(int slot);
 	void dropItem(int slot);
-
-	int getGold() const;
 	void addGold(int _gold);
 	void spendGold(int _gold);
 	void buyItem(const Item&);

@@ -22,3 +22,15 @@
 	Restore
 	2
 ]
+[
+	Crytal of Burning
+	1
+
+	Crystal
+	1
+	0
+	20
+	
+	Singe
+	2
+]

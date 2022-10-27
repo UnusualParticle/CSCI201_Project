@@ -131,11 +131,12 @@ namespace util
 	// DataList stores a data type
 	class DataVector
 	{
-	private:
-		std::vector<data_t> v;
+	public:
 		using const_iterator = std::vector<data_t>::const_iterator;
 		using iterator = std::vector<data_t>::iterator;
 		using reverse_iterator = std::vector<data_t>::reverse_iterator;
+	private:
+		std::vector<data_t> v;
 	public:
 		DataVector() = default;
 		DataVector(const string& filename)

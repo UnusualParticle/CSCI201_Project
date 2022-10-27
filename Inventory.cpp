@@ -8,16 +8,16 @@
 util::NameMap<Item::Type>* Item::_typemap{};
 util::NameArray<Item::TYPES_TOTAL> Item::typenames{};
 // Type Methods
-Item::Type Item::getType() const { return type; }
-Item::Super Item::getSuper() const { return super; }
+Item::Type Item::getType() const { return m_type; }
+Item::Super Item::getSuper() const { return m_super; }
 // Accessor Methods
-int Item::getLevel() const { return level; }
-const string& Item::getName() const { return name; }
-int Item::getWeight() const { return weight; }
-Effect Item::getEffect() const { return effect; }
-Effect Item::getSpecial() const { return special; }
-int Item::getMana() const { return mana; }
-int Item::getPrice() const { return price; }
+int Item::getLevel() const { return m_level; }
+const string& Item::getName() const { return m_name; }
+int Item::getWeight() const { return m_weight; }
+Effect Item::getEffect() const { return m_effect; }
+Effect Item::getSpecial() const { return m_special; }
+int Item::getMana() const { return m_mana; }
+int Item::getPrice() const { return m_price; }
 // String Methods
 string Item::strEffect() const
 {
@@ -34,27 +34,31 @@ string Item::strWeight() const
 string Item::getStr(int flags) const
 {
 	std::ostringstream str{};
-	str << name;
+	str << m_name;
 	if (flags & flag_effects)
 	{
-		str << " [" << effect.data->name << ": " << effect.stacks;
-		if (special.stacks)
-			str << ", " << special.data->name << ": " << special.stacks;
+		str << " [" << m_effect.data->name << ": " << m_effect.stacks;
+		if (m_special.stacks)
+			str << ", " << m_special.data->name << ": " << m_special.stacks;
 		str << ']';
 	}
 	if(flags & flag_weight)
-		str << '[' << weight << " slots]";
+		str << '[' << m_weight << " slots]";
 	if(flags & flag_price)
-		str << '[' << price << " gp]";
+		str << '[' << m_price << " gp]";
 
 	return str.str();
 }
 // Type Methods cont.
-bool Item::isEmpty() const { return type == Empty; }
-bool Item::isClothing() const { return super == Super::Clothing; }
-bool Item::isAuxiliary() const { return super == Super::Auxiliary; }
-bool Item::isWeapon() const { return super == Super::Weapon; }
-bool Item::isConsumable() const { return super == Super::Consumable; }
+bool Item::isEmpty() const { return m_type == Empty; }
+bool Item::isClothing() const { return m_super == Super::Clothing; }
+bool Item::isAuxiliary() const { return m_super == Super::Auxiliary; }
+bool Item::isWeapon() const { return m_super == Super::Weapon; }
+bool Item::isConsumable() const { return m_super == Super::Consumable; }
+// Use Check Methods
+bool Item::usable() const { return m_usetype & flag_usable; }
+bool Item::physical() const { return m_usetype & flag_physical; }
+bool Item::magikal() const { return m_usetype & flag_magikal; }
 // Mutator Methods
 void Item::remove()
 {
@@ -65,24 +69,24 @@ void Item::infuse(const Item& item)
 	if (m_infused)
 		throw std::overflow_error{ "Item already infused" };
 
-	name = name + ' ' + item.getName();
-	special = item.getSpecial();
-	price += item.getPrice();
+	m_name = m_name + ' ' + item.getName();
+	m_special = item.getSpecial();
+	m_price += item.getPrice();
 
 	m_infused = true;
 }
 // Operator Methods/Functions
 Item& Item::operator=(const Item& other)
 {
-	type = other.type;
-	super = other.super;
-	level = other.level;
-	weight = other.weight;
-	name = other.name;
-	effect.data = other.effect.data;
-	effect.stacks = other.effect.stacks;
-	mana = other.mana;
-	price = other.price;
+	m_type = other.m_type;
+	m_super = other.m_super;
+	m_level = other.m_level;
+	m_weight = other.m_weight;
+	m_name = other.m_name;
+	m_effect.data = other.m_effect.data;
+	m_effect.stacks = other.m_effect.stacks;
+	m_mana = other.m_mana;
+	m_price = other.m_price;
 	m_infused = other.m_infused;
 
 	return *this;
@@ -98,50 +102,64 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	string str;
 	int num;
 
-	util::getline(stream, item.name);
-	stream >> item.level;
+	util::getline(stream, item.m_name);
+	stream >> item.m_level;
 
 	util::getline(stream, str);
-	item.type = Item::_typemap->getID(str);
-	switch (item.type)
+	item.m_type = Item::_typemap->getID(str);
+	switch (item.m_type)
 	{
 	case Item::Empty:
-		item.super = Item::Super::Empty;
+		item.m_super = Item::Super::Empty;
 		break;
 	case Item::Unarmed:
-		item.super = Item::Super::Unarmed;
+		item.m_usetype |= Item::flag_usable;
+		item.m_super = Item::Super::Unarmed;
 		break;
 	case Item::Armor:
 	case Item::Cloak:
 	case Item::Robe:
-		item.super = Item::Super::Clothing;
+		item.m_super = Item::Super::Clothing;
 		break;
 	case Item::Shield:
 	case Item::Bow:
 	case Item::Focus:
-		item.super = Item::Super::Auxiliary;
+		item.m_super = Item::Super::Auxiliary;
 		break;
 	case Item::Melee:
 	case Item::Quiver:
 	case Item::Scroll:
 	case Item::Spell:
-		item.super = Item::Super::Weapon;
+		item.m_usetype |= Item::flag_usable;
+		item.m_super = Item::Super::Weapon;
 		break;
 	case Item::Potion:
 	case Item::Arrow:
 	case Item::Tool:
 	case Item::Crystal:
-		item.super = Item::Super::Consumable;
+		item.m_usetype |= Item::flag_usable;
+		item.m_super = Item::Super::Consumable;
+		break;
+	}
+	switch (item.m_type)
+	{
+	case Item::Melee:
+	case Item::Tool:
+		item.m_usetype |= Item::flag_physical;
+		break;
+	case Item::Spell:
+	case Item::Crystal:
+		item.m_usetype |= Item::flag_physical;
 		break;
 	}
 
-	stream >> item.weight;
-	stream >> item.mana;
-	stream >> item.price;
+	stream >> item.m_weight;
+	stream >> item.m_mana;
+	stream >> item.m_price;
 
 	util::getline(stream, str);
 	stream >> num;
-	item.effect = EffectDataList.getdatabyname(str)->make(num);
+	item.m_effect = EffectDataList.getdatabyname(str)->make(num);
 
 	// Look for a closing bracket
 	stream.ignore(util::STREAMMAX, ']');
@@ -149,6 +167,68 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	return stream;
 }
 
+std::pair<util::DataVector<Item>::const_iterator, util::DataVector<Item>::const_iterator> getItemRangeByLevel(int level)
+{
+	// Go just after the range of acceptable items
+	auto last{ --std::find_if(ItemBaseList.begin(), ItemBaseList.end(), [&](const Item& item) {return item.getLevel() > level; }) };
+	// Go to the start of the range of acceptable items, or just after
+	auto rfirst{ --std::find_if(ItemBaseList.rbegin(), ItemBaseList.rend(), [&](const Item& item) {return item.getLevel() < level; }) };
+
+	// Increase the level range up if there was nothing in range
+	if (last == rfirst.base())
+	{
+		int target{ last->getLevel() };
+		auto last{ --std::find_if(ItemBaseList.begin(), ItemBaseList.end(), [&](const Item& item) {return item.getLevel() > target; }) };
+	}
+
+	return {rfirst.base(), last};
+}
+Item generateItem(int level)
+{
+	if (util::randint(0, 5) == 0)
+		level += 1;
+	int maxlevel{ ItemBaseList.rbegin()->getLevel()};
+	if (level > maxlevel)
+		level = maxlevel;
+	
+	Item item{};
+	auto range{ getItemRangeByLevel(level) };
+	std::ranges::sample(range.first, range.second, &item, 1, util::randengine);
+
+	return item;
+}
+Item generateItemByType(int level, Item::Type type)
+{
+	if (util::randint(0, 5) == 0)
+		level += 1;
+	int maxlevel{ ItemBaseList.rbegin()->getLevel() };
+	if (level > maxlevel)
+		level = maxlevel;
+
+	// Get the range of items with the desired level
+	auto range{ getItemRangeByLevel(level) };
+
+	// Get the items in that range with the correct type
+	using myvec = std::vector<util::DataVector<Item>::const_iterator>;
+	myvec items{};
+	for (auto i{ range.first }; i != range.second; ++i)
+	{
+		if (i->getType() == type)
+			items.push_back(i);
+	}
+
+	// If that list has a size of 0, return a random item of the correct level
+	if (items.size() == 0)
+		return generateItem(level);
+
+	// Select a random item from the list and return it
+	myvec::iterator ptr{};
+	std::ranges::sample(items.begin(), items.end(), ptr, 1, util::randengine);
+	
+	// Return a copy of the item
+	Item item{ **ptr };
+	return item;
+}
 
 /* * * * * * * *
 *	Inventory  *
@@ -328,8 +408,15 @@ const Item& Inventory::getItem(int slot) const
 {
 	return m_items[slot];
 }
-const Item& Inventory::getClothing() { return m_items[SlotClothing]; }
-const Item& Inventory::getConsumable(bool extra)
+const Item& Inventory::getClothing() const { return m_items[SlotClothing]; }
+const Item& Inventory::getAuxiliary() const
+{
+	if (hasAuxiliary())
+		return m_items[Slot1];
+	else
+		throw std::underflow_error{ "No auxiliary equipment" };
+}
+const Item& Inventory::getConsumable(bool extra) const
 {
 	if (!extra)
 		return m_items[SlotConsumable];
@@ -339,7 +426,7 @@ const Item& Inventory::getConsumable(bool extra)
 int Inventory::getGold() const { return m_gold; }
 
 // Mutator Methods
-void Inventory::equipItem(const Item& item)
+void Inventory::addItem(const Item& item)
 {
 	// Verify that there is room
 	if(!hasRoomFor(item))
@@ -371,7 +458,7 @@ void Inventory::equipItem(const Item& item)
 		m_extraconsumable = true;
 		if (!m_tempconsumable.isEmpty())
 		{
-			equipItem(m_tempconsumable);
+			addItem(m_tempconsumable);
 			m_tempconsumable = Item();
 		}
 	}
@@ -412,5 +499,5 @@ void Inventory::spendGold(int gold)
 void Inventory::buyItem(const Item& item)
 {
 	spendGold(item.getPrice());
-	equipItem(item);
+	addItem(item);
 }

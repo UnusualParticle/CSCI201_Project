@@ -82,19 +82,13 @@
     <Text Include="item_default.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="item_armor.txt">
+    <Text Include="item_clothing.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="item_weapon.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="item_tool.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_spell.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_crystal.txt">
+    <Text Include="item_consumable.txt">
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="town_offer.txt">
@@ -103,7 +97,7 @@
     <Text Include="town_suffix.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="item_scroll.txt">
+    <Text Include="item_auxiliary.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

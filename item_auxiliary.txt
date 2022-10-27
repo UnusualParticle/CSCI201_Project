@@ -1,0 +1,37 @@
+
+[
+	Small Buckler
+	1
+
+	Shield
+	1
+	0
+	20
+	
+	Defense
+	2
+]
+[
+	Crystal Ball
+	1
+
+	Focus
+	1
+	0
+	20
+
+	Defense
+	2
+]
+[
+	Practice Bow
+	1
+
+	Bow
+	1
+	0
+	20
+
+	Damage
+	2
+]

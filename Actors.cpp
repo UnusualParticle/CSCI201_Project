@@ -82,7 +82,7 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 	switch (item.getType())
 	{
 	case Item::Unarmed:
-	case Item::Weapon:
+	case Item::Melee:
 	case Item::Tool:
 		pair.first.stacks += getStrength();
 		break;
@@ -98,18 +98,8 @@ void Actor::getChoices(ChoiceList& choices) const
 {
 	for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
 	{
-		switch (inventory.getItem(i).getType())
-		{
-		case Item::Unarmed:
-		case Item::Weapon:
-		case Item::Tool:
-		case Item::Spell:
-		case Item::Crystal:
+		if (inventory.getItem(i).usable())
 			choices.push_back((Inventory::Slots)i);
-			break;
-		default:
-			break;
-		}
 	}
 }
 string Actor::itemStr(int slot) const
@@ -118,18 +108,11 @@ string Actor::itemStr(int slot) const
 	std::ostringstream str{};
 
 	int stacks{ item.getEffect().stacks };
-	switch (item.getType())
-	{
-	case Item::Unarmed:
-	case Item::Weapon:
-	case Item::Tool:
+
+	if(item.physical())
 		stacks += stats.strength;
-		break;
-	case Item::Spell:
-	case Item::Crystal:
+	if(item.magikal())
 		stacks += stats.aura;
-		break;
-	}
 
 	str << item.getName() << ' ' << item.getEffect().data->name << '(' << stacks << ')';
 	if (item.getSpecial().stacks > 0)
@@ -305,13 +288,13 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 	util::getline(stream, temp);
 	data.inventory.equipArmor(*ItemBaseList.getdatabyname(temp));
 	util::getline(stream, temp);
-	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
 	util::getline(stream, temp);
-	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
 	util::getline(stream, temp);
-	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
 	util::getline(stream, temp);
-	data.inventory.equipItem(*ItemBaseList.getdatabyname(temp));
+	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
 	util::getline(stream, temp);
 	data.inventory.equipConsumable(*ItemBaseList.getdatabyname(temp));
 
@@ -328,11 +311,21 @@ Enemy generateEnemy(int level)
 
 	int lowlevel{ (level > 2) ? level - 2 : 1 };
 	int highlevel{ (level > maxlevel - 1) ? maxlevel : level + 1 };
-	auto first{ std::find_if(EnemyDataList.begin(), EnemyDataList.end(), [&](const ActorData& data) {return data.level >= lowlevel; }) };
-	auto rlast{ std::find_if(EnemyDataList.rbegin(), EnemyDataList.rend(), [&](const ActorData& data) {return data.level <= highlevel; }) };
-	
+
+	// Go just after the range of acceptable enemies
+	auto last{ std::find_if(EnemyDataList.begin(), EnemyDataList.end(), [&](const ActorData& data) {return data.level > lowlevel; }) };
+	// Go to the start of the range of acceptable enemies, or just after
+	auto rfirst{ std::find_if(EnemyDataList.rbegin(), EnemyDataList.rend(), [&](const ActorData& data) {return data.level < highlevel; }) };
+
+	// Increase the level range down if there was nothing in range
+	if (last == rfirst.base())
+	{
+		int target{ ++rfirst->level };
+		auto rfirst{ std::find_if(EnemyDataList.rbegin(), EnemyDataList.rend(), [&](const ActorData& data) {return data.level < target; }) };
+	}
+
 	ActorData* data{new ActorData()};
-	std::ranges::sample(first, rlast.base(), data, 1, util::randengine);
+	std::ranges::sample(rfirst.base(), last, data, 1, util::randengine);
 	Enemy enemy{ data->makeEnemy() };
 	delete data;
 	

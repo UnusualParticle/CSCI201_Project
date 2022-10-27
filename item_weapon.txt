@@ -22,3 +22,39 @@
 	Damage
 	15
 ]
+[
+	Scroll of Burning
+	1
+
+	Weapon
+	1
+	0
+	40
+	
+	Singe
+	2
+]
+[
+	Flame
+	1
+
+	Spell
+	1
+	2
+	30
+	
+	Burn
+	4
+]
+[
+	Infect
+	1
+
+	Spell
+	1
+	2
+	30
+	
+	Disease
+	4
+]

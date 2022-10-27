@@ -163,14 +163,12 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="effects.txt" />
-    <Text Include="item_scroll.txt" />
+    <Text Include="item_auxiliary.txt" />
     <Text Include="town_firstname.txt" />
     <Text Include="town_greeting.txt" />
     <Text Include="itemmodifiers.txt" />
-    <Text Include="item_armor.txt" />
-    <Text Include="item_crystal.txt" />
-    <Text Include="item_tool.txt" />
-    <Text Include="item_spell.txt" />
+    <Text Include="item_clothing.txt" />
+    <Text Include="item_consumable.txt" />
     <Text Include="item_weapon.txt" />
     <Text Include="town_lastname.txt" />
     <Text Include="namelists.txt" />

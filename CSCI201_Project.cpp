@@ -33,11 +33,10 @@ void loadGameFiles()
     // Load data lists
     EffectDataList.loadFromFile("effects.txt");
     ItemBaseList.loadFromFile("item_default.txt");
-    ItemBaseList.loadFromFile("item_armor.txt");
+    ItemBaseList.loadFromFile("item_clothing.txt");
+    ItemBaseList.loadFromFile("item_auxiliary.txt");
     ItemBaseList.loadFromFile("item_weapon.txt");
-    ItemBaseList.loadFromFile("item_tool.txt");
-    ItemBaseList.loadFromFile("item_spell.txt");
-    ItemBaseList.loadFromFile("item_crystal.txt");
+    ItemBaseList.loadFromFile("item_consumable.txt");
     ItemModifierList.loadFromFile("itemmodifiers.txt");
     PlayerDataList.loadFromFile("playerpresets.txt");
     EnemyDataList.loadFromFile("enemies.txt");

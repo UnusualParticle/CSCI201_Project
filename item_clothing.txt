@@ -35,14 +35,14 @@
 	7
 ]
 [
-	Small Buckler
+	Apprentice Robe
 	1
 
-	Shield
+	Robe
 	1
 	0
 	20
-	
-	Defense
-	2
+
+	ManaMax
+	1
 ]
