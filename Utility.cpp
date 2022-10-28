@@ -98,4 +98,11 @@ namespace util
     {
         return clock.now() > setpoint;
     }
+
+    Counter::Counter(int target)
+        : m_target(target)
+    {}
+    bool Counter::done() const { return m_current >= m_target; }
+    void Counter::reset() { m_current = 0; }
+    Counter& Counter::operator++() { ++m_current; }
 }

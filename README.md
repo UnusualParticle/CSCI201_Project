@@ -109,8 +109,9 @@ Towns are respites for the player, where they may recover, level up, and spend s
         + Aura by level or level+2
 + Spend Gold at various Shops
     + Blacksmith
-        + Two Weapons
-        + One Auxiliary
+        + One Weapon
+        + One Quiver
+        + One Bow or Shield
         + A 1/3 chance for armor 
             + Armor is guaranteed on the 3rd fail
     + Spellmaster
@@ -131,7 +132,7 @@ Towns are respites for the player, where they may recover, level up, and spend s
         + Restores an additional 25% of player health
         + If the player cannot afford to stay, the innkeeper may decrease the price
 + Exit
-    + If the player does not rest at the inn before they leave, they will be asked to stay
+    + If the player does not rest at the inn before they leave, they will be asked if they want to stay
 
 ---
 
@@ -146,9 +147,10 @@ There are many things I opted not to do because of the time it would take to imp
     + [x] Would allow the game to load data faster (because it would be in binary)
     + [x] Would decrease size of data files
     + [x] Would keep the game from having to do data checks
+    + [x] Would make partial data loading easier, decreasing RAM required
     + [ ] The size of this game renders this nearly unnecessary
     + [ ] Writing one would take too long
-+ More common format for data (e.g. .json or .ini files)
++ More common format for data (e.g. .json files)
     + [x] Would allow for reliable syntax highlighting
     + [x] Would allow for use of a library instead of a custom interpreter
     + [x] Would allow for less obtuse data scheme

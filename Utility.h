@@ -189,7 +189,7 @@ namespace util
 	char promptchar(const string& prompt);
 	// Choice prompter for an int range, [low, high]
 	int promptchoice(int low, int high);
-	// Int-based yes/no prompt
+	// Int-based yes/no prompt (returns 0 or 1)
 	bool promptyn();
 
 
@@ -208,5 +208,16 @@ namespace util
 	public:
 		void start(int milliseconds);
 		bool isDone() const;
+	};
+	class Counter
+	{
+	private:
+		int m_target;
+		int m_current{};
+	public:
+		Counter(int target);
+		bool done() const;
+		void reset();
+		Counter& operator++();
 	};
 }

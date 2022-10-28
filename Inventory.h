@@ -168,5 +168,4 @@ public:
 	void dropItem(int slot);
 	void addGold(int _gold);
 	void spendGold(int _gold);
-	void buyItem(const Item&);
 };

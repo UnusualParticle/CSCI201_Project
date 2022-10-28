@@ -1,5 +1,4 @@
 #include "Stages.h"
-#include <iostream>
 
 BattleManager::BattleManager(Actor& _player, Enemy& _enemy)
 {
@@ -148,73 +147,6 @@ bool TownManager::pointersOK() const
     else
         throw std::exception{ "Town Manager not set up" };
 }
-void TownManager::showinventory() const
-{
-    std::cout << "Your inventory:";
-    for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
-    {
-        const auto& item{ player->inventory.getItem(i) };
-
-        if (item.isEmpty())
-            continue;
-
-        std::cout << "\n\t" << item.getStr();
-        if (i == Inventory::SlotClothing)
-            std::cout << " [Armor Slot]";
-        else if (i == Inventory::SlotConsumable)
-            std::cout << " [Consumable Slot]";
-    }
-}
-int TownManager::promptitems(const NPC::SaleItems& items) const
-{
-    int opt{};
-    int max{0};
-
-    for (int i{}; i < items.size(); ++i)
-    {
-        if (items[i].isEmpty())
-            continue;
-
-        ++max;
-        std::cout << "\n\t" << max << ": " << items[i].getStr();
-    }
-    ++max;
-    std::cout << "\n\t" << max << ": Exit Shop\n";
-    
-    opt = util::promptchoice(1, max);
-    return (opt != max) ? opt-1 : -1;
-}
-bool TownManager::promptdrop()
-{
-    int opt{};
-    int max{ 0 };
-    Inventory& items{ player->inventory };
-
-    for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
-    {
-        if (items.getItem(i).isEmpty())
-            continue;
-
-        ++max;
-        std::cout << "\n\t" << max << ": " << items.getItem(i).getStr();
-        if (i == Inventory::SlotClothing)
-            std::cout << " [Armor Slot]";
-        else if (i == Inventory::SlotConsumable)
-            std::cout << " [Consumable Slot]";
-    }
-    ++max;
-    std::cout << "\n\t" << max << ": Cancel\n";
-
-    opt = util::promptchoice(1, max);
-    
-    if (opt < max)
-    {
-        items.dropItem(opt);
-        return true;
-    }
-    else
-        return false;
-}
 
 std::pair<int, int> TownManager::physicallevel()
 {
@@ -293,9 +225,9 @@ void TownManager::visitBlacksmith()
                     }
                     break;
                 case Item::Shield:
-                    if (player->inventory.hasShield())
+                    if (player->inventory.hasAuxiliary())
                     {
-                        std::cout << "You already have a shield " << player->inventory.getItem(Inventory::Slot1).strEffect()
+                        std::cout << "You already have auxiliary equipment " << player->inventory.getItem(Inventory::Slot1).strEffect()
                             << "\n Would you like to drop it and take the new shield?";
 
                         if (util::promptyn())

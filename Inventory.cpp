@@ -70,7 +70,7 @@ void Item::infuse(const Item& item)
 		throw std::overflow_error{ "Item already infused" };
 
 	m_name = m_name + ' ' + item.getName();
-	m_special = item.getSpecial();
+	m_special = item.getEffect();
 	m_price += item.getPrice();
 
 	m_infused = true;
@@ -217,9 +217,32 @@ Item generateItemByType(int level, Item::Type type)
 			items.push_back(i);
 	}
 
-	// If that list has a size of 0, return a random item of the correct level
+	// If that list has a size of 0, look outward for a correct type of item
+	// NOTE:
+	//       There are return statements in this block
 	if (items.size() == 0)
-		return generateItem(level);
+	{
+		bool outofoptions{};
+		while (!outofoptions)
+		{
+			if (range.second != ItemBaseList.end())
+			{
+				if (range.second->getType() == type)
+					return { *range.second };
+				else
+					++range.second;
+			}
+			if (range.first != ItemBaseList.begin())
+			{
+				--range.first;
+				if (range.first->getType() == type)
+					return { *range.first };
+			}
+
+			if (range.first == ItemBaseList.begin() && range.second == ItemBaseList.end())
+				throw std::range_error{ "Could not find an item of the desired type" };
+		}
+	}
 
 	// Select a random item from the list and return it
 	myvec::iterator ptr{};
@@ -459,15 +482,14 @@ void Inventory::addItem(const Item& item)
 		if (!m_tempconsumable.isEmpty())
 		{
 			addItem(m_tempconsumable);
-			m_tempconsumable = Item();
+			m_tempconsumable.remove();
 		}
 	}
 	sort();
 }
 void Inventory::useItem(int slot)
 {
-	if (m_items[slot].getType() == Item::Tool
-		|| m_items[slot].getType() == Item::Crystal)
+	if (m_items[slot].isConsumable())
 		dropItem(slot);
 }
 void Inventory::dropItem(int slot)
@@ -477,8 +499,10 @@ void Inventory::dropItem(int slot)
 	{
 		m_extraconsumable = false;
 		m_tempconsumable = getConsumable(true);
-		m_items[SlotConsumableExtra] = Item();
+		m_items[SlotConsumableExtra].remove();
 	}
+
+	// Remove the item
 	m_items[slot].remove();
 	sort();
 }

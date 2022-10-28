@@ -1,0 +1,4 @@
+'s Blacksmith
+'s Spells
+ Trader
+ Inn

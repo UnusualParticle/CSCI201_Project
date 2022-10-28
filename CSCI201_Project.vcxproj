@@ -177,6 +177,7 @@
     <Text Include="templates.txt" />
     <Text Include="item_default.txt" />
     <Text Include="town_offer.txt" />
+    <Text Include="town_shop.txt" />
     <Text Include="town_suffix.txt" />
   </ItemGroup>
   <ItemGroup>
