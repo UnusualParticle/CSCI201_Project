@@ -10,7 +10,7 @@ Effect
 [
 	Name
 	Stat
-	Power
+	Power			-1: Instant		-2: Constant
 	boon/curse
 ]
 
@@ -20,12 +20,14 @@ Item
 	Level
 
 	Type
-	Slots
+	Weight
 	Mana Cost
 	Gold Price
 
 	Effect Name
 	Effect Stats
+	Special Name	# Optional
+	Special Stats	# Optional
 ]
 
 Actor

@@ -1,12 +1,13 @@
 [
 # Stats
     Armor
-    Aura
     Health
     Maximum Health
+    Strength
     Mana
     Maximum Mana
-    Strength
+    Aura
+    Focus
 ]
 [
 # Item Types

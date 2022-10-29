@@ -1,48 +1,113 @@
+## Armor
 [
-	Leather Armor
+	Armor 1
 	1
 
 	Armor
 	1
 	0
-	25
-	
-	Defense
+	10
+
+	Armor
 	2
 ]
 [
-	Iron Armor
+	Armor 2
+	2
+
+	Armor
+	1
+	0
+	15
+
+	Armor
+	4
+]
+[
+	Armor 3
 	3
 
 	Armor
 	1
 	0
-	60
+	20
 
-	Defense
-	4
+	Armor
+	3
 ]
+
+## Cloaks
 [
-	Steel Armor
-	8
+	Cloak 1
+	1
+
+	Cloak
+	1
+	0
+	10
 
 	Armor
 	1
-	0
-	100
-
-	Defense
-	7
 ]
 [
-	Apprentice Robe
+	Cloak 2
+	2
+
+	Cloak
 	1
+	0
+	15
+
+	Armor
+	1
+]
+[
+	Cloak 3
+	3
+
+	Cloak
+	1
+	0
+	20
+
+	Armor
+	1
+]
+
+## Robes
+[
+	Robe 1
+	1
+
+	Robe
+	1
+	0
+	10
+
+	Maximum Mana
+	1
+]
+[
+	Robe 2
+	2
+
+	Robe
+	1
+	0
+	15
+
+	Maximum Mana
+	2
+]
+[
+	Robe 3
+	3
 
 	Robe
 	1
 	0
 	20
 
-	ManaMax
-	1
+	Maximum Mana
+	3
 ]

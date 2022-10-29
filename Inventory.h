@@ -82,7 +82,7 @@ public:
 	string strEffect() const;
 	string strPrice() const;
 	string strWeight() const;
-	string getStr(int flags = flag_effects | flag_weight | flag_effects) const;
+	string getStr(int flags = flag_effects | flag_weight | flag_price) const;
 
 	// Type Methods cont.
 	bool isEmpty() const;
@@ -166,6 +166,6 @@ public:
 	void addItem(const Item& item);
 	void useItem(int slot);
 	void dropItem(int slot);
-	void addGold(int _gold);
-	void spendGold(int _gold);
+	void addGold(int gold);
+	void spendGold(int gold);
 };

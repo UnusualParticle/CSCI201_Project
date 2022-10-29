@@ -73,10 +73,10 @@ namespace util
         return value;
     }
     // Int-based yes/no prompt
-    bool promptyn(const string& prompt)
+    bool promptyn()
     {
-        std::cout << "\n\t1. Yes" << "\n\t2. No";
-        return promptchoice(1, 2)-1;
+        std::cout << "\n\t1. Yes" << "\n\t2. No\n";
+        return promptchoice(1, 2) == 1;
     }
 
     std::istream& getline(std::istream& stream, string& str, char delim)
@@ -104,5 +104,5 @@ namespace util
     {}
     bool Counter::done() const { return m_current >= m_target; }
     void Counter::reset() { m_current = 0; }
-    Counter& Counter::operator++() { ++m_current; }
+    Counter& Counter::operator++() { ++m_current; return *this; }
 }

@@ -9,13 +9,12 @@ protected:
 	string name{};
 	StatBlock stats{};
 	int level{};
-	std::vector<Effect> effects{};
-	void _addeffect(const Effect& e);
 	void _levelup();
 	void _startencounter();
 public:
 	Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1);
 	Inventory inventory{};
+	EffectList m_effects{};
 	using ChoiceList = std::vector<Inventory::Slots>;
 
 	const string& getName() const;
@@ -31,8 +30,8 @@ public:
 	int getStrength() const;
 
 	// Basic Stat Modification
-	void takeDamage(int n);
-	void heal(int n);
+	void changehealth(int n);
+	void changemana(int n);
 	void levelPhysical(std::pair<int, int>);
 	void levelMagikal(std::pair<int,int>);
 
@@ -44,6 +43,7 @@ public:
 
 	// Effect Methods
 	void addEffect(const Effect& effect);
+	const std::vector<Effect>& getEffects() const;
 	int getStatModifier(StatBlock::Stats stat) const;
 
 	// Inventory Methods
@@ -62,10 +62,10 @@ public:
 
 struct ActorData
 {
-	string name;
-	StatBlock stats;
-	Inventory inventory;
-	int level;
+	string name{};
+	StatBlock stats{};
+	Inventory inventory{};
+	int level{};
 
 	static const int _basegold{ 5 };
 	static const int _goldperlevel{ 2 };
@@ -78,6 +78,8 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data);
 inline util::DataVector<ActorData> PlayerDataList{};
 inline util::DataVector<ActorData> EnemyDataList{};
 Enemy generateEnemy(int level);
+
+class Town;
 
 class NPC
 {
@@ -125,7 +127,7 @@ public:
 	const SaleItems& items() const;
 	void removeItem(int slot);
 
-	friend namelist Town::npc_lastnames();
+	friend class Town;
 };
 
 class Town
@@ -142,7 +144,6 @@ private:
 	static const int roomprice_level{ 3 };
 
 	static std::vector<string> townsuffix;
-	static std::vector<string> npc_lastnames();
 	static void generatetownname(string& name);
 public:
 	Town(int level);
@@ -153,6 +154,4 @@ public:
 
 	const string& getName() const;
 	int getRoomPrice() const;
-
-	NPC& getNPC(NPC::Shop shop);
 };

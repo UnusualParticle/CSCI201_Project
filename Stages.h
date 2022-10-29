@@ -28,41 +28,10 @@ private:
     int playerpre{};
     int enemypre{};
 
-    bool pointersOK() const
-    {
-        if (player && enemy)
-            return true;
-        else
-            throw std::exception{ "Battle Manager not set up" };
-    }
-    void startPlayerTurn()
-    {
-        recordHealth();
-        player->startTurn();
-
-        if (!checkDone())
-        {
-            state = PlayerTurn;
-        }
-    }
-    void startEnemyTurn()
-    {
-        recordHealth();
-        enemy->startTurn();
-
-        if (!checkDone())
-            state = EnemyTurn;
-    }
-    bool checkDone()
-    {
-        if (player->getHealth() <= 0)
-            state = Lose;
-        else if (enemy->getHealth() <= 0)
-            state = Win;
-        else
-            return false;
-        return true;
-    }
+    bool pointersOK() const;
+    void startPlayerTurn();
+    void startEnemyTurn();
+    bool checkDone();
 public:
     BattleManager(Actor& _player, Enemy& _enemy);
     // Assign the player and enemy to the manager
@@ -116,13 +85,6 @@ private:
     static const int mana_high{ 4 };
     static const int mana_level{ 1 };
     bool pointersOK() const;
-    void showinventory() const;
-    int promptitems(const NPC::SaleItems& items) const;
-    bool promptdrop();
-
-    void visitBlacksmith();
-    void visitSpellmaster();
-    void visitTrader();
 public:
     TownManager(Actor& _player, Town& _town);
     // Assign the player and enemy to the manager
@@ -134,7 +96,4 @@ public:
     void walkto(Location);
     void update();
     Location getLocation() const;
-
-    void visitLocation(Location);
-    void visitInn();
 };

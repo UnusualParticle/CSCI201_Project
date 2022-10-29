@@ -172,7 +172,7 @@ void TownManager::walkto(Location l)
     if (location == l)
         return;
 
-    tmr.start(2000);
+    tmr.start(1000);
     walk = true;
     location = l;
 }
@@ -190,90 +190,3 @@ TownManager::Location TownManager::getLocation() const
     else
         return location;
 }
-
-void TownManager::visitBlacksmith()
-{
-    // Introduction
-    NPC* npc = &town->npcs[Town::Blacksmith];
-    const NPC::SaleItems& items(npc->items());
-    int opt{};
-
-    std::cout << npc->greet();
-    opt = promptitems(items);
-
-    bool internal_loop_ok;
-    while (opt > 0)
-    {
-        const auto& item{ npc->items()[opt] };
-        if (player->inventory.getGold() < item.getPrice())
-            std::cout << "You cannot afford this item.\n\n";
-        else
-        {
-            if(player->inventory.hasRoomFor(item))
-                player->inventory.buyItem(item);
-            else
-            {
-                switch (item.getType())
-                {
-                case Item::Armor:
-                    std::cout << "You already have armor: " << player->inventory.getClothing().strEffect()
-                        << "\n Would you like to drop it and take the new armor?";
-                    if (util::promptyn())
-                    {
-                        player->inventory.dropItem(Inventory::SlotClothing);
-                        player->inventory.buyItem(item);
-                    }
-                    break;
-                case Item::Shield:
-                    if (player->inventory.hasAuxiliary())
-                    {
-                        std::cout << "You already have auxiliary equipment " << player->inventory.getItem(Inventory::Slot1).strEffect()
-                            << "\n Would you like to drop it and take the new shield?";
-
-                        if (util::promptyn())
-                        {
-                            player->inventory.dropItem(Inventory::Slot1);
-                            player->inventory.buyItem(item);
-                        }
-                    }
-                    else if (player->inventory.weightAvailable() < item.getWeight())
-                    {
-                        internal_loop_ok = true;
-                        while (internal_loop_ok && player->inventory.weightAvailable() < item.getWeight())
-                        {
-                            std::cout << "You do not have room for the shield. You need " << item.getWeight() << " space,\nbut you only have "
-                                << player->inventory.weightAvailable() << " space available.";
-
-                            if (!promptdrop())
-                                internal_loop_ok = false;
-                        }
-                    }
-                    break;
-                default:
-                    internal_loop_ok = true;
-                    while (internal_loop_ok && player->inventory.weightAvailable() < item.getWeight())
-                    {
-                        std::cout << "You do not have room for the item. You need " << item.getWeight() << " space,\nbut you only have "
-                            << player->inventory.weightAvailable() << " space available.";
-
-                        if (!promptdrop())
-                            internal_loop_ok = false;
-                    }
-                    break;
-                    // End switch
-                } 
-
-                //End !hasroom
-            }
-
-            // End buy
-        }
-
-        // Prompt player for item again
-        std::cout << "Will you buy anything else?";
-        opt = promptitems(items);
-    }
-}
-void TownManager::visitSpellmaster();
-void TownManager::visitTrader();
-void TownManager::visitInn();

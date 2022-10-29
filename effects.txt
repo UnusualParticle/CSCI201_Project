@@ -5,22 +5,50 @@
 	curse
 ]
 [
+	Armor
+	Armor
+	-2
+	boon
+]
+[
+	Maximum Health
+	Maximum Health
+	-2
+	boon
+]
+[
+	Strength
+	Strength
+	-2
+	boon
+]
+[
+	Maximum Mana
+	Maximum Mana
+	-2
+	boon
+]
+[
+	Aura
+	Aura
+	-2
+	boon
+]
+[
+	Focus
+	Focus
+	-2
+	boon
+]
+# Extra Slot
+# Extra Slot
+# -2
+# boon
+[
 	Damage
 	Health
 	-1
 	curse
-]
-[
-	Burn
-	Health
-	-1
-	curse
-]
-[
-	Defense
-	Armor
-	-1
-	boon
 ]
 [
 	Heal

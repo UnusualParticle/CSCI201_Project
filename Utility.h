@@ -179,6 +179,8 @@ namespace util
 		iterator end() { return v.end(); }
 		reverse_iterator rbegin() { return v.rbegin(); }
 		reverse_iterator rend() { return v.rend(); }
+
+		size_t size() { return v.size(); }
 	};
 
 	// My basic string prompter

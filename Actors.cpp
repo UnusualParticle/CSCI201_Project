@@ -38,22 +38,42 @@ int Actor::getStrength() const
 	return stats.strength + getStatModifier(StatBlock::Strength);
 }
 // Basic Stat Modification
-void Actor::takeDamage(int n)
+void Actor::changehealth(int n)
 {
-	n -= getArmor();
-	if (n < 1)
-		n = 1;
-	stats.health -= n;
+	if (n > 0)
+	{
+		stats.health += n;
+		if (stats.health > stats.healthMax)
+			stats.health = stats.healthMax;
+	}
+	else if (n < 0)
+	{
+		n += getArmor();
+		if (n > -1)
+			n = -1;
+		stats.health += n;
+		if (getHealth() < 0)
+			stats.health += 0 - getHealth();
+	}
 }
-void Actor::heal(int n)
+void Actor::changemana(int n)
 {
-	stats.health += n;
-	if (stats.health > stats.healthMax)
-		stats.health = stats.healthMax;
+	if (n > 0)
+	{
+		stats.mana += n;
+		if (stats.mana > stats.manaMax)
+			stats.mana = stats.manaMax;
+	}
+	else if (n < 0)
+	{
+		stats.mana += n;
+		if (getMana() < 0)
+			stats.mana += 0 - getMana();
+	}
 }
 void Actor::_levelup()
 {
-	heal(stats.healthMax / 4);
+	changehealth(stats.healthMax / 4);
 	stats.mana = stats.manaMax;
 	++level;
 }
@@ -155,87 +175,86 @@ void Actor::startBattle()
 	if (!inventory.getClothing().isEmpty())
 	{
 		const auto& armor{ inventory.getClothing() };
-		_addeffect(armor.getEffect());
+		m_effects.addEffect(armor.getEffect());
 		if(armor.getSpecial().stacks > 0)
-			_addeffect(armor.getSpecial());
+			m_effects.addEffect(armor.getSpecial());
 	}
 
 	if (inventory.hasAuxiliary())
 	{
 		const auto& aux{ inventory.getAuxiliary() };
-		_addeffect(aux.getEffect());
+		m_effects.addEffect(aux.getEffect());
 		if (aux.getSpecial().stacks > 0)
-			_addeffect(aux.getSpecial());
+			m_effects.addEffect(aux.getSpecial());
 	}
 }
 void Actor::endBattle()
 {
 	if (getHealth() > 0)
 	{
-		effects.clear();
+		m_effects.clear();
 		if (getHealth() < 0)
 			stats.health = 1;
 	}
 }
 void Actor::startTurn()
 {
-	for (Effect& e : effects)
+	for (const Effect& e : m_effects.getEffects())
 	{
-		if (e.data->stat == StatBlock::Health)
-			takeDamage(e.data->power);
-		else if (e.data->stat == StatBlock::Mana)
-			stats.aura -= e.data->power;
+		if (e.data->power < 0)
+			continue;
 
-		if (e.stacks > 0)
+		switch (e.data->stat)
 		{
-			--e.stacks;
+		case StatBlock::Health:
+			if (e.data->boon)
+				changehealth(e.data->power);
+			else
+				changehealth(-(e.data->power));
+			break;
+		case StatBlock::Mana:
+			if (e.data->boon)
+				changemana(e.data->power);
+			else
+				changemana(-(e.data->power));
+			break;
 		}
 	}
-	auto discard{ std::remove_if(effects.begin(), effects.end(), [](const Effect& e) { return e.stacks == 0; }) };
+	m_effects.update();
 }
 void Actor::enterShop()
 {
 	_startencounter();
 }
 // Effect Methods
-void Actor::_addeffect(const Effect& effect)
+void Actor::addEffect(const Effect& e)
 {
-	auto ptr{ std::find_if(effects.begin(), effects.end(), [effect](const Effect& e) {return e.data->id == effect.data->id; }) };
-	if (ptr == effects.end())
-		effects.push_back(effect);
-	else if (ptr->stacks < effect.stacks)
-		ptr->stacks = effect.stacks;
-}
-void Actor::addEffect(const Effect& effect)
-{
-	if (effect.data->power == -1)
+	if (e.data->power == -1)
 	{
-		if (effect.data->stat == StatBlock::Health)
-			takeDamage(effect.stacks);
-		else if (effect.data->stat == StatBlock::Mana)
-			stats.aura -= effect.stacks;
-		else
-			_addeffect(effect);
+		switch (e.data->stat)
+		{
+		case StatBlock::Health:
+			if (e.data->boon)
+				changehealth(e.data->power);
+			else
+				changehealth(-(e.data->power));
+			break;
+		case StatBlock::Mana:
+			if (e.data->boon)
+				changemana(e.data->power);
+			else
+				changemana(-(e.data->power));
+			break;
+		}
 	}
 	else
 	{
-		_addeffect(effect);
+		m_effects.addEffect(e);
 	}
 }
 int Actor::getStatModifier(StatBlock::Stats stat) const
 {
-	int value{};
-	for (const auto& e : effects)
-	{
-		if (e.data->stat == stat)
-		{
-			if (e.data->power == -1)
-				value += e.stacks;
-			else
-				value += e.data->power;
-		}
-	}
-	return value;
+	return m_effects.getStat(stat);
 }
 
 // Enemy Methods
@@ -321,9 +340,9 @@ Enemy generateEnemy(int level)
 	int highlevel{ (level > maxlevel - 1) ? maxlevel : level + 1 };
 
 	// Go just after the range of acceptable enemies
-	auto last{ std::find_if(EnemyDataList.begin(), EnemyDataList.end(), [&](const ActorData& data) {return data.level > lowlevel; }) };
+	auto last{ std::find_if(EnemyDataList.begin(), EnemyDataList.end(), [&](const ActorData& data) {return data.level > highlevel; }) };
 	// Go to the start of the range of acceptable enemies, or just after
-	auto rfirst{ std::find_if(EnemyDataList.rbegin(), EnemyDataList.rend(), [&](const ActorData& data) {return data.level < highlevel; }) };
+	auto rfirst{ std::find_if(EnemyDataList.rbegin(), EnemyDataList.rend(), [&](const ActorData& data) {return data.level < lowlevel; }) };
 
 	// Increase the level range down if there was nothing in range
 	if (last == rfirst.base())
@@ -348,6 +367,7 @@ std::vector<string> NPC::s_firstnames{};
 std::vector<string> NPC::s_lastnames{};
 std::vector<string> NPC::s_greetings{};
 std::vector<string> NPC::s_offers{};
+std::vector<string> NPC::s_shops{};
 
 NPC::NPC(Shop shop, int level)
 {
@@ -359,7 +379,7 @@ NPC::NPC(Shop shop, int level)
 	int index_first{ util::randint(0,s_firstnames.size() - 1) };
 	fname = s_firstnames[index_first];
 	int index_last{ util::randint(0,s_lastnames.size() - 1) };
-	lname = s_firstnames[index_first];
+	lname = s_lastnames[index_last];
 
 	int index_greet{ util::randint(0,s_greetings.size() - 1) };
 	int index_offer{ util::randint(0,s_offers.size() - 1) };
@@ -494,9 +514,9 @@ std::vector<string> Town::townsuffix{};
 
 void Town::generatetownname(string& name)
 {
-	int index_name{ util::randint(0,npc_lastnames().size() - 1)};
+	int index_name{ util::randint(0,NPC::s_lastnames.size() - 1)};
 	int index_suffix{ util::randint(0,townsuffix.size() - 1) };
-	name = npc_lastnames()[index_name] + townsuffix[index_suffix];
+	name = NPC::s_lastnames[index_name] + townsuffix[index_suffix];
 }
 Town::Town(int level)
 {

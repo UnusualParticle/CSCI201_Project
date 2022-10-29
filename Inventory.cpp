@@ -7,6 +7,8 @@
 // Static Variables
 util::NameMap<Item::Type>* Item::_typemap{};
 util::NameArray<Item::TYPES_TOTAL> Item::typenames{};
+util::NameMap<Item::Type>* Item::_supermap{};
+util::NameArray<(size_t)Item::Super::MAJOR_TOTAL> Item::supernames{};
 // Type Methods
 Item::Type Item::getType() const { return m_type; }
 Item::Super Item::getSuper() const { return m_super; }
@@ -34,7 +36,7 @@ string Item::strWeight() const
 string Item::getStr(int flags) const
 {
 	std::ostringstream str{};
-	str << m_name;
+	str << '[' << typenames.getName(m_type) << "] " << m_name;
 	if (flags & flag_effects)
 	{
 		str << " [" << m_effect.data->name << ": " << m_effect.stacks;
@@ -78,16 +80,19 @@ void Item::infuse(const Item& item)
 // Operator Methods/Functions
 Item& Item::operator=(const Item& other)
 {
+	m_name = other.m_name;
+	m_level = other.m_level;
 	m_type = other.m_type;
 	m_super = other.m_super;
-	m_level = other.m_level;
+	m_usetype = other.m_usetype;
+
 	m_weight = other.m_weight;
-	m_name = other.m_name;
-	m_effect.data = other.m_effect.data;
-	m_effect.stacks = other.m_effect.stacks;
 	m_mana = other.m_mana;
 	m_price = other.m_price;
+
 	m_infused = other.m_infused;
+	m_effect = other.m_effect;
+	m_special = other.m_special;
 
 	return *this;
 }
@@ -160,6 +165,14 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 	util::getline(stream, str);
 	stream >> num;
 	item.m_effect = EffectDataList.getdatabyname(str)->make(num);
+	
+	stream >> std::ws;
+	if (stream.peek() != ']')
+	{
+		util::getline(stream, str);
+		stream >> num;
+		item.m_special = EffectDataList.getdatabyname(str)->make(num);
+	}
 
 	// Look for a closing bracket
 	stream.ignore(util::STREAMMAX, ']');
@@ -209,12 +222,12 @@ Item generateItemByType(int level, Item::Type type)
 	auto range{ getItemRangeByLevel(level) };
 
 	// Get the items in that range with the correct type
-	using myvec = std::vector<util::DataVector<Item>::const_iterator>;
+	using myvec = std::vector<Item*>;
 	myvec items{};
 	for (auto i{ range.first }; i != range.second; ++i)
 	{
 		if (i->getType() == type)
-			items.push_back(i);
+			items.push_back(i._Ptr);
 	}
 
 	// If that list has a size of 0, look outward for a correct type of item
@@ -245,17 +258,28 @@ Item generateItemByType(int level, Item::Type type)
 	}
 
 	// Select a random item from the list and return it
-	myvec::iterator ptr{};
+	//   Cannot use nullptr as an argument, needs to already have a value
+	//   It is a pointer to a pointer, so it needs to be assigned to a pointer from the heap
+	Item** ptr{ new Item* {} };
 	std::ranges::sample(items.begin(), items.end(), ptr, 1, util::randengine);
 	
 	// Return a copy of the item
 	Item item{ **ptr };
+	delete ptr;				// Don't forget to delete it
 	return item;
 }
 
 /* * * * * * * *
 *	Inventory  *
 * * * * * * * */
+class InvException : public std::exception
+{
+public:
+	InvException(const char* str)
+		: std::exception(str)
+	{}
+};
+
 
 // Iterator Methods
 Inventory::iterator Inventory::slot_begin() { return m_items.begin() + Slot1; }
@@ -279,22 +303,25 @@ void Inventory::slotsverify() const
 		{
 		case SlotClothing:
 			if (!m_items[i].isClothing())
-				throw std::overflow_error{ "Clothing slot error" };
+				throw InvException{ "Clothing slot error" };
+			break;
 		case SlotConsumable:
 		case SlotConsumableExtra:
 			if (!m_items[i].isConsumable())
-				throw std::overflow_error{ "Consumable slot error" };
+				throw InvException{ "Consumable slot error" };
+			break;
 		case Slot1:
 		case Slot2:
 		case Slot3:
 		case Slot4:
 			if (m_items[i].isClothing())
-				throw std::overflow_error{ "General purpose slot error" };
+				throw InvException{ "General purpose slot error" };
+			break;
 		}
 	}
 
 	if (!m_extraconsumable && !m_items[SlotConsumableExtra].isEmpty())
-		throw std::overflow_error{ "Extra consumable slot error" };
+		throw InvException{ "Extra consumable slot error" };
 }
 void Inventory::verify() const
 {
@@ -311,7 +338,7 @@ void Inventory::verify() const
 			if (!hasaux)
 				hasaux = true;
 			else
-				throw std::overflow_error{ "More than one auxiliary equipment in inventory" };
+				throw InvException{ "More than one auxiliary equipment in inventory" };
 		}
 
 		weightsum += m_items[i].getWeight();
@@ -319,7 +346,7 @@ void Inventory::verify() const
 
 	// Weight Check
 	if (weightsum > MAX_WEIGHT)
-		throw std::overflow_error{ "Too much being carried" };
+		throw InvException{ "Too much being carried" };
 }
 void Inventory::sort()
 {
@@ -357,14 +384,17 @@ void Inventory::sort()
 		});
 
 	// If there is an available slot, and no unarmed weapon, add one
+	bool hasunarmed{};
 	for (int i{ start }; i <= Slot4; ++i)
 	{
 		if (m_items[i].getType() == Item::Unarmed)
+		{
+			hasunarmed = true;
 			break;
-
-		if (m_items[i].isEmpty())
-			m_items[i] = *ItemBaseList.getdatabyname("Unarmed");
+		}
 	}
+	if(!hasunarmed && generalSlotsAvailable() > 0)
+		m_items[Slot4] = *ItemBaseList.getdatabyname("Unarmed");
 }
 int Inventory::generalSlotsAvailable() const
 {
@@ -453,7 +483,7 @@ void Inventory::addItem(const Item& item)
 {
 	// Verify that there is room
 	if(!hasRoomFor(item))
-		throw std::range_error{ "Not enough room for the item, drop something first" };
+		throw InvException{ "Not enough room for the item, drop something first" };
 
 	// Where is the room
 	auto ptr{ m_items.end() };
@@ -470,9 +500,13 @@ void Inventory::addItem(const Item& item)
 		break;
 	}
 
-	// Room not found yet
+	// Room not found yet, pick a general slot
 	if (ptr == m_items.end())
+	{
 		ptr = findgeneralempty();
+		if (ptr == slot_end())
+			throw InvException{ "Not a general slot" };
+	}
 
 	// Assign the item and sort the inventory
 	*ptr = item;
@@ -519,9 +553,4 @@ void Inventory::spendGold(int gold)
 	if (gold > m_gold)
 		throw std::underflow_error{ "Not enough gold in inventory. Verify amount before calling spendGold()" };
 	m_gold -= gold;
-}
-void Inventory::buyItem(const Item& item)
-{
-	spendGold(item.getPrice());
-	addItem(item);
 }

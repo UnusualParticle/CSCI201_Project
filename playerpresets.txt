@@ -8,9 +8,9 @@
 	3
 	3
 	
-	Empty
-	Rusty Sword
-	Empty
+	Armor 1
+	Shield 1
+	Melee 1
 	Empty
 	Empty
 	Empty
@@ -25,10 +25,27 @@
 	8
 	1
 	
+	Robe 1
+	Focus 1
+	Spell 1
 	Empty
-	Flame
 	Empty
 	Empty
+]
+[
+	Rogue
+	1
+
+	0
+	1
+	17
+	3
+	1
+	
+	Cloak 1
+	Bow 1
+	Quiver 1
 	Empty
 	Empty
+	Arrow 1
 ]

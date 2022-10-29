@@ -1,31 +1,69 @@
-
+## Shields
 [
-	Small Buckler
+	Shield 1
 	1
 
 	Shield
 	1
 	0
-	20
-	
-	Defense
+	10
+
+	Armor
 	2
 ]
 [
-	Crystal Ball
-	1
+	Shield 2
+	2
 
-	Focus
+	Shield
+	1
+	0
+	15
+
+	Armor
+	4
+]
+[
+	Shield 3
+	3
+
+	Shield
 	1
 	0
 	20
 
-	Defense
+	Armor
+	6
+]
+
+## Bows
+[
+	Bow 1
+	1
+
+	Bow
+	1
+	0
+	10
+
+	Damage
 	2
 ]
 [
-	Practice Bow
+	Bow 2
+	3
+
+	Bow
 	1
+	0
+	15
+
+	Damage
+	4
+]
+[
+	Bow 3
+	3
 
 	Bow
 	1
@@ -33,5 +71,43 @@
 	20
 
 	Damage
+	6
+]
+
+## Foci
+[
+	Focus 1
+	1
+
+	Focus
+	1
+	0
+	10
+
+	Damage
 	2
+]
+[
+	Focus 2
+	2
+
+	Focus
+	1
+	0
+	15
+
+	Damage
+	4
+]
+[
+	Focus 3
+	3
+
+	Focus
+	1
+	0
+	20
+
+	Damage
+	6
 ]

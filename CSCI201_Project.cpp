@@ -37,7 +37,7 @@ void loadGameFiles()
     ItemBaseList.loadFromFile("item_auxiliary.txt");
     ItemBaseList.loadFromFile("item_weapon.txt");
     ItemBaseList.loadFromFile("item_consumable.txt");
-    ItemModifierList.loadFromFile("itemmodifiers.txt");
+    //ItemModifierList.loadFromFile("itemmodifiers.txt");
     PlayerDataList.loadFromFile("playerpresets.txt");
     EnemyDataList.loadFromFile("enemies.txt");
 
@@ -45,17 +45,25 @@ void loadGameFiles()
     std::sort(ItemBaseList.begin(), ItemBaseList.end(), [](const Item& first, const Item& last) {return first.getLevel() < last.getLevel(); });
     std::sort(EnemyDataList.begin(), EnemyDataList.end(), [](const ActorData& first, const ActorData& last) {return first.level < last.level; });
 
+    NPC::load();
     Town::load();
 
     delete Item::_typemap;
     delete Item::_supermap;
     delete StatBlock::_namemap;
 }
-void debugGameFiles()
+bool debugGameFiles()
 {
-    char opt{ util::promptchar("View Data [y,n]? ") };
+    std::cout << "What would you like to do?"
+        << "\n\t1. Continue"
+        << "\n\t2. View Data"
+        << "\n\t3. Exit Program\n";
+    int opt{ util::promptchoice(1,3)};
 
-    if (opt == 'y')
+    if (opt == 3)
+        return false;
+
+    if (opt == 2)
     {
         std::cout << "== Stat Names ==\n";
         for (const auto& n : StatBlock::statnames)
@@ -92,6 +100,8 @@ void debugGameFiles()
             std::cout << n.name << '\n';
         std::cout << std::endl;
     }
+
+    return true;
 }
 void startGame(Actor& player)
 {
@@ -109,7 +119,7 @@ void startGame(Actor& player)
 
 void printPlayerInfo(const Actor& player)
 {
-    std::cout << "\n\n== == == == == == == == == == == == ==\n"
+    std::cout << "\n== == == == == == == == == == == == == ==\n"
         << "| " << player.getName() << "  |  " << player.getLevel() << "  |  " << player.inventory.getGold() << " gp\n"
         << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n"
         << "| Health: " << player.getHealth() << '/' << player.getHealthMax() << "  |  Strength: " << player.getStrength() << '\n'
@@ -117,7 +127,7 @@ void printPlayerInfo(const Actor& player)
         << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n";
 
     const Inventory& inv{ player.inventory };
-    const int strflag{ Item::flag_effects & Item::flag_weight };
+    const int strflag{ Item::flag_effects | Item::flag_weight };
 
     std::cout << "|      Armor: ";
     if (inv.getClothing().isEmpty())
@@ -135,7 +145,7 @@ void printPlayerInfo(const Actor& player)
     for (int i{ Inventory::Slot1 + hasaux }; i <= Inventory::Slot4; ++i)
     {
         const Item& item{ inv.getItem(i) };
-        std::cout << "\n|     Item "<< (Inventory::Slot1-i+1) << ": " << item.getStr(strflag);
+        std::cout << "\n|     Item "<< (i-Inventory::Slot1+1) << ": " << item.getStr(strflag);
     }
 
     std::cout << "\n| Consumable: ";
@@ -152,6 +162,8 @@ void printPlayerInfo(const Actor& player)
         else
             std::cout << inv.getConsumable(true).getStr(strflag);
     }
+
+    std::cout << "\n== == == == == == == == == == == == == ==\n\n";
 }
 bool promptDropItem(Inventory& inv)
 {
@@ -167,9 +179,9 @@ bool promptDropItem(Inventory& inv)
         ++max;
         std::cout << "\n\t" << max << ": ";
         if (i == Inventory::SlotClothing)
-            std::cout << " [Armor Slot]";
+            std::cout << "[Armor Slot] ";
         else if (i == Inventory::SlotConsumable || i == Inventory::SlotConsumableExtra)
-            std::cout << " [Consumable Slot]";
+            std::cout << "[Consumable Slot] ";
         std::cout << inv.getItem(i).getStr(Item::flag_effects & Item::flag_weight);
         choices.push_back(i);
     }
@@ -242,8 +254,23 @@ bool promptTakeItem(Inventory& inv, const Item& item)
                 exit = true;
         }
     }
+    return false;
 }
 
+void displayBattleStats(const Actor& actor)
+{
+    std::cout << ' ' << actor.getName()
+        << ": Hp(" << actor.getHealth() << '/' << actor.getHealthMax()
+        << ") Mp(" << actor.getMana() << '/' << actor.getManaMax()
+        << ") ";
+    const std::vector<Effect>& effects{ actor.getEffects() };
+    if (effects.size())
+    {
+        for (const auto& e : effects)
+            std::cout << e.data->getName() << '(' << e.stacks << ") ";
+    }
+    std::cout << "\n\n";
+}
 void displayHealthChanges(std::pair<int, int> pair, const string& enemyName)
 {
     // Player health
@@ -280,17 +307,11 @@ void startBattle(Actor& player)
 
         if (manager.getState() == BattleManager::PlayerTurn)
         {
-            std::cout << "\nIt is your turn.\n\n";
+            std::cout << "\nIt is your turn.\n";
 
             // Display Stats
-            std::cout << player.getName()
-                << ": Hp(" << player.getHealth() << '/' << player.getHealthMax()
-                << ") Mp(" << player.getMana() << '/' << player.getManaMax()
-                << ")\n\n";
-            std::cout << enemy.getName()
-                << ": Hp(" << enemy.getHealth() << '/' << enemy.getHealthMax()
-                << ") Mp(" << enemy.getMana() << '/' << enemy.getManaMax()
-                << ")\n\n";
+            displayBattleStats(player);
+            displayBattleStats(enemy);
 
             // Get valid options from inventory
             Actor::ChoiceList choices;
@@ -349,7 +370,6 @@ void startBattle(Actor& player)
     player.endBattle();
 }
 
-// Return -1 to leave
 int promptShopVisit(const Town& town)
 {
     int opt{};
@@ -365,31 +385,31 @@ int promptShopVisit(const Town& town)
     switch (opt)
     {
     case NPC::Blacksmith:
-        std::cout << "You make your way to the blacksmith, looking for a weapon or some armor.";
+        std::cout << "You make your way to the blacksmith, looking for a weapon or some armor.\n";
         break;
     case NPC::Spellmaster:
-        std::cout << "You make your way to the spellmaster, looking for a powerfull spell.";
+        std::cout << "You make your way to the spellmaster, looking for a powerfull spell.\n";
         break;
     case NPC::Trader:
-        std::cout << "You make your way to the trader, hoping to find a useful tool.";
+        std::cout << "You make your way to the trader, hoping to find a useful tool.\n";
         break;
     case NPC::Inn:
-        std::cout << "You make your way to the inn, looking for a good night's sleep and some breakfast.";
+        std::cout << "You make your way to the inn, looking for a good night's sleep and some breakfast.\n";
         break;
     case NPC::SHOPS_TOTAL:
-        std::cout << "You make your way out of the city to continue on your journey.";
+        std::cout << "You make your way out of the town to continue on your journey.\n";
         break;
     }
 
-    return (opt == NPC::SHOPS_TOTAL) ? -1 : opt;
+    return (opt == NPC::SHOPS_TOTAL) ? TownManager::Location::Exit : opt + TownManager::Location::Blacksmith;
 }
 int promptShopItems(const NPC& npc)
 {
     int opt{};
     const auto& items{ npc.items() };
-    int max{ items.size()+1 };
+    int max{ (int)items.size()+1 };
 
-    for (int i{}; i < items.size(); ++i)
+    for (int i{}; i < (int)items.size(); ++i)
     {
         std::cout << "\n\t" << i+1 << ": " << items[i].getStr();
     }
@@ -401,23 +421,26 @@ int promptShopItems(const NPC& npc)
 void visitShop(Actor& player, NPC& npc)
 {
     player.enterShop();
-    std::cout << "\nYou enter " << npc.shopname() << '\n';
+    std::cout << "\nYou enter " << npc.shopname() << ".\n";
     std::cout << npc.greet();
     
     int opt{promptShopItems(npc)};
     while (opt != -1)
     {
         const Item& item{ npc.items()[opt] };
-        if (promptTakeItem(player.inventory, item))
+        if (player.inventory.getGold() < item.getPrice())
+            std::cout << "You do not have enough gold to buy this.\n\n";
+        else if (promptTakeItem(player.inventory, item))
         {
-            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp.";
+            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp.\n\n";
             player.inventory.spendGold(item.getPrice());
             npc.removeItem(opt);
         }
+        std::cout << npc.name() << ": Is there anything else I can get for you?";
         opt = promptShopItems(npc);
     }
 
-    std::cout << "You leave " << npc.shopname() << "\n\n";
+    std::cout << "You leave " << npc.shopname() << ".\n\n";
 }
 void sleep(Actor& player, const Town& town, int price = 0)
 {
@@ -426,7 +449,7 @@ void sleep(Actor& player, const Town& town, int price = 0)
     else
         player.inventory.spendGold(price);
     std::cout << town.npcs[NPC::Inn].firstname() << Town::INN_STAY << player.getHealthMax() / 4 << " points.";
-    player.heal(player.getHealthMax() / 4);
+    player.changehealth(player.getHealthMax() / 4);
 }
 bool visitInn(Actor& player, const Town& town)
 {
@@ -435,7 +458,7 @@ bool visitInn(Actor& player, const Town& town)
     std::cout << "\nYou enter " << npc.shopname() << '\n';
     std::cout << npc.greet();
 
-    std::cout << "Would like a room? I've got one available for " << town.getRoomPrice() << " gold if you want it.";
+    std::cout << "\nWould like a room? I've got one available for " << town.getRoomPrice() << " gold if you want it.";
     int opt{ util::promptyn() };
     if (opt)
         sleep(player, town);
@@ -490,7 +513,7 @@ void visitTown(Actor& player)
         switch (manager.getLocation())
         {
         case TownManager::Enter:
-            std::cout << "You make your way to the town square to see what shops there are.";
+            std::cout << "You make your way to the town square to see what shops there are.\n";
             manager.walkto(TownManager::Square);
             break;
         case TownManager::Square:
@@ -520,11 +543,11 @@ void visitTown(Actor& player)
     // Ask the player if they want to stay at the inn, if they haven't already.
     if (!hasslept)
     {
-        const NPC& innkeep{ town.getNPC(NPC::Inn) };
+        const NPC& innkeep{ town.npcs[NPC::Inn] };
         std::cout << "As you leave, " << innkeep.firstname() << " asks, "
-            << "\"Are you sure you don't want to stay here at my Inn for a night?\""
+            << "\"Are you sure you don't want to stay here at my inn for a night?\""
             << "\n\t1. Stay and rest (" << town.getRoomPrice() << " gp)"
-            << "\n\t2. Continue on your journey";
+            << "\n\t2. Continue on your journey\n";
         opt = util::promptchoice(1, 2);
 
         // If the player has low health and says no, there is a low chance for a cheaper room
@@ -534,7 +557,7 @@ void visitTown(Actor& player)
             price /= 2;
             std::cout << "The innkeeper insists, saying, \"You don't look very well... I could let you stay for half price, if that changes your mind.\""
                 << "\n\t1. Stay and rest (" << price << " gp)"
-                << "\n\t2. Continue on your journey";
+                << "\n\t2. Continue on your journey\n";
             opt = util::promptchoice(1, 2);
             if(opt == 1)
                 std::cout << "The innkeeper lets out a sigh of relief.\n";
@@ -563,7 +586,7 @@ void visitTown(Actor& player)
         {
             sleep(player, town, price);
         }
-        std::cout << innkeep.firstname() << " bids you farewell.";
+        std::cout << innkeep.firstname() << " bids you farewell.\n";
     }
 
     // Display New Stats
@@ -592,8 +615,15 @@ int main()
             << err << "\n\n";
     }
 
-    if (true)
-        debugGameFiles();
+    if (!debugGameFiles())
+        return 1;
+
+    // Test
+    if (false)
+    {
+        Item item{ generateItemByType(1, Item::Armor) };
+        return 0;
+    }
 
     struct GameState
     {
@@ -605,7 +635,7 @@ int main()
         } state;
 
         const int until_min{ 3 };
-        const int until_max{ 7 };
+        const int until_max{ 3 };
         int untiltown{};
         int stage{};
     } gamestate{};
@@ -645,7 +675,7 @@ int main()
             if (tmr.isDone())
             {
                 gamestate.stage = 0;
-                printlevel(player.getLevel(), gamestate.stage);
+                printlevel(player.getLevel()+1, gamestate.stage);
                 visitTown(player);
                 gamestate.untiltown = util::randint(gamestate.until_min, gamestate.until_max);
                 gamestate.state = GameState::Battle;

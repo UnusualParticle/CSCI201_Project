@@ -1,60 +1,165 @@
+## Melees
 [
-	Rusty Sword
+	Melee 1
 	1
 
-	Weapon
+	Melee
 	1
 	0
-	7
-	
+	10
+
 	Damage
 	2
 ]
 [
-	Log Hammer
-	1
+	Melee 2
+	2
 
-	Weapon
-	3
+	Melee
+	1
 	0
 	15
-	
+
 	Damage
-	15
+	4
 ]
 [
-	Scroll of Burning
-	1
+	Melee 2
+	2
 
-	Weapon
+	Melee
+	3
+	0
+	30
+
+	Damage
+	8
+]
+[
+	Melee 3
+	3
+
+	Melee
 	1
 	0
-	40
-	
+	20
+
+	Damage
+	6
+]
+
+## Quivers
+[
+	Quiver 1
+	1
+
+	Quiver
+	1
+	0
+	10
+
+	Damage
+	1
+]
+[
+	Quiver 2
+	2
+
+	Quiver
+	1
+	0
+	15
+
+	Damage
+	2
+]
+[
+	Quiver 3
+	3
+
+	Quiver
+	1
+	0
+	20
+
+	Damage
+	3
+]
+
+## Scrolls
+[
+	Scroll 1
+	1
+
+	Scroll
+	1
+	0
+	10
+
 	Singe
 	2
 ]
 [
-	Flame
-	1
-
-	Spell
-	1
+	Scroll 2
 	2
-	30
-	
-	Burn
+
+	Scroll
+	1
+	0
+	15
+
+	Singe
 	4
 ]
 [
-	Infect
+	Scroll 3
+	3
+
+	Scroll
+	1
+	0
+	20
+
+	Singe
+	6
+]
+
+## Spells
+[
+	Spell 1
 	1
 
 	Spell
 	1
+	1
+	10
+
+	Damage
+	5
+	Singe
 	2
-	30
-	
-	Disease
-	4
+]
+[
+	Spell 2
+	2
+
+	Spell
+	1
+	1
+	15
+
+	Singe
+	5
+]
+[
+	Spell 3
+	3
+
+	Spell
+	1
+	2
+	20
+
+	Singe
+	9
 ]

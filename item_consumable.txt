@@ -1,36 +1,151 @@
+## Potions
 [
-	Small Health Potion
+	Potion 1
 	1
 
-	Tool
-	1
+	Potion
 	0
-	40
-	
+	0
+	10
+
 	Heal
-	5
+	3
 ]
 [
-	Small Mana Potion
+	Potion 2
+	2
+
+	Potion
+	0
+	0
+	15
+
+	Heal
+	6
+]
+[
+	Poison 3
+	3
+
+	Potion
+	0
+	0
+	20
+
+	Damage
+	10
+]
+
+## Arrows
+[
+	Arrow 1
 	1
 
-	Tool
-	1
+	Arrow
 	0
-	40
-	
-	Restore
+	0
+	10
+
+	Singe
 	2
 ]
 [
-	Crytal of Burning
+	Arrow 2
+	2
+
+	Arrow
+	0
+	0
+	15
+
+	Weakness
+	3
+]
+[
+	Arrow 3
+	3
+
+	Arrow
+	0
+	0
+	20
+
+	Damage
+	25
+]
+
+## Tools
+[
+	Tool 1
+	1
+
+	Tool
+	0
+	0
+	10
+
+	Singe
+	2
+]
+[
+	Tool 2
+	2
+
+	Tool
+	0
+	0
+	15
+
+	Weakness
+	3
+]
+[
+	Tool 3
+	3
+
+	Tool
+	0
+	0
+	20
+
+	Damage
+	25
+]
+
+## Crystals
+[
+	Crystal 1
 	1
 
 	Crystal
-	1
 	0
-	20
-	
+	0
+	10
+
 	Singe
 	2
+]
+[
+	Crystal 2
+	2
+
+	Crystal
+	0
+	0
+	15
+
+	Singe
+	4
+]
+[
+	Crystal 3
+	3
+
+	Crystal
+	0
+	0
+	20
+
+	Singe
+	6
 ]
