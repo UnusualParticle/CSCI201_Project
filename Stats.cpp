@@ -80,6 +80,6 @@ void EffectList::update()
 		if (e.data->power > 0)
 			--e.stacks;
 	}
-	std::remove_if(v.begin(), v.end(), [](const Effect& e) { return e.stacks == 0; });
+	auto discard{ std::remove_if(v.begin(), v.end(), [](const Effect& e) { return e.stacks == 0; }) };
 }
 void EffectList::clear() { v.clear(); }

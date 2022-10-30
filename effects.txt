@@ -4,6 +4,7 @@
 	0
 	curse
 ]
+## Constant Effects
 [
 	Armor
 	Armor
@@ -40,10 +41,7 @@
 	-2
 	boon
 ]
-# Extra Slot
-# Extra Slot
-# -2
-# boon
+## Instant Effects
 [
 	Damage
 	Health
@@ -62,10 +60,17 @@
 	-1
 	boon
 ]
+## Other Effects
 [
-	Singe
+	Poison
 	Health
-	2
+	1
+	curse
+]
+[
+	Burn
+	Health
+	3
 	curse
 ]
 [

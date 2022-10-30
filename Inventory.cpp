@@ -20,6 +20,7 @@ Effect Item::getEffect() const { return m_effect; }
 Effect Item::getSpecial() const { return m_special; }
 int Item::getMana() const { return m_mana; }
 int Item::getPrice() const { return m_price; }
+bool Item::infused() const { return m_infused; }
 // String Methods
 string Item::strEffect() const
 {
@@ -35,19 +36,26 @@ string Item::strWeight() const
 }
 string Item::getStr(int flags) const
 {
+	if (isEmpty())
+		return "None";
+
 	std::ostringstream str{};
 	str << '[' << typenames.getName(m_type) << "] " << m_name;
+	if (m_mana)
+		str << " mp(" << m_mana << ')';
 	if (flags & flag_effects)
 	{
-		str << " [" << m_effect.data->name << ": " << m_effect.stacks;
-		if (m_special.stacks)
+		str << " [";
+		if (m_effect.data)
+			str << m_effect.data->name << ": " << m_effect.stacks;
+		if (m_special.data)
 			str << ", " << m_special.data->name << ": " << m_special.stacks;
 		str << ']';
 	}
 	if(flags & flag_weight)
-		str << '[' << m_weight << " slots]";
+		str << " [Weight: " << m_weight << ']';
 	if(flags & flag_price)
-		str << '[' << m_price << " gp]";
+		str << " [" << m_price << " gp]";
 
 	return str.str();
 }
@@ -61,6 +69,8 @@ bool Item::isConsumable() const { return m_super == Super::Consumable; }
 bool Item::usable() const { return m_usetype & flag_usable; }
 bool Item::physical() const { return m_usetype & flag_physical; }
 bool Item::magikal() const { return m_usetype & flag_magikal; }
+bool Item::ranged() const { return m_usetype & flag_ranged; }
+bool Item::infuseable() const { return m_usetype & flag_infuseable; }
 // Mutator Methods
 void Item::remove()
 {
@@ -154,7 +164,11 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 		break;
 	case Item::Spell:
 	case Item::Crystal:
-		item.m_usetype |= Item::flag_physical;
+		item.m_usetype |= Item::flag_magikal;
+		break;
+	case Item::Quiver:
+	case Item::Arrow:
+		item.m_usetype |= Item::flag_ranged;
 		break;
 	}
 
@@ -280,7 +294,6 @@ public:
 	{}
 };
 
-
 // Iterator Methods
 Inventory::iterator Inventory::slot_begin() { return m_items.begin() + Slot1; }
 Inventory::iterator Inventory::slot_end() { return m_items.begin() + Slot4 + 1; }
@@ -383,18 +396,7 @@ void Inventory::sort()
 			return item1.getWeight() > item2.getWeight();
 		});
 
-	// If there is an available slot, and no unarmed weapon, add one
-	bool hasunarmed{};
-	for (int i{ start }; i <= Slot4; ++i)
-	{
-		if (m_items[i].getType() == Item::Unarmed)
-		{
-			hasunarmed = true;
-			break;
-		}
-	}
-	if(!hasunarmed && generalSlotsAvailable() > 0)
-		m_items[Slot4] = *ItemBaseList.getdatabyname("Unarmed");
+	
 }
 int Inventory::generalSlotsAvailable() const
 {
@@ -404,7 +406,7 @@ int Inventory::generalSlotsAvailable() const
 			return i.isEmpty();
 		}) };
 
-	return MULTI_SLOTS - empty;
+	return empty;
 }
 int Inventory::weightAvailable() const
 {
@@ -433,21 +435,18 @@ bool Inventory::hasRoomFor(const Item& item) const
 				hasroom = false;
 			break;
 		case Item::Super::Consumable:
-			if (generalSlotsAvailable() == 0)
-				hasroom = false;
-			if (hasroom)
-			{
-				if (!m_extraconsumable && !m_items[SlotConsumable].isEmpty())
-					hasroom = false;
-				else if (m_extraconsumable && !m_items[SlotConsumableExtra].isEmpty())
-					hasroom = false;
-			}
+			if (m_items[SlotConsumable].isEmpty())
+				hasroom = true;
+			else if (m_extraconsumable && m_items[SlotConsumableExtra].isEmpty())
+				hasroom = true;
+			else
+				hasroom = generalSlotsAvailable() > 0;
 			break;
 		}
 	}
 
-	if (hasroom && !item.isClothing() && !item.isAuxiliary())
-			hasroom = generalSlotsAvailable() >= item.getWeight();
+	if (hasroom && !item.isClothing() && !item.isConsumable())
+			hasroom = generalSlotsAvailable() > 0;
 
 	return hasroom;
 }
@@ -462,13 +461,7 @@ const Item& Inventory::getItem(int slot) const
 	return m_items[slot];
 }
 const Item& Inventory::getClothing() const { return m_items[SlotClothing]; }
-const Item& Inventory::getAuxiliary() const
-{
-	if (hasAuxiliary())
-		return m_items[Slot1];
-	else
-		throw std::underflow_error{ "No auxiliary equipment" };
-}
+const Item& Inventory::getAuxiliary() const { return m_items[Slot1]; }
 const Item& Inventory::getConsumable(bool extra) const
 {
 	if (!extra)

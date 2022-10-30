@@ -76,14 +76,12 @@ private:
     Actor* player{};
     Town* town{};
 
-    static const int health_low{ 2 };
-    static const int health_mid{ 4 };
-    static const int health_high{ 8 };
-    static const int health_level{ 3 };
-    static const int mana_low{ 1 };
-    static const int mana_mid{ 2 };
-    static const int mana_high{ 4 };
-    static const int mana_level{ 1 };
+    static const int health_low{ 4 };
+    static const int health_mid{ 7 };
+    static const int health_high{ 12 };
+    static const int mana_low{ 2 };
+    static const int mana_mid{ 3 };
+    static const int mana_high{ 5 };
     bool pointersOK() const;
 public:
     TownManager(Actor& _player, Town& _town);

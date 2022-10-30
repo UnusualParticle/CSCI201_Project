@@ -10,20 +10,25 @@ public:
 	{
 		Empty,
 		Unarmed,
+
 		Armor,
-		Cloak,
 		Robe,
+		Cloak,
+
 		Shield,
-		Bow,
 		Focus,
+		Bow,
+
 		Melee,
+		Spell,
 		Quiver,
 		Scroll,
-		Spell,
-		Potion,
-		Arrow,
+
 		Tool,
 		Crystal,
+		Arrow,
+		Potion,
+
 		TYPES_TOTAL
 	};
 	enum class Super
@@ -50,6 +55,8 @@ public:
 	static const int flag_usable{ 1 };
 	static const int flag_physical{ 2 };
 	static const int flag_magikal{ 4 };
+	static const int flag_ranged{ 8 };
+	static const int flag_infuseable{ 16 };
 private:
 	Type m_type{};
 	Super m_super{};
@@ -77,6 +84,7 @@ public:
 	Effect getSpecial() const;
 	int getMana() const;
 	int getPrice() const;
+	bool infused() const;
 
 	// String Methods
 	string strEffect() const;
@@ -95,6 +103,8 @@ public:
 	bool usable() const;
 	bool physical() const;
 	bool magikal() const;
+	bool ranged() const;
+	bool infuseable() const;
 
 	// Mutator Methods
 	void remove();

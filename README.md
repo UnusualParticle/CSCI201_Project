@@ -22,10 +22,6 @@ The player has four stats: health, strength, magicka and aura. These may be upgr
 + Magikal Attributes
     + Mana is how much spellcasting power the player has left
     + Aura increases most magical damage
-        + [x] Spells
-        + [x] Crystals
-        + [ ] Scrolls
-        + [ ] Secondary effects
 
 ---
 
@@ -38,6 +34,12 @@ Possible Items include, but are not limited to,
 + [Weapons](#weapons)
 + [Consumables](#consumables)
 
+Item profiles are
+
++ Physical - Benefits from strength stat
++ Magikal - Benefits from aura stat
++ Ranged - Requires and benfits from bow item
+
 ### Clothing
 
 Clothing may provide various benefits, and determines the playstyle.
@@ -45,8 +47,8 @@ Clothing may provide various benefits, and determines the playstyle.
 | Type | Description |
 | :--- |     :---    |
 | Armor | Decreases damage taken (to a minimum of 1). |
-| Cloak | Gives the player an additional consumable slot. |
 | Robe | Increases mana pool. |
+| Cloak | Decreases damage taken slightly (to a minimum of 1). Gives the player an additional consumable slot. |
 
 ### Auxiliary Equipment
 
@@ -59,30 +61,50 @@ Auxiliary equipment also provides benefits, and enhances or morphs the playstyle
 | Type | Description |
 | :--- |     :---    |
 | Shield | Provides additional armor. May reduce damage to 0. |
-| Bow | Allows the use of arrows. |
 | Focus | Decreases the cost of spells. |
+| Bow | Allows the use of arrows. |
 
 ### Weapons
 
-Weapons are items that are used to attack an opponent. *\*Spells may also be beneficial*
+Weapons are items that are used to attack an opponent. *\*Spells may also be beneficial, in which case they target the caster*
 
-| Type | Description |
-| :--- |     :---    |
-| Melee | The damage of a melee weapon is determined by its damage value plus the player's strength. |
-| Quiver | A quiver may only be used if the player has a bow. The damage of a quiver is determined by its damage plus the bow's damage. |
-| Scroll | A spell that costs no mana. The effect of a scroll is determined only by its value. |
-| Spell | The effect of a spell is determined by its value plus the player's aura. |
++ Melee
+    + Only damage (unless infused)
+    + No mana cost
+    + Varying weight
+    + Physical
++ Spell
+    + Various effects (cannot be infused)
+    + Various mana cost, benefits from a Focus
+    + Weight: 1
+    + Magikal
++ Quiver
+    + Only damage (unless infused)
+    + No mana cost
+    + Weight: 1
+    + Ranged
++ Scroll
+    + Various effects (cannot be infused)
+    + No mana cost
+    + Weight: 1
+    + No profile
 
 ### Consumables
 
-Consumables will always take one slot and have no weight. When a consumable is used, it is removed from the player's inventory and leaves the slot empty.
+Consumables will always take one slot and have no weight. When a consumable is used, it is removed from the user's inventory and leaves the slot empty.
 
-| Type | Description |
-| :--- |     :---    |
-| Potion | A potion may have a boon or curse effect. Curses will be applied to the enemy. |
-| Arrow | An arrow may only be used if the player has a bow. The bow's damage is added to the arrow. |
-| Tool | The effect of a tool is determined by the player's strength. |
-| Crystal | A crystal is a stored spell. The player's aura is added to the effect. |
++ Tool
+    + Damage and possibly another
+    + Physical
++ Crystal
+    + Various effects
+    + Magikal
++ Arrow
+    + Damage and possibly another
+    + Ranged
++ Potion
+    + Various effects
+    + No profile
 
 ---
 

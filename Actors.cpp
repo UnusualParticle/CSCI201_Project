@@ -35,7 +35,7 @@ int Actor::getManaMax() const
 }
 int Actor::getStrength() const
 {
-	return stats.strength + getStatModifier(StatBlock::Strength);
+return stats.strength + getStatModifier(StatBlock::Strength);
 }
 // Basic Stat Modification
 void Actor::changehealth(int n)
@@ -98,18 +98,18 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 	const Item& item{ inventory.getItem(slot) };
 	pair.first = item.getEffect();
 	pair.second = item.getSpecial();
-	
-	switch (item.getType())
-	{
-	case Item::Unarmed:
-	case Item::Melee:
-	case Item::Tool:
+
+	if (item.physical())
 		pair.first.stacks += getStrength();
-		break;
-	case Item::Spell:
-	case Item::Crystal:
+	if (item.magikal())
 		pair.first.stacks += getAura();
-		break;
+	if (item.ranged())
+	{
+		const auto& aux{ inventory.getAuxiliary() };
+		if (aux.getType() == Item::Bow)
+			pair.first.stacks += aux.getEffect().stacks;
+		else
+			throw std::exception{ "Cannot use ranged weapons without a bow" };
 	}
 
 	return pair;
@@ -125,21 +125,36 @@ void Actor::getChoices(ChoiceList& choices) const
 string Actor::itemStr(int slot) const
 {
 	auto& item{ inventory.getItem(slot) };
+	const Item& aux{ inventory.getItem(Inventory::Slot1) };
 	std::ostringstream str{};
 
 	int stacks{ item.getEffect().stacks };
+	int cost{ item.getMana() };
 
-	if(item.physical())
+	if (item.physical())
 		stacks += stats.strength;
-	if(item.magikal())
+	if (item.magikal())
 		stacks += stats.aura;
+	if (item.ranged())
+	{
+		if (aux.getType() != Item::Bow)
+			stacks = 0;
+		else
+			stacks += aux.getEffect().stacks;
+	}
+		
+	if (cost > 0 && aux.getType() == Item::Focus)
+	{
+		cost -= aux.getEffect().stacks;
+		cost = (cost < 1) ? 1 : cost;
+	}
 
 	str << item.getName() << ' ' << item.getEffect().data->name << '(' << stacks << ')';
 	if (item.getSpecial().stacks > 0)
 		str << ' ' << item.getSpecial().data->name << '(' << item.getEffect().stacks << ')';
 
 	if (item.getMana())
-		str << " Mp(" << item.getMana() << ')';
+		str << " Mp(" << cost << ')';
 
 	return str.str();
 }
@@ -160,7 +175,9 @@ void Actor::useItem(int slot, Actor& enemy)
 			enemy.addEffect(pair.second);
 	}
 	
-	stats.mana -= inventory.getItem(slot).getMana();
+	int manacost{ -inventory.getItem(slot).getMana() + getStatModifier(StatBlock::Focus)};
+	manacost = (manacost > -1) ? -1 : manacost;
+	changemana(manacost);
 	inventory.useItem(slot);
 }
 // Encounter Methods
@@ -175,31 +192,55 @@ void Actor::startBattle()
 	if (!inventory.getClothing().isEmpty())
 	{
 		const auto& armor{ inventory.getClothing() };
-		m_effects.addEffect(armor.getEffect());
+		effects.addEffect(armor.getEffect());
 		if(armor.getSpecial().stacks > 0)
-			m_effects.addEffect(armor.getSpecial());
+			effects.addEffect(armor.getSpecial());
 	}
 
 	if (inventory.hasAuxiliary())
 	{
 		const auto& aux{ inventory.getAuxiliary() };
-		m_effects.addEffect(aux.getEffect());
+		effects.addEffect(aux.getEffect());
 		if (aux.getSpecial().stacks > 0)
-			m_effects.addEffect(aux.getSpecial());
+			effects.addEffect(aux.getSpecial());
 	}
+
+	// If there is an available slot, and no unarmed weapon, add one
+	bool hasunarmed{};
+	for (int i{ Inventory::Slot1 }; i <= Inventory::Slot4; ++i)
+	{
+		if (inventory.getItem(i).getType() == Item::Unarmed)
+		{
+			hasunarmed = true;
+			break;
+		}
+	}
+	if (!hasunarmed && inventory.generalSlotsAvailable() > 0)
+		inventory.addItem(*ItemBaseList.getdatabyname("Unarmed"));
 }
 void Actor::endBattle()
 {
+	// If the player didn't die, make sure they aren't dead
+	//	I know this allows for a potential exploit (armor with a max health enchantment can keep giving you more health)
+	//	I think the exploit is interesting so I am leaving it
 	if (getHealth() > 0)
 	{
-		m_effects.clear();
+		effects.clear();
 		if (getHealth() < 0)
 			stats.health = 1;
+	}
+
+	// Remove any unarmed weapons
+	for (int i{ Inventory::Slot1 }; i <= Inventory::Slot4; ++i)
+	{
+		auto& item{ inventory.getItem(i) };
+		if (item.getType() == Item::Unarmed)
+			inventory.dropItem(i);
 	}
 }
 void Actor::startTurn()
 {
-	for (const Effect& e : m_effects.getEffects())
+	for (const Effect& e : effects.getEffects())
 	{
 		if (e.data->power < 0)
 			continue;
@@ -220,7 +261,7 @@ void Actor::startTurn()
 			break;
 		}
 	}
-	m_effects.update();
+	effects.update();
 }
 void Actor::enterShop()
 {
@@ -235,26 +276,26 @@ void Actor::addEffect(const Effect& e)
 		{
 		case StatBlock::Health:
 			if (e.data->boon)
-				changehealth(e.data->power);
+				changehealth(e.stacks);
 			else
-				changehealth(-(e.data->power));
+				changehealth(-(e.stacks));
 			break;
 		case StatBlock::Mana:
 			if (e.data->boon)
-				changemana(e.data->power);
+				changemana(e.stacks);
 			else
-				changemana(-(e.data->power));
+				changemana(-(e.stacks));
 			break;
 		}
 	}
 	else
 	{
-		m_effects.addEffect(e);
+		effects.addEffect(e);
 	}
 }
 int Actor::getStatModifier(StatBlock::Stats stat) const
 {
-	return m_effects.getStat(stat);
+	return effects.getStat(stat);
 }
 
 // Enemy Methods
@@ -303,30 +344,21 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 	stream >> data.level;
 
 	// Get StatBlock
-	stream >> data.stats.armor
-		>> data.stats.aura
-		>> data.stats.healthMax
+	stream >> data.stats.healthMax
+		>> data.stats.strength
 		>> data.stats.manaMax
-		>> data.stats.strength;
+		>> data.stats.aura;
 	data.stats.health = data.stats.healthMax;
 	data.stats.mana = data.stats.manaMax;
 
-	// Get Inventory
-	util::getline(stream, temp);
-	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
-	util::getline(stream, temp);
-	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
-	util::getline(stream, temp);
-	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
-	util::getline(stream, temp);
-	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
-	util::getline(stream, temp);
-	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
-	util::getline(stream, temp);
-	data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
-
-	// Look for a closing bracket
-	stream.ignore(util::STREAMMAX, ']');
+	// Get Inventory until the closing bracket is found
+	stream >> std::ws;
+	while (stream.peek() != ']')
+	{
+		util::getline(stream, temp);
+		data.inventory.addItem(*ItemBaseList.getdatabyname(temp));
+		stream >> std::ws;
+	}
 
 	return stream;
 }

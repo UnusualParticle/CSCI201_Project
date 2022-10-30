@@ -1,6 +1,6 @@
 [
 	Empty
-	1
+	0
 
 	Empty
 	0
@@ -12,7 +12,7 @@
 ]
 [
 	Unarmed
-	1
+	0
 
 	Unarmed
 	0
@@ -24,7 +24,7 @@
 ]
 [
 	Bite
-	1
+	0
 
 	Unarmed
 	0

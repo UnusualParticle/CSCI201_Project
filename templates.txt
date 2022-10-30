@@ -35,16 +35,16 @@ Actor
 	Name
 	Level
 
-	Armor
 	Aura
 	Health Max
 	Mana Max
 	Stength
 
-	Armor Slot
-	Slot 1
-	Slot 2
-	Slot 3
-	Slot 4
-	Consumable Slot
+	Item 1			# Optional		# Note:
+	Item 2			# Optional		#	If an extra consumable is
+	Item 3			# Optional		#	in the inventory, the cloak
+	Item 4			# Optional		#	must be listed anywhere before
+	Item 5			# Optional		#	it. Failure to do so will
+	Item 6			# Optional		#	result in a data error.
+	Item 7			# Optional
 ]

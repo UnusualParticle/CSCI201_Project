@@ -1,30 +1,42 @@
 ## Melees
 [
-	Melee 1
+	Small Dagger
 	1
 
 	Melee
 	1
 	0
-	10
+	7
 
 	Damage
 	2
 ]
 [
-	Melee 2
-	2
+	Small Sword
+	1
 
 	Melee
 	1
 	0
-	15
+	12
 
 	Damage
 	4
 ]
 [
-	Melee 2
+	Sword
+	2
+
+	Melee
+	1
+	0
+	16
+
+	Damage
+	6
+]
+[
+	Battle Axe
 	2
 
 	Melee
@@ -33,10 +45,10 @@
 	30
 
 	Damage
-	8
+	12
 ]
 [
-	Melee 3
+	Honed Sword
 	3
 
 	Melee
@@ -45,12 +57,12 @@
 	20
 
 	Damage
-	6
+	8
 ]
 
 ## Quivers
 [
-	Quiver 1
+	Simple Arrows
 	1
 
 	Quiver
@@ -59,10 +71,10 @@
 	10
 
 	Damage
-	1
+	2
 ]
 [
-	Quiver 2
+	Straight Arrows
 	2
 
 	Quiver
@@ -71,10 +83,10 @@
 	15
 
 	Damage
-	2
+	3
 ]
 [
-	Quiver 3
+	Fletched Arrows
 	3
 
 	Quiver
@@ -83,12 +95,12 @@
 	20
 
 	Damage
-	3
+	5
 ]
 
 ## Scrolls
 [
-	Scroll 1
+	Scroll of Burning I
 	1
 
 	Scroll
@@ -96,23 +108,23 @@
 	0
 	10
 
-	Singe
-	2
+	Burn
+	3
 ]
 [
-	Scroll 2
+	Scroll of Protection
 	2
 
 	Scroll
 	1
 	0
-	15
+	20
 
-	Singe
+	Protection
 	4
 ]
 [
-	Scroll 3
+	Scroll of Buring II
 	3
 
 	Scroll
@@ -120,13 +132,13 @@
 	0
 	20
 
-	Singe
+	Burn
 	6
 ]
 
 ## Spells
 [
-	Spell 1
+	Flame I
 	1
 
 	Spell
@@ -135,31 +147,57 @@
 	10
 
 	Damage
-	5
-	Singe
+	2
+	Burn
 	2
 ]
 [
-	Spell 2
-	2
+	Protection I
+	1
 
 	Spell
 	1
 	1
-	15
-
-	Singe
-	5
+	10
+	
+	Protection
+	3
 ]
 [
-	Spell 3
+	Lightning
+	2
+
+	Spell
+	1
+	2
+	15
+
+	Damage
+	10
+]
+[
+	Flame II
 	3
 
 	Spell
 	1
 	2
 	20
-
-	Singe
+	
+	Damage
+	4
+	Burn
 	9
+]
+[
+	Protection II
+	3
+
+	Spell
+	1
+	1
+	20
+
+	Protection
+	5
 ]

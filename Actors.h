@@ -14,7 +14,7 @@ protected:
 public:
 	Actor(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1);
 	Inventory inventory{};
-	EffectList m_effects{};
+	EffectList effects{};
 	using ChoiceList = std::vector<Inventory::Slots>;
 
 	const string& getName() const;
@@ -43,7 +43,6 @@ public:
 
 	// Effect Methods
 	void addEffect(const Effect& effect);
-	const std::vector<Effect>& getEffects() const;
 	int getStatModifier(StatBlock::Stats stat) const;
 
 	// Inventory Methods

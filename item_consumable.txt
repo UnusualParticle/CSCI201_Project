@@ -46,7 +46,9 @@
 	0
 	10
 
-	Singe
+	Damage
+	1
+	Burn
 	2
 ]
 [
@@ -58,6 +60,8 @@
 	0
 	15
 
+	Damage
+	1
 	Weakness
 	3
 ]
@@ -84,7 +88,7 @@
 	0
 	10
 
-	Singe
+	Burn
 	2
 ]
 [
@@ -122,7 +126,7 @@
 	0
 	10
 
-	Singe
+	Burn
 	2
 ]
 [
@@ -134,7 +138,7 @@
 	0
 	15
 
-	Singe
+	Burn
 	4
 ]
 [
@@ -146,6 +150,6 @@
 	0
 	20
 
-	Singe
+	Burn
 	6
 ]

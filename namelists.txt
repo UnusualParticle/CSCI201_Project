@@ -13,20 +13,24 @@
 # Item Types
     Empty
     Unarmed
+
     Armor
-    Cloak
     Robe
+    Cloak
+
     Shield
-    Bow
     Focus
+    Bow
+
     Melee
+    Spell
     Quiver
     Scroll
-    Spell
-    Potion
-    Arrow
+
     Tool
     Crystal
+    Arrow
+    Potion
 ]
 [
 # Item Super Types

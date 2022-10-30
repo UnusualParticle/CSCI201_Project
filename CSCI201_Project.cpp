@@ -263,7 +263,7 @@ void displayBattleStats(const Actor& actor)
         << ": Hp(" << actor.getHealth() << '/' << actor.getHealthMax()
         << ") Mp(" << actor.getMana() << '/' << actor.getManaMax()
         << ") ";
-    const std::vector<Effect>& effects{ actor.getEffects() };
+    const std::vector<Effect>& effects{ actor.effects.getEffects() };
     if (effects.size())
     {
         for (const auto& e : effects)
@@ -331,8 +331,11 @@ void startBattle(Actor& player)
                 opt = choices[util::promptchoice(1, (int)choices.size()) - 1 ];
 
                 // Verify choice
-                if (player.inventory.getItem(opt).getMana() > player.getMana())
+                const Item& item{ player.inventory.getItem(opt) };
+                if (item.getMana() > player.getMana())
                     std::cout << "Not enough Mana!\n";
+                else if (item.ranged() && player.inventory.getAuxiliary().getType() != Item::Bow)
+                    std::cout << "You do not have a bow!\n";
                 else
                     choiceOK = true;
             }
@@ -358,16 +361,34 @@ void startBattle(Actor& player)
         manager.next();
     }
 
+    player.endBattle();
+
+    // Looting
     if (manager.getState() == BattleManager::Win)
     {
         int gold{ enemy.inventory.getGold() };
         std::cout << "\nYou have defeated the " << enemy.getName() << " and found " << gold << " gold pieces.\n";
         player.inventory.addGold(gold);
+
+        if (util::randint(0, 1) == 0)
+        {
+            Item item{ generateItem(player.getLevel()) };
+            std::cout << "You found an item: " << item.getStr() << ". Will you take it?";
+            bool took{};
+            if (util::promptyn())
+            {
+                if (promptTakeItem(player.inventory, item))
+                {
+                    std::cout << "You added the " << item.getName() << " to your inventory.\n\n";
+                    took = true;
+                }
+            }
+            if (!took)
+                std::cout << "You chose not to take the item.\n\n";
+        }
     }
     else
         std::cout << "\nYou died to the " << enemy.getName() << '\n';
-
-    player.endBattle();
 }
 
 int promptShopVisit(const Town& town)
@@ -461,7 +482,15 @@ bool visitInn(Actor& player, const Town& town)
     std::cout << "\nWould like a room? I've got one available for " << town.getRoomPrice() << " gold if you want it.";
     int opt{ util::promptyn() };
     if (opt)
-        sleep(player, town);
+    {
+        if (player.inventory.getGold() < town.getRoomPrice())
+        {
+            std::cout << "I'm afraid you don't have enough money.";
+            opt = 0;
+        }
+        else
+            sleep(player, town);
+    }
     else
         std::cout << "Alright then. Come back if you change your mind.";
 
@@ -634,8 +663,8 @@ int main()
             Dead
         } state;
 
-        const int until_min{ 3 };
-        const int until_max{ 3 };
+        const int until_min{ 4 };
+        const int until_max{ 6 };
         int untiltown{};
         int stage{};
     } gamestate{};

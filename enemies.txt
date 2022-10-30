@@ -1,68 +1,71 @@
+## Level 1
 [
 	Imp
 	1
 
-	0
-	0
-	5
-	0
-	2
-	
-	Empty
-	Unarmed
-	Empty
-	Empty
-	Empty
-	Empty
-]
-[
-	Skeever
-	1
-
-	0
-	0
+	4
 	3
 	0
+	0
+	
+	Unarmed
+]
+[
+	Rat
 	1
 
-	Empty
+	3
+	1
+	0
+	0
+
 	Bite
-	Empty
-	Empty
-	Empty
-	Empty
 ]
+[
+	Slime
+	1
+
+	7
+	1
+	1
+	0
+
+	Unarmed
+]
+
+## Level 2
 [
 	Wolf
 	2
 
-	1
-	0
 	7
-	0
 	3
+	0
+	0
 
-	Empty
 	Bite
-	Empty
-	Empty
-	Empty
-	Empty
 ]
 [
 	Goblin
 	2
 
-	0
-	0
 	10
+	2
+	2
 	0
-	3
 	
-	Empty
 	Unarmed
-	Empty
-	Empty
-	Empty
-	Empty
+]
+
+## Level 3
+[
+	Mirkle
+	3
+
+	14
+	4
+	0
+	0
+
+	Unarmed
 ]
