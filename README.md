@@ -161,6 +161,8 @@ Towns are respites for the player, where they may recover, level up, and spend s
 ## Notes on the Scope:
 
 There are many things I opted not to do because of the time it would take to implement. On a project that will be worked on for a long period of time, I would be more certain to write clean, modular code with minimal side effects and plenty of data tracking.
+Despite that, this project somehow has ***2,957 lines*** of code and ***887 kB*** of data
+*(sure only 6 kB of that is mine but still, that's 6,000 characters, or about 1200 words.)*.
 
 ### Features left out include, but are not limited to,
 
