@@ -197,3 +197,12 @@ There are many things I opted not to do because of the time it would take to imp
 > TL;DR
 > This is a school project, not a money maker or a hobby.
 > No need to spend my hours away on it.
+
+---
+
+## Sources
+
+[First Names](https://github.com/devthejo/first-names-list/blob/master/first-names.txt)
+[Last Names](https://github.com/arineng/arincli/tree/master/lib/last-names.txt)
+
+The only changes I made to these lists was putting thim in alphabetical order and standardizing the capitalization.

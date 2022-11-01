@@ -49,7 +49,6 @@
 	
 	Cloak 1
 	Bow 1
-	Simple Arrows3
-	 
+	Simple Arrows
 	Arrow 1
 ]
