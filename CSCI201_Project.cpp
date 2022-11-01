@@ -31,15 +31,15 @@ void loadGameFiles()
         throw std::invalid_argument{ "Item super type names array not full" };
 
     // Load data lists
-    EffectDataList.loadFromFile("effects.txt");
-    ItemBaseList.loadFromFile("item_default.txt");
-    ItemBaseList.loadFromFile("item_clothing.txt");
-    ItemBaseList.loadFromFile("item_auxiliary.txt");
-    ItemBaseList.loadFromFile("item_weapon.txt");
-    ItemBaseList.loadFromFile("item_consumable.txt");
-    //ItemModifierList.loadFromFile("itemmodifiers.txt");
-    PlayerDataList.loadFromFile("playerpresets.txt");
-    EnemyDataList.loadFromFile("enemies.txt");
+    EffectDataList.loadFromFile("Data/effects.txt");
+    ItemBaseList.loadFromFile("Data/item_default.txt");
+    ItemBaseList.loadFromFile("Data/item_clothing.txt");
+    ItemBaseList.loadFromFile("Data/item_auxiliary.txt");
+    ItemBaseList.loadFromFile("Data/item_weapon.txt");
+    ItemBaseList.loadFromFile("Data/item_consumable.txt");
+    //ItemModifierList.loadFromFile("Data/item_infuse.txt");
+    PlayerDataList.loadFromFile("Data/actor_player.txt");
+    EnemyDataList.loadFromFile("Data/actor_enemy.txt");
 
     // Sort Lists
     std::sort(ItemBaseList.begin(), ItemBaseList.end(), [](const Item& first, const Item& last) {return first.getLevel() < last.getLevel(); });

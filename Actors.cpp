@@ -494,7 +494,7 @@ void NPC::load()
 	std::ifstream file;
 	string str;
 
-	file.open("town_firstname.txt");
+	file.open("npc_firstname.txt");
 	while (file)
 	{
 		std::getline(file, str);
@@ -502,7 +502,7 @@ void NPC::load()
 	}
 	file.close();
 
-	file.open("town_lastname.txt");
+	file.open("npc_lastname.txt");
 	while (file)
 	{
 		std::getline(file, str);
@@ -510,7 +510,7 @@ void NPC::load()
 	}
 	file.close();
 
-	file.open("town_greeting.txt");
+	file.open("npc_greeting.txt");
 	while (file)
 	{
 		std::getline(file, str);
@@ -518,7 +518,7 @@ void NPC::load()
 	}
 	file.close();
 
-	file.open("town_offer.txt");
+	file.open("npc_offer.txt");
 	while (file)
 	{
 		std::getline(file, str);
@@ -526,7 +526,7 @@ void NPC::load()
 	}
 	file.close();
 
-	file.open("town_shop.txt");
+	file.open("npc_shop.txt");
 	while (file)
 	{
 		std::getline(file, str);

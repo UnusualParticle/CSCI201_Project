@@ -52,59 +52,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="effects.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="namelists.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="enemies.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="itemmodifiers.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="playerpresets.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="town_firstname.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="town_lastname.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="town_greeting.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="templates.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_default.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_clothing.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_weapon.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_consumable.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="town_offer.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="town_suffix.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="item_auxiliary.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="town_shop.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="README.md">
       <Filter>Resource Files</Filter>
     </None>

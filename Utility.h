@@ -76,7 +76,7 @@ namespace util
 		NameMap() = default;
 		NameMap(const string& title)
 		{
-			std::ifstream file{ "namelists.txt" };
+			std::ifstream file{ "Data/namelists.txt" };
 			string temp;
 
 			// Look for the desired list

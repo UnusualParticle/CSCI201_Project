@@ -162,25 +162,6 @@
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="effects.txt" />
-    <Text Include="item_auxiliary.txt" />
-    <Text Include="town_firstname.txt" />
-    <Text Include="town_greeting.txt" />
-    <Text Include="itemmodifiers.txt" />
-    <Text Include="item_clothing.txt" />
-    <Text Include="item_consumable.txt" />
-    <Text Include="item_weapon.txt" />
-    <Text Include="town_lastname.txt" />
-    <Text Include="namelists.txt" />
-    <Text Include="enemies.txt" />
-    <Text Include="playerpresets.txt" />
-    <Text Include="templates.txt" />
-    <Text Include="item_default.txt" />
-    <Text Include="town_offer.txt" />
-    <Text Include="town_shop.txt" />
-    <Text Include="town_suffix.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
