@@ -207,4 +207,4 @@ Despite that, this project somehow has ***2,957 lines*** of code and ***887 kB**
 [First Names](https://github.com/devthejo/first-names-list/blob/master/first-names.txt)
 [Last Names](https://github.com/arineng/arincli/tree/master/lib/last-names.txt)
 
-The only changes I made to these lists was putting thim in alphabetical order and standardizing the capitalization.
+The only changes I made to these lists was putting them in alphabetical order and standardizing the capitalization.
