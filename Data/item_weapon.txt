@@ -160,16 +160,28 @@
 	1
 	10
 	
-	Protection
+	Protection I
 	3
 ]
 [
-	Lightning
+    Magic Missile I
+    1
+    
+    Spell
+    1
+    2
+    10
+    
+    Damage
+    5
+]
+[
+	Lightning I
 	2
 
 	Spell
 	1
-	2
+	4
 	15
 
 	Damage
@@ -195,9 +207,21 @@
 
 	Spell
 	1
-	1
+	2
 	20
 
-	Protection
-	5
+	Protection II
+	4
+]
+[
+    Magic Missile II
+    4
+    
+    Spell
+    1
+    5
+    30
+    
+    Damage
+    20
 ]

@@ -7,8 +7,8 @@
 	0
 	0
 	
-	Armor 1
-	Shield 1
+	Chain Mail
+	Round Shield
 	Small Sword
     Tool 1
 ]
@@ -21,8 +21,8 @@
 	2
 	0
 	
-	Cloak 1
-	Small Sword
+	Shoulder Cloak
+	Small Dagger
     Poison 3
     Tool 1
 ]
@@ -35,7 +35,7 @@
 	2
 	2
 	
-	Robe 1
+	Novice Robe
 	Small Sword
 	Flame I
 	Potion 1

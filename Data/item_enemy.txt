@@ -1,0 +1,36 @@
+[
+	Empty
+	0
+
+	Empty
+	0
+	0
+	0
+	
+	Damage
+	0
+]
+[
+	Unarmed
+	0
+
+	Unarmed
+	0
+	0
+	0
+	
+	Damage
+	1
+]
+[
+	Bite
+	0
+
+	Unarmed
+	0
+	0
+	0
+	
+	Damage
+	1
+]

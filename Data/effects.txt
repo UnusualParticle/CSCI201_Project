@@ -74,10 +74,16 @@
 	curse
 ]
 [
-	Protection
+	Protection I
 	Armor
-	5
+	8
 	boon
+]
+[
+    Protection II
+    Armor
+    20
+    boon
 ]
 [
 	Weakness

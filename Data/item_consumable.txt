@@ -1,6 +1,6 @@
 ## Potions
 [
-	Potion 1
+	Minor Potion of Health
 	1
 
 	Potion
@@ -9,10 +9,10 @@
 	10
 
 	Heal
-	3
+	5
 ]
 [
-	Potion 2
+	Potion of Health
 	2
 
 	Potion
@@ -21,7 +21,7 @@
 	15
 
 	Heal
-	6
+	10
 ]
 [
 	Poison 3
