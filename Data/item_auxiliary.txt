@@ -1,44 +1,68 @@
 ## Shields
 [
-	Shield 1
-	1
-
-	Shield
-	1
-	0
-	10
-
-	Armor
-	2
+    Buckler
+    1
+    
+    Shield
+    1
+    0
+    10
+    
+    Armor
+    1
 ]
 [
-	Shield 2
+	Round Shield
+	1
+
+	Shield
 	2
-
-	Shield
-	1
-	0
-	15
-
-	Armor
-	4
-]
-[
-	Shield 3
-	3
-
-	Shield
-	1
 	0
 	20
 
 	Armor
-	6
+	3
+]
+[
+	Iron Shield
+	2
+
+	Shield
+	3
+	0
+	30
+
+	Armor
+	5
+]
+[
+    Steel Buckler
+    3
+    
+    Shield
+    1
+    0
+    30
+    
+    Armor
+    3
+]
+[
+	Steel Shield
+	3
+
+	Shield
+	3
+	0
+	50
+
+	Armor
+	8
 ]
 
 ## Bows
 [
-	Bow 1
+	Short Bow
 	1
 
 	Bow
@@ -47,36 +71,60 @@
 	10
 
 	Damage
-	2
+	5
 ]
 [
-	Bow 2
-	3
+	Hunting Bow
+	2
 
 	Bow
-	1
+	2
 	0
 	15
 
 	Damage
-	4
+	8
 ]
 [
-	Bow 3
+	Craftsman Bow
 	3
 
 	Bow
-	1
+	2
 	0
-	20
+	35
 
 	Damage
-	6
+	12
+]
+[
+	Combat Bow
+	4
+
+	Bow
+	2
+	0
+	40
+
+	Damage
+	15
+]
+[
+	War Bow
+	4
+
+	Bow
+	3
+	0
+	60
+
+	Damage
+	20
 ]
 
 ## Foci
 [
-	Focus 1
+	Heirloom
 	1
 
 	Focus
@@ -84,11 +132,11 @@
 	0
 	10
 
-	Damage
-	2
+	Focus
+	1
 ]
 [
-	Focus 2
+	Small Amulet
 	2
 
 	Focus
@@ -96,11 +144,11 @@
 	0
 	15
 
-	Damage
-	4
+	Focus
+	2
 ]
 [
-	Focus 3
+	Prayer Ring
 	3
 
 	Focus
@@ -108,6 +156,8 @@
 	0
 	20
 
-	Damage
-	6
+	Focus
+	2
+    Maximum Mana
+    2
 ]
