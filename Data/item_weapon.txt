@@ -112,7 +112,7 @@
 	3
 ]
 [
-	Scroll of Protection
+	Scroll of Protection I
 	2
 
 	Scroll
@@ -120,7 +120,7 @@
 	0
 	20
 
-	Protection
+	Protection I
 	4
 ]
 [
