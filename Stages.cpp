@@ -150,19 +150,19 @@ bool TownManager::pointersOK() const
 
 std::pair<int, int> TownManager::physicallevel()
 {
-    int base{ util::randint(health_low, health_high) };
-    int strength{ 1 };
-    if (base <= health_mid)
-        strength = 2;
-    return { base, strength };
+    int hp{ util::randint(health_low, health_high) };
+    int str{str_low};
+    if (hp < health_mid)
+        str = str_high;
+    return { hp, str };
 }
 std::pair<int, int> TownManager::magikallevel()
 {
-    int base{ util::randint(mana_low, mana_high) };
-    int aura{ 1 };
-    if (base <= mana_mid)
-        aura += 2;
-    return { base, aura };
+    int mp{ util::randint(mana_low, mana_high) };
+    int aur{ aur_low };
+    if (mp < mana_mid)
+        aur = aur_high;
+    return { mp, aur };
 }
 
 void TownManager::walkto(Location l)

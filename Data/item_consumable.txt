@@ -1,155 +1,265 @@
 ## Potions
 [
-	Minor Potion of Health
-	1
+    Vial of Health
+    1
 
-	Potion
-	0
-	0
-	10
+    Potion
+    0
+    0
+    10
 
-	Heal
-	5
+    Heal
+    5
 ]
 [
-	Potion of Health
-	2
-
-	Potion
-	0
-	0
-	15
-
-	Heal
-	10
+    Vial of Pain
+    1
+    
+    Potion
+    0
+    0
+    10
+    
+    Damage
+    15
 ]
 [
-	Poison 3
-	3
+    Flask of Health
+    2
 
-	Potion
-	0
-	0
-	20
+    Potion
+    0
+    0
+    15
 
-	Damage
-	10
+    Heal
+    10
+]
+[
+    Flask of Pain
+    2
+
+    Potion
+    0
+    0
+    15
+
+    Damage
+    20
+]
+[
+    Phial of Health
+    3
+
+    Potion
+    0
+    0
+    20
+
+    Heal
+    15
+]
+[
+    Phial of Pain
+    3
+    
+    Potion
+    0
+    0
+    20
+    
+    Damage
+    25
 ]
 
 ## Arrows
 [
-	Arrow 1
-	1
-
-	Arrow
-	0
-	0
-	10
-
-	Damage
-	1
-	Burn
-	2
+    Sharpened Arrow
+    1
+    
+    Arrow
+    0
+    0
+    10
+    
+    Damage
+    7
 ]
 [
-	Arrow 2
-	2
+    Lit Arrow
+    1
 
-	Arrow
-	0
-	0
-	15
+    Arrow
+    0
+    0
+    10
 
-	Damage
-	1
-	Weakness
-	3
+    Damage
+    3
+    Burn
+    2
 ]
 [
-	Arrow 3
-	3
+    Honed Arrow
+    2
 
-	Arrow
-	0
-	0
-	20
+    Arrow
+    0
+    0
+    15
 
-	Damage
-	25
+    Damage
+    10
+]
+[
+    Fast Arrow
+    3
+
+    Arrow
+    0
+    0
+    20
+
+    Damage
+    15
+]
+[
+    Flaming Arrow
+    3
+    
+    Arrow
+    0
+    0
+    10
+    
+    Damage
+    8
+    Burn
+    5
 ]
 
 ## Tools
 [
-	Tool 1
-	1
+    Dull Shank
+    1
 
-	Tool
-	0
-	0
-	10
+    Tool
+    0
+    0
+    10
 
-	Burn
-	2
+    Damage
+    10
 ]
 [
-	Tool 2
-	2
+    Torch
+    2
 
-	Tool
-	0
-	0
-	15
+    Tool
+    0
+    0
+    15
 
-	Weakness
-	3
+    Damage
+    10
+    Burn
+    3
 ]
 [
-	Tool 3
-	3
+    Shatter Knife
+    3
 
-	Tool
-	0
-	0
-	20
+    Tool
+    0
+    0
+    20
 
-	Damage
-	25
+    Damage
+    20
 ]
 
 ## Crystals
 [
-	Crystal 1
-	1
+    Fire Agate
+    1
 
-	Crystal
-	0
-	0
-	10
+    Crystal
+    0
+    0
+    10
 
-	Burn
-	2
+    Burn
+    2
 ]
 [
-	Crystal 2
-	2
-
-	Crystal
-	0
-	0
-	15
-
-	Burn
-	4
+    Shield Agate
+    1
+    
+    Crystal
+    0
+    0
+    10
+    
+    Protection I
+    4
 ]
 [
-	Crystal 3
-	3
+    Healing Agate
+    1
+    
+    Crystal
+    0
+    0
+    10
+    
+    Regeneration
+    2
+]
+[
+    Fire Citrine
+    2
 
-	Crystal
-	0
-	0
-	20
+    Crystal
+    0
+    0
+    15
 
-	Burn
-	6
+    Burn
+    4
+]
+[
+    Healing Citrine
+    2
+    
+    Crystal
+    0
+    0
+    15
+    
+    Regeneration
+    4
+]
+[
+    Fire Quartz
+    3
+
+    Crystal
+    0
+    0
+    20
+
+    Burn
+    6
+]
+[
+    Protection Quartz
+    3
+    
+    Crystal
+    0
+    0
+    20
+    
+    Protection II
+    5
 ]

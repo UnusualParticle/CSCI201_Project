@@ -19,6 +19,18 @@ namespace util
 {
 	inline const auto STREAMMAX{ std::numeric_limits<std::streamsize>::max() };
 	
+	class CSVstream
+	{
+	public:
+		std::ifstream stream{};
+
+		CSVstream(const string filename);
+		~CSVstream() = default;
+
+		friend void operator>>(CSVstream& csv, int&);
+		friend void operator>>(CSVstream& csv, string&);
+	};
+
 	template<size_t n> class NameArray;
 	template<typename id_t> class NameMap;
 

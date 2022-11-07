@@ -1,43 +1,55 @@
 ## Shields
 [
-    Buckler
+    Round Shield
     1
+
+    Shield
+    2
+    0
+    20
+
+    Armor
+    1
+]
+[
+    Buckler
+    2
     
     Shield
     1
     0
-    10
+    15
     
     Armor
     1
 ]
 [
-	Round Shield
-	1
+    Iron Shield
+    2
 
-	Shield
-	2
-	0
-	20
+    Shield
+    2
+    0
+    30
 
-	Armor
-	3
+    Armor
+    2
 ]
 [
-	Iron Shield
-	2
-
-	Shield
-	3
-	0
-	30
-
-	Armor
-	5
-]
-[
-    Steel Buckler
+    Enforced Shield
     3
+
+    Shield
+    3
+    0
+    40
+
+    Armor
+    3
+]
+[
+    Stiff Buckler
+    4
     
     Shield
     1
@@ -45,119 +57,167 @@
     30
     
     Armor
-    3
+    2
 ]
 [
-	Steel Shield
-	3
-
-	Shield
-	3
-	0
-	50
-
-	Armor
-	8
+    Steel Shield
+    4
+    
+    Shield
+    3
+    0
+    75
+    
+    Armor
+    4
+]
+[
+    Plated Shield
+    5
+    
+    Shield
+    3
+    0
+    90
+    
+    Armor
+    5
+]
+[
+    Reinforced Shield
+    6
+    
+    Shield
+    2
+    0
+    70
+    
+    Armor
+    5
+]
+[
+    Soldier's Shield
+    7
+    
+    Shield
+    3
+    0
+    120
+    
+    Armor
+    6
+]
+[
+    Infantry Buckler
+    7
+    
+    Shield
+    1
+    0
+    55
+    
+    Armor
+    4
 ]
 
 ## Bows
 [
-	Short Bow
-	1
+    Short Bow
+    1
 
-	Bow
-	1
-	0
-	10
+    Bow
+    1
+    0
+    10
 
-	Damage
-	5
+    Damage
+    5
 ]
 [
-	Hunting Bow
-	2
+    Hunting Bow
+    2
 
-	Bow
-	2
-	0
-	15
+    Bow
+    2
+    0
+    15
 
-	Damage
-	8
+    Damage
+    8
 ]
 [
-	Craftsman Bow
-	3
+    Craftsman Bow
+    3
 
-	Bow
-	2
-	0
-	35
+    Bow
+    2
+    0
+    35
 
-	Damage
-	12
+    Damage
+    12
 ]
 [
-	Combat Bow
-	4
+    Combat Bow
+    4
 
-	Bow
-	2
-	0
-	40
+    Bow
+    2
+    0
+    40
 
-	Damage
-	15
+    Damage
+    15
 ]
 [
-	War Bow
-	4
+    War Bow
+    4
 
-	Bow
-	3
-	0
-	60
+    Bow
+    3
+    0
+    60
 
-	Damage
-	20
+    Damage
+    20
 ]
 
 ## Foci
 [
-	Heirloom
-	1
+    Heirloom
+    1
 
-	Focus
-	1
-	0
-	10
+    Focus
+    1
+    0
+    10
 
-	Focus
-	1
+    Focus
+    1
 ]
 [
-	Small Amulet
-	2
+    Small Amulet
+    2
 
-	Focus
-	1
-	0
-	15
+    Focus
+    1
+    0
+    15
 
-	Focus
-	2
+    Focus
+    2
 ]
 [
-	Prayer Ring
-	3
+    Prayer Ring
+    3
 
-	Focus
-	1
-	0
-	20
+    Focus
+    1
+    0
+    20
 
-	Focus
-	2
+    Focus
+    2
     Maximum Mana
     2
 ]

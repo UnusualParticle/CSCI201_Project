@@ -1,105 +1,117 @@
 [
-	No Effect
-	Armor
-	0
-	curse
+    No Effect
+    Armor
+    0
+    curse
 ]
 ## Constant Effects
 [
-	Armor
-	Armor
-	-2
-	boon
+    Armor
+    Armor
+    -2
+    boon
 ]
 [
-	Maximum Health
-	Maximum Health
-	-2
-	boon
+    Maximum Health
+    Maximum Health
+    -2
+    boon
 ]
 [
-	Strength
-	Strength
-	-2
-	boon
+    Strength
+    Strength
+    -2
+    boon
 ]
 [
-	Maximum Mana
-	Maximum Mana
-	-2
-	boon
+    Maximum Mana
+    Maximum Mana
+    -2
+    boon
 ]
 [
-	Aura
-	Aura
-	-2
-	boon
+    Aura
+    Aura
+    -2
+    boon
 ]
 [
-	Focus
-	Focus
-	-2
-	boon
+    Focus
+    Focus
+    -2
+    boon
 ]
 ## Instant Effects
 [
-	Damage
-	Health
-	-1
-	curse
+    Damage
+    Health
+    -1
+    curse
 ]
 [
-	Heal
-	Health
-	-1
-	boon
+    Heal
+    Health
+    -1
+    boon
 ]
 [
-	Restore
-	Mana
-	-1
-	boon
+    Restore
+    Mana
+    -1
+    boon
 ]
 ## Other Effects
 [
-	Poison
-	Health
-	1
-	curse
+    Poison
+    Health
+    1
+    curse
 ]
 [
-	Burn
-	Health
-	3
-	curse
+    Burn
+    Health
+    3
+    curse
 ]
 [
-	Protection I
-	Armor
-	8
-	boon
+    Protection I
+    Armor
+    8
+    boon
 ]
 [
     Protection II
+    Armor
+    15
+    boon
+]
+[
+    Protection III
     Armor
     20
     boon
 ]
 [
-	Weakness
-	Strength
-	1
-	curse
+    Weakness
+    Strength
+    1
+    curse
 ]
 [
-	Disease
-	Aura
-	1
-	curse
+    Disease
+    Aura
+    1
+    curse
 ]
 [
-	Cure
-	Aura
-	1
-	boon
+    Cure
+    Aura
+    1
+    boon
+]
+[
+    Regeneration
+    Health
+    3
+    boon
 ]

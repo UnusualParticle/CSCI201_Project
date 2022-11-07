@@ -2,7 +2,7 @@
 	Knight
 	1
 
-	22
+	27
 	5
 	0
 	0
@@ -10,33 +10,117 @@
 	Chain Mail
 	Round Shield
 	Small Sword
-    Tool 1
+    Dull Shank
 ]
 [
 	Rogue
 	1
 
-	19
+	24
 	5
 	2
 	0
 	
 	Shoulder Cloak
 	Small Dagger
-    Poison 3
-    Tool 1
+    Vial of Pain
+    Dull Shank
 ]
 [
 	Monk
 	1
 
-	16
+	21
 	5
 	2
 	2
 	
 	Novice Robe
 	Small Sword
-	Flame I
-	Potion 1
+	Flaming Fist
+    Vial of Health
+]
+[
+    Cleric
+    1
+    
+    18
+    1
+    8
+    2
+    
+    Hide Armor
+    Small Sword
+    Flaming Fist
+    Protection Agate
+]
+[
+    Formulist
+    1
+    
+    18
+    1
+    6
+    4
+    
+    Shoulder Cloak
+    Flaming Fist
+    Fire Agate
+    Protection Agate
+]
+[
+    Wizard
+    1
+    
+    15
+    1
+    8
+    4
+    
+    Novice Robe
+    Protection I
+    Flaming Fist
+    Healing Agate
+]
+[
+    Archer
+    1
+    
+    24
+    5
+    0
+    2
+    
+    Hide Armor
+    Short Bow
+    Simple Arrows
+    Vial of Health
+]
+[
+    Sniper
+    1
+    
+    21
+    3
+    4
+    2
+    
+    Shoulder Cloak
+    Short Bow
+    Simple Arrows
+    Sharpened Arrow
+]
+[
+    Ranger
+    1
+    
+    21
+    1
+    6
+    2
+    
+    Novice Robe
+    Short Bow
+    Simple Arrows
+    Healing Agate
 ]

@@ -9,7 +9,7 @@
 	10
 
 	Armor
-	3
+	1
 ]
 [
 	Chain Mail
@@ -21,7 +21,7 @@
 	20
 
 	Armor
-	6
+	3
 ]
 [
 	Iron Armor
@@ -33,7 +33,7 @@
 	35
 
 	Armor
-	10
+	5
 ]
 [
     Leather Armor
@@ -45,7 +45,7 @@
     30
     
     Armor
-    8
+    3
 ]
 [
 	Layered Armor
@@ -57,7 +57,31 @@
 	50
 
 	Armor
-	16
+	7
+]
+[
+    Studded Armor
+    4
+    
+    Armor
+    2
+    0
+    50
+    
+    Armor
+    7
+]
+[
+    Steel Armor
+    4
+    
+    Armor
+    3
+    0
+    75
+    
+    Armor
+    11
 ]
 
 ## Cloaks
