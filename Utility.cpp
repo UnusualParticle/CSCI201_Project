@@ -69,9 +69,9 @@ namespace util
 
         string str{};
         csv >> str;
-        if (str == "true")
+        if (str == "TRUE")
             b = true;
-        else if (str == "false")
+        else if (str == "FALSE")
             b = false;
         else
             csv.file.setstate(std::ios::failbit);
