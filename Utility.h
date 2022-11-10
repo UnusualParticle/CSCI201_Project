@@ -19,16 +19,30 @@ namespace util
 {
 	inline const auto STREAMMAX{ std::numeric_limits<std::streamsize>::max() };
 	
-	class CSVstream
+	// Basic stream class for getting data from a CSV file
+	class CSV
 	{
+	private:
+		// Stream limit
+		static const auto LIMIT{ std::numeric_limits<std::streamsize>::max() };
+		// Check for comments and skip them
+		void skip_comment();
+		// Skip to the next cell
+		void skip_cell();
+		// Private file stream
+		std::ifstream file{};
 	public:
-		std::ifstream stream{};
+		CSV(const string& filename);
 
-		CSVstream(const string filename);
-		~CSVstream() = default;
+		void open(const string& filename);
+		bool good() const;
+		bool eof() const;
+		void endline();
 
-		friend void operator>>(CSVstream& csv, int&);
-		friend void operator>>(CSVstream& csv, string&);
+		friend CSV& operator>>(CSV& csv, int& n);
+		friend CSV& operator>>(CSV& csv, double& n);
+		friend CSV& operator>>(CSV& csv, string& str);
+		friend CSV& operator>>(CSV& csv, bool& b);
 	};
 
 	template<size_t n> class NameArray;

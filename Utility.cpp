@@ -5,6 +5,80 @@
 
 namespace util
 {
+    // Basic stream class for getting data from a CSV file
+    CSV::CSV(const string& filename)
+        : file(filename)
+    {}
+    void CSV::skip_comment()
+    {
+        while (file && file.peek() == '#')
+            file.ignore(LIMIT, '\n');
+    }
+    void CSV::skip_cell()
+    {
+        file.ignore(LIMIT, ',');
+    }
+    void CSV::open(const string& filename)
+    {
+        if (file.is_open())
+            file.close();
+        file.open(filename);
+    }
+    bool CSV::good() const
+    {
+        return file.good();
+    }
+    bool CSV::eof() const
+    {
+        return file.eof();
+    }
+    void CSV::endline()
+    {
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        skip_comment();
+    }
+    CSV& operator>>(CSV& csv, int& n)
+    {
+        csv.skip_comment();
+
+        csv.file >> n;
+        csv.skip_cell();
+
+        return csv;
+    }
+    CSV& operator>>(CSV& csv, double& n)
+    {
+        csv.skip_comment();
+
+        csv.file >> n;
+        csv.skip_cell();
+
+        return csv;
+    }
+    CSV& operator>>(CSV& csv, string& str)
+    {
+        csv.skip_comment();
+
+        std::getline(csv.file >> std::ws, str, ',');
+
+        return csv;
+    }
+    CSV& operator>>(CSV& csv, bool& b)
+    {
+        csv.skip_comment();
+
+        string str{};
+        csv >> str;
+        if (str == "true")
+            b = true;
+        else if (str == "false")
+            b = false;
+        else
+            csv.file.setstate(std::ios::failbit);
+
+        return csv;
+    }
+
 	// My basic string prompter
 	string promptstr(const string& prompt)
 	{
