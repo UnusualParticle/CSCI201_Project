@@ -43,6 +43,7 @@ struct EffectData
 	int power;
 	bool boon;
 	size_t id;
+	string description{};
 
 	const string& getName() const;
 	Effect make(int stacks) const;
