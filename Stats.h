@@ -42,6 +42,7 @@ struct EffectData
 	StatBlock::Stats stat;
 	int power;
 	bool boon;
+	bool ignore;
 	size_t id;
 	string description{};
 

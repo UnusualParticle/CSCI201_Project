@@ -30,7 +30,7 @@ public:
 	int getStrength() const;
 
 	// Basic Stat Modification
-	void changehealth(int n);
+	void changehealth(int n, bool ignoreArmor = true);
 	void changemana(int n);
 	void levelPhysical(std::pair<int, int>);
 	void levelMagikal(std::pair<int,int>);

@@ -38,7 +38,7 @@ int Actor::getStrength() const
 return stats.strength + getStatModifier(StatBlock::Strength);
 }
 // Basic Stat Modification
-void Actor::changehealth(int n)
+void Actor::changehealth(int n, bool ignoreArmor)
 {
 	if (n > 0)
 	{
@@ -251,7 +251,7 @@ void Actor::startTurn()
 			if (e.data->boon)
 				changehealth(e.data->power);
 			else
-				changehealth(-(e.data->power));
+				changehealth(-(e.data->power), e.data->ignore);
 			break;
 		case StatBlock::Mana:
 			if (e.data->boon)
@@ -278,7 +278,7 @@ void Actor::addEffect(const Effect& e)
 			if (e.data->boon)
 				changehealth(e.stacks);
 			else
-				changehealth(-(e.stacks));
+				changehealth(-(e.stacks), e.data->ignore);
 			break;
 		case StatBlock::Mana:
 			if (e.data->boon)
