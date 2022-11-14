@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ACTORS_H
+#define ACTORS_H
 
 #include "Stats.h"
 #include "Inventory.h"
@@ -56,6 +57,7 @@ class Enemy : public Actor
 {
 public:
 	Enemy(const string& _name = "", const StatBlock& _stats = {}, const Inventory& _inventory = {}, int level = 1, int gold = 0);
+	void getchoices(ChoiceList& choices) const;
 	int taketurn() const;
 };
 
@@ -73,6 +75,7 @@ struct ActorData
 	Enemy makeEnemy() const;
 };
 std::ifstream& operator>>(std::ifstream& stream, ActorData& data);
+util::CSV& operator>>(util::CSV& csv, ActorData& data);
 
 inline util::DataVector<ActorData> PlayerDataList{};
 inline util::DataVector<ActorData> EnemyDataList{};
@@ -116,7 +119,7 @@ public:
 	NPC() = default;
 	NPC(Shop shop, int level);
 
-	static void load();
+	static void load(std::vector<string>& errlist);
 
 	string firstname() const;
 	string name() const;
@@ -148,9 +151,11 @@ public:
 	Town(int level);
 	~Town() = default;
 
-	static void load();
+	static void load(std::vector<string>& errlist);
 	void reset();
 
 	const string& getName() const;
 	int getRoomPrice() const;
 };
+
+#endif

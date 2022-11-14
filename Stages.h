@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STAGES_H
+#define STAGES_H
 
 #include "Utility.h"
 #include "Inventory.h"
@@ -99,3 +100,5 @@ public:
     void update();
     Location getLocation() const;
 };
+
+#endif

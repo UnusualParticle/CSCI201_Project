@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INVENTORY_H
+#define INVENTORY_H
 
 #include "Stats.h"
 #include <array>
@@ -113,8 +114,10 @@ public:
 	// Operator Methods/Functions
 	Item& operator=(const Item& other);
 	friend std::ifstream& operator>>(std::ifstream& stream, Item& item);
+	friend util::CSV& operator>>(util::CSV& csv, Item& item);
 };
 std::ifstream& operator>>(std::ifstream& stream, Item& item);
+util::CSV& operator>>(util::CSV& csv, Item& item);
 inline util::DataVector<Item> ItemBaseList{};
 inline util::DataVector<Item> ItemModifierList{};
 
@@ -122,6 +125,13 @@ inline util::DataVector<Item> ItemModifierList{};
 Item generateItem(int level);
 // Generates a random item (of a specific type) of the player's level, or a small chance one level above
 Item generateItemByType(int level, Item::Type type);
+
+class InvException : public std::exception
+{
+public:
+	InvException(const char* str);
+	InvException(const string& str);
+};
 
 struct Inventory
 {
@@ -138,7 +148,7 @@ public:
 		SLOTS_TOTAL
 	};
 	static const int MULTI_SLOTS{ 4 };
-	static const int MAX_WEIGHT{ SLOTS_TOTAL-1 };
+	static const int MAX_WEIGHT{ 7 };
 
 	bool m_extraconsumable{};
 	Item m_tempconsumable{};
@@ -179,3 +189,5 @@ public:
 	void addGold(int gold);
 	void spendGold(int gold);
 };
+
+#endif

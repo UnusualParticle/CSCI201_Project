@@ -304,6 +304,14 @@ Enemy::Enemy(const string& _name, const StatBlock& _stats, const Inventory& _inv
 {
 	inventory.addGold(_gold);
 }
+void Enemy::getchoices(ChoiceList& choices) const
+{
+	for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+	{
+		if (inventory.getItem(i).usable() && inventory.getItem(i).getType() != Item::Unarmed)
+			choices.push_back((Inventory::Slots)i);
+	}
+}
 int Enemy::taketurn() const
 {
 	ChoiceList choices;
@@ -361,6 +369,44 @@ std::ifstream& operator>>(std::ifstream& stream, ActorData& data)
 	}
 
 	return stream;
+}
+util::CSV& operator>>(util::CSV& csv, ActorData& data)
+{
+	csv >> data.name >> data.level
+		>> data.stats.healthMax
+		>> data.stats.strength
+		>> data.stats.manaMax
+		>> data.stats.aura;
+	data.stats.health = data.stats.healthMax;
+	data.stats.mana = data.stats.manaMax;
+
+	if (!csv.good())
+		throw std::invalid_argument{ "ACTOR: csv not formatted correctly at <" + data.name + '>' };
+
+	for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+	{
+		string temp{};
+		csv >> temp;
+		if (temp.size())
+		{
+			try {
+				const Item& item{ *ItemBaseList.getdatabyname(temp) };
+				data.inventory.addItem(item);
+			}
+			catch (std::range_error& e)
+			{
+				throw std::range_error{ "ACTOR: " + (string)e.what() + " at <" + data.name + '>' };
+			}
+			catch (InvException& e)
+			{
+				throw std::range_error{ "ACTOR: " + (string)e.what() + " at <" + data.name + '>' };
+			}
+		}
+	}
+
+	csv.endline();
+
+	return csv;
 }
 
 // Generates a random enemy from two levels below up to one level above
@@ -489,50 +535,27 @@ NPC::NPC(Shop shop, int level)
 	if (t5 != Item::Empty)
 		m_items.push_back(generateItemByType(level, t5));
 }
-void NPC::load()
+void NPC::load(std::vector<string>& errlist)
 {
-	std::ifstream file;
-	string str;
+	auto getlist{
+		[&](const string& filename, std::vector<string>& list, std::vector<string>& errlist) {
+			std::ifstream file{"Data/" + filename};
+			string str;
+			while (file)
+			{
+				std::getline(file, str);
+				list.push_back(str);
+			}
+			if (!list.size())
+				errlist.push_back("NPC: Data/"+filename+" is empty");
+		}
+	};
 
-	file.open("npc_firstname.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		s_firstnames.push_back(str);
-	}
-	file.close();
-
-	file.open("npc_lastname.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		s_lastnames.push_back(str);
-	}
-	file.close();
-
-	file.open("npc_greeting.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		s_greetings.push_back(str);
-	}
-	file.close();
-
-	file.open("npc_offer.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		s_offers.push_back(str);
-	}
-	file.close();
-
-	file.open("npc_shop.txt");
-	while (file)
-	{
-		std::getline(file, str);
-		s_shops.push_back(str);
-	}
-	file.close();
+	getlist("npc_firstname.txt", s_firstnames, errlist);
+	getlist("npc_lastname.txt", s_lastnames, errlist);
+	getlist("npc_greeting.txt", s_greetings, errlist);
+	getlist("npc_offer.txt", s_offers, errlist);
+	getlist("npc_shop.txt", s_shops, errlist);
 }
 string NPC::firstname() const { return m_firstname; }
 string NPC::name() const { return m_name; }
@@ -563,18 +586,21 @@ Town::Town(int level)
 	// Generate a random room cost
 	roomprice = util::randint(roomprice_low + (level * roomprice_level), roomprice_high + (level * roomprice_level));
 }
-void Town::load()
+void Town::load(std::vector<string>& errlist)
 {
 	std::ifstream file;
 	string str;
 
-	file.open("town_suffix.txt");
+	file.open("Data/town_suffix.txt");
 	while (file)
 	{
 		std::getline(file, str);
 		townsuffix.push_back(str);
 	}
 	file.close();
+
+	if (!townsuffix.size())
+		errlist.push_back("TOWN: suffix list empty");
 }
 
 const string& Town::getName() const { return name; }

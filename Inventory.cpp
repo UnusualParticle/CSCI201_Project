@@ -193,6 +193,93 @@ std::ifstream& operator>>(std::ifstream& stream, Item& item)
 
 	return stream;
 }
+util::CSV& operator>>(util::CSV& csv, Item& item)
+{
+	string temp_type;
+	string temp_effect;
+	string temp_special;
+	
+	csv >> item.m_name >> item.m_level >> temp_type >> item.m_weight >> item.m_mana >> item.m_price
+		>> temp_effect >> item.m_effect.stacks;
+	item.m_type = Item::_typemap->getID(temp_type);
+
+	switch (item.m_type)
+	{
+	case Item::Empty:
+		item.m_super = Item::Super::Empty;
+		break;
+	case Item::Unarmed:
+		item.m_usetype |= Item::flag_usable;
+		item.m_super = Item::Super::Unarmed;
+		break;
+	case Item::Armor:
+	case Item::Cloak:
+	case Item::Robe:
+		item.m_super = Item::Super::Clothing;
+		break;
+	case Item::Shield:
+	case Item::Bow:
+	case Item::Focus:
+		item.m_super = Item::Super::Auxiliary;
+		break;
+	case Item::Melee:
+	case Item::Quiver:
+	case Item::Scroll:
+	case Item::Spell:
+		item.m_usetype |= Item::flag_usable;
+		item.m_super = Item::Super::Weapon;
+		break;
+	case Item::Potion:
+	case Item::Arrow:
+	case Item::Tool:
+	case Item::Crystal:
+		item.m_usetype |= Item::flag_usable;
+		item.m_super = Item::Super::Consumable;
+		break;
+	}
+	switch (item.m_type)
+	{
+	case Item::Melee:
+	case Item::Tool:
+		item.m_usetype |= Item::flag_physical;
+		break;
+	case Item::Spell:
+	case Item::Crystal:
+		item.m_usetype |= Item::flag_magikal;
+		break;
+	case Item::Quiver:
+	case Item::Arrow:
+		item.m_usetype |= Item::flag_ranged;
+		break;
+	}
+
+	try {
+		item.m_effect = EffectDataList.getdatabyname(temp_effect)->make(item.m_effect.stacks);
+	}
+	catch (std::range_error& e)
+	{
+		throw std::range_error{ "ITEM: " + (string)e.what() + " at <" + item.m_name + '>' };
+	}
+
+	if (!csv.good())
+		throw std::invalid_argument{"ITEM: csv not formatted correctly at <" + item.m_name + '>'};
+
+	csv >> temp_special >> item.m_special.stacks;
+	if (temp_special.size())
+	{
+		try {
+			item.m_special = EffectDataList.getdatabyname(temp_special)->make(item.m_special.stacks);
+		}
+		catch (std::range_error& e)
+		{
+			throw std::range_error{ "EFFECT: " + (string)e.what() + " at <" + item.m_name + '>' };
+		}
+	}
+	
+	csv.endline();
+
+	return csv;
+}
 
 std::pair<util::DataVector<Item>::const_iterator, util::DataVector<Item>::const_iterator> getItemRangeByLevel(int level)
 {
@@ -286,13 +373,10 @@ Item generateItemByType(int level, Item::Type type)
 /* * * * * * * *
 *	Inventory  *
 * * * * * * * */
-class InvException : public std::exception
-{
-public:
-	InvException(const char* str)
-		: std::exception(str)
-	{}
-};
+InvException::InvException(const char* str) : std::exception(str) 
+{}
+InvException::InvException(const string& str) : std::exception(str.c_str())
+{}
 
 // Iterator Methods
 Inventory::iterator Inventory::slot_begin() { return m_items.begin() + Slot1; }
@@ -435,11 +519,8 @@ bool Inventory::hasRoomFor(const Item& item) const
 				hasroom = false;
 			break;
 		case Item::Super::Consumable:
-			if (m_items[SlotConsumable].isEmpty())
-				hasroom = true;
-			else if (m_extraconsumable && m_items[SlotConsumableExtra].isEmpty())
-				hasroom = true;
-			else
+			if (!m_items[SlotConsumable].isEmpty()
+				&& !(m_extraconsumable && m_items[SlotConsumableExtra].isEmpty()))
 				hasroom = generalSlotsAvailable() > 0;
 			break;
 		}
@@ -476,7 +557,7 @@ void Inventory::addItem(const Item& item)
 {
 	// Verify that there is room
 	if(!hasRoomFor(item))
-		throw InvException{ "Not enough room for the item, drop something first" };
+		throw InvException{ "Not enough room for <"+item.getName()+">, drop something first" };
 
 	// Where is the room
 	auto ptr{ m_items.end() };

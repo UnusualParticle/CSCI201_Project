@@ -35,6 +35,26 @@ std::ifstream& operator>>(std::ifstream& stream, EffectData& data)
 
 	return stream;
 }
+util::CSV& operator>>(util::CSV& csv, EffectData& data)
+{
+	string temp{};
+	csv >> data.name >> temp >> data.power >> data.boon >> data.ignore >> data.description;
+	try {
+		data.stat = StatBlock::_namemap->getID(temp);
+	}
+	catch (std::range_error& e)
+	{
+		throw std::invalid_argument{ "EFFECT: " + (string)e.what() + " at <" + data.name + '>' };
+	}
+
+
+	if (!csv.good())
+		throw std::invalid_argument{ "EFFECT: csv not formatted correctly at <" + data.name + '>' };
+	else
+		csv.endline();
+
+	return csv;
+}
 
 const std::vector<Effect>& EffectList::getEffects() const { return v; }
 int EffectList::getStat(StatBlock::Stats s) const
