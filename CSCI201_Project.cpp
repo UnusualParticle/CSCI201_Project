@@ -274,20 +274,6 @@ void displayBattleStats(const Actor& actor)
     }
     std::cout << "\n\n";
 }
-void displayHealthChanges(std::pair<int, int> pair, const string& enemyName)
-{
-    // Player health
-    if (pair.first > 0)
-        std::cout << "\tYou heal " << pair.first << " points.\n";
-    else if (pair.first < 0)
-        std::cout << "\tYou take " << -pair.first << " damage.\n";
-
-    // Enemy health
-    if (pair.second > 0)
-        std::cout << "\tThe " << enemyName << " heals " << pair.second << " points.\n";
-    else if (pair.second < 0)
-        std::cout << "\tThe " << enemyName << " takes " << -pair.second << " damage.\n";
-}
 void startBattle(Actor& player)
 {
     // Prepare Actors
@@ -299,6 +285,27 @@ void startBattle(Actor& player)
     // Prepare Manager
     BattleManager manager{player, enemy};
     manager.next();
+
+    auto displayHealthChanges{
+        [&]()
+        {
+            // Declarations
+            const auto pair{manager.healthChanges()};
+            const string& name{ enemy.getName() };
+
+            // Player health
+            if (pair.first > 0)
+                std::cout << "\tYou heal " << pair.first << " points.\n";
+            else if (pair.first < 0)
+                std::cout << "\tYou take " << -pair.first << " damage.\n";
+
+            // Enemy health
+            if (pair.second > 0)
+                std::cout << "\tThe " << name << " heals " << pair.second << " points.\n";
+            else if (pair.second < 0)
+                std::cout << "\tThe " << name << " takes " << -pair.second << " damage.\n";
+        }
+    };
 
     // Run Battle
     while (!manager.done())
@@ -312,7 +319,7 @@ void startBattle(Actor& player)
         {
             std::cout << "\nIt is your turn.\n";
 
-            displayHealthChanges(manager.healthChanges(), enemy.getName());
+            displayHealthChanges();
 
             // Display Stats
             displayBattleStats(player);
@@ -349,19 +356,19 @@ void startBattle(Actor& player)
             manager.recordHealth();
             std::cout << "  You use " << player.inventory.getItem(opt).getName() << ".\n  ";
             player.useItem(opt, enemy);
-            displayHealthChanges(manager.healthChanges(), enemy.getName());
+            displayHealthChanges();
         }
         else if (manager.getState() == BattleManager::EnemyTurn)
         {
             std::cout << "\nIt is the " << enemy.getName() << "'s turn.\n";
-            displayHealthChanges(manager.healthChanges(), enemy.getName());
+            displayHealthChanges();
 
             int slot{ enemy.taketurn() };
 
             manager.recordHealth();
             std::cout << "  The " << enemy.getName() << " uses " << enemy.inventory.getItem(slot).getName() << ".\n  ";
             enemy.useItem(slot, player);
-            displayHealthChanges(manager.healthChanges(), enemy.getName());
+            displayHealthChanges();
         }
 
         manager.next();
