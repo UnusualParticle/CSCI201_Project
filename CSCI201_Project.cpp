@@ -13,7 +13,7 @@
 #include "Stages.h"
 #include <iostream>
 
-void loadGameFiles()
+void loadGameFiles(std::vector<string>& errlist)
 {
     StatBlock::_namemap = new util::NameMap<StatBlock::Stats>("Stats");
     StatBlock::_namemap->exportToArray(StatBlock::statnames);
@@ -31,22 +31,25 @@ void loadGameFiles()
         throw std::invalid_argument{ "Item super type names array not full" };
 
     // Load data lists
-    EffectDataList.loadFromFile("Data/effects.txt");
-    ItemBaseList.loadFromFile("Data/item_default.txt");
-    ItemBaseList.loadFromFile("Data/item_clothing.txt");
-    ItemBaseList.loadFromFile("Data/item_auxiliary.txt");
-    ItemBaseList.loadFromFile("Data/item_weapon.txt");
-    ItemBaseList.loadFromFile("Data/item_consumable.txt");
-    //ItemModifierList.loadFromFile("Data/item_infuse.txt");
-    PlayerDataList.loadFromFile("Data/actor_player.txt");
-    EnemyDataList.loadFromFile("Data/actor_enemy.txt");
+    EffectDataList.loadFromFile("Data/effect.csv", errlist);
+    ItemBaseList.loadFromFile("Data/item_default.csv", errlist);
+    ItemBaseList.loadFromFile("Data/item_clothing.csv", errlist);
+    ItemBaseList.loadFromFile("Data/item_auxiliary.csv", errlist);
+    ItemBaseList.loadFromFile("Data/item_weapon.csv", errlist);
+    ItemBaseList.loadFromFile("Data/item_consumable.csv", errlist);
+    //ItemModifierList.loadFromFile("Data/item_infuse.csv", errlist);
+    PlayerDataList.loadFromFile("Data/actor_player.csv", errlist);
+    EnemyDataList.loadFromFile("Data/actor_enemy.csv", errlist);
 
     // Sort Lists
     std::sort(ItemBaseList.begin(), ItemBaseList.end(), [](const Item& first, const Item& last) {return first.getLevel() < last.getLevel(); });
     std::sort(EnemyDataList.begin(), EnemyDataList.end(), [](const ActorData& first, const ActorData& last) {return first.level < last.level; });
 
-    NPC::load();
-    Town::load();
+    NPC::load(errlist);
+    Town::load(errlist);
+
+    if (errlist.size())
+        throw std::exception{ "CSV files bad" };
 
     delete Item::_typemap;
     delete Item::_supermap;
@@ -275,15 +278,15 @@ void displayHealthChanges(std::pair<int, int> pair, const string& enemyName)
 {
     // Player health
     if (pair.first > 0)
-        std::cout << "You heal " << pair.first << " points.\n";
+        std::cout << "\tYou heal " << pair.first << " points.\n";
     else if (pair.first < 0)
-        std::cout << "You take " << -pair.first << " damage.\n";
+        std::cout << "\tYou take " << -pair.first << " damage.\n";
 
     // Enemy health
     if (pair.second > 0)
-        std::cout << "The " << enemyName << " heals " << pair.second << " points.\n";
+        std::cout << "\tThe " << enemyName << " heals " << pair.second << " points.\n";
     else if (pair.second < 0)
-        std::cout << "The " << enemyName << " takes " << -pair.second << " damage.\n";
+        std::cout << "\tThe " << enemyName << " takes " << -pair.second << " damage.\n";
 }
 void startBattle(Actor& player)
 {
@@ -308,6 +311,8 @@ void startBattle(Actor& player)
         if (manager.getState() == BattleManager::PlayerTurn)
         {
             std::cout << "\nIt is your turn.\n";
+
+            displayHealthChanges(manager.healthChanges(), enemy.getName());
 
             // Display Stats
             displayBattleStats(player);
@@ -349,6 +354,7 @@ void startBattle(Actor& player)
         else if (manager.getState() == BattleManager::EnemyTurn)
         {
             std::cout << "\nIt is the " << enemy.getName() << "'s turn.\n";
+            displayHealthChanges(manager.healthChanges(), enemy.getName());
 
             int slot{ enemy.taketurn() };
 
@@ -453,7 +459,7 @@ void visitShop(Actor& player, NPC& npc)
             std::cout << "You do not have enough gold to buy this.\n\n";
         else if (promptTakeItem(player.inventory, item))
         {
-            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp.\n\n";
+            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp. You have " << player.inventory.getGold() << "gp left.\n\n";
             player.inventory.spendGold(item.getPrice());
             npc.removeItem(opt);
         }
@@ -630,19 +636,23 @@ void printlevel(int level, int stage)
 }
 int main()
 {
-    string err{};
+    std::vector<string> errlist{};
     try
     {
         std::cout << "Loading Data...\n" << std::endl;
-        loadGameFiles();
+        loadGameFiles(errlist);
         std::cout << "No errors occured\n\n";
     }
-    catch (std::invalid_argument& e)
+    catch (std::exception& e)
     {
-        err = e.what();
-        std::cout << "== Error ==\n"
-            << err << "\n\n";
+        std::cout << "== Error List ==\n";
+        for (const auto& e : errlist)
+        {
+            std::cout << e << '\n';
+        }
+        std::cout << '\n';
     }
+    errlist.clear();
 
     if (!debugGameFiles())
         return 1;

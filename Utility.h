@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTILITY_H
+#define UTILITY_H
 
 #include <algorithm>
 #include <array>
@@ -25,6 +26,8 @@ namespace util
 	private:
 		// Stream limit
 		static const auto LIMIT{ std::numeric_limits<std::streamsize>::max() };
+		// Throw an error if a newline character is encountered
+		void check_newline();
 		// Check for comments and skip them
 		void skip_comment();
 		// Skip to the next cell
@@ -131,7 +134,7 @@ namespace util
 		{
 			auto ptr{ mp.find(name) };
 			if (ptr == mp.end())
-				throw std::range_error{ "Name does not exist" };
+				throw std::range_error{ "Name <" + name + "> does not exist" };
 			return ptr->second;
 		}
 
@@ -140,7 +143,7 @@ namespace util
 		{
 			auto ptr{ std::find_if(mp.begin(), mp.end(), [id](const pair_t& p) {return p.second == id; }) };
 			if (ptr == mp.end())
-				throw std::range_error{ "ID does not exist" };
+				throw std::range_error{ "ID <"+std::to_string(id)+"> does not exist" };
 			return ptr->first;
 		}
 
@@ -165,25 +168,30 @@ namespace util
 		std::vector<data_t> v;
 	public:
 		DataVector() = default;
-		DataVector(const string& filename)
+		DataVector(const string& filename, std::vector<string>& errlist)
 		{
-			loadFromFile(filename);
+			loadFromFile(filename, errlist);
 		}
 		~DataVector() = default;
 
 		// Clears the vector and adds data
-		void loadFromFile(const string& filename)
+		void loadFromFile(const string& filename, std::vector<string>& errlist)
 		{
-			std::ifstream file{ filename };
-			while (file)
+			util::CSV csv{ filename };
+			while (!csv.eof())
 			{
-				data_t data{};
-				file >> data;
-				if (file.eof())
-					break;
-				if (file.fail())
-					throw std::invalid_argument{ "Input file not formatted correctly" };
-				v.push_back(data);
+				try {
+					data_t data{};
+					csv >> data;
+					v.push_back(data);
+					if (csv.eof())
+						break;
+				}
+				catch (std::exception& e)
+				{
+					errlist.push_back(e.what());
+					csv.endline();
+				}
 			}
 		}
 		const data_t& getdata(int id)
@@ -194,7 +202,7 @@ namespace util
 		{
 			auto ptr{ std::find_if(v.begin(), v.end(), [name](const data_t& data) {return data.getName() == name; })};
 			if (ptr == v.end())
-				throw std::invalid_argument{ "Name <" + name + "> is not in data" };
+				throw std::range_error{ "Name <" + name + "> is not in data" };
 			return ptr;
 		}
 
@@ -249,3 +257,5 @@ namespace util
 		Counter& operator++();
 	};
 }
+
+#endif

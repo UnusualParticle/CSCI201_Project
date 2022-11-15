@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STATS_H
+#define STATS_H
 
 #include "Utility.h"
 
@@ -50,6 +51,7 @@ struct EffectData
 	Effect make(int stacks) const;
 };
 std::ifstream& operator>>(std::ifstream& stream, EffectData& data);
+util::CSV& operator>>(util::CSV& csv, EffectData& data);
 
 class EffectList
 {
@@ -64,3 +66,5 @@ public:
 };
 
 inline util::DataVector<EffectData> EffectDataList;
+
+#endif

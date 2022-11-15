@@ -9,8 +9,14 @@ namespace util
     CSV::CSV(const string& filename)
         : file(filename)
     {}
+    void CSV::check_newline()
+    {
+        if (file.peek() == '\n')
+            throw std::runtime_error{ "CSV caught a newline. Use endline() at the end of a data line." };
+    }
     void CSV::skip_comment()
     {
+        check_newline();
         while (file && file.peek() == '#')
             file.ignore(LIMIT, '\n');
     }
@@ -34,6 +40,7 @@ namespace util
     }
     void CSV::endline()
     {
+        file.clear();
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         skip_comment();
     }
