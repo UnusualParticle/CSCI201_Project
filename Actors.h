@@ -48,6 +48,7 @@ public:
 
 	// Inventory Methods
 	std::pair<Effect, Effect> getItemEffects(int slot) const;
+	int getItemMana(int slot) const;
 	void getChoices(ChoiceList& choices) const;
 	string itemStr(int slot) const;
 	void useItem(int slot, Actor& target);

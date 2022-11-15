@@ -286,6 +286,7 @@ void startBattle(Actor& player)
     BattleManager manager{player, enemy};
     manager.next();
 
+    // Lambda function
     auto displayHealthChanges{
         [&]()
         {
@@ -344,7 +345,7 @@ void startBattle(Actor& player)
 
                 // Verify choice
                 const Item& item{ player.inventory.getItem(opt) };
-                if (item.getMana() > player.getMana())
+                if (player.getItemMana(opt) > player.getMana())
                     std::cout << "Not enough Mana!\n";
                 else if (item.ranged() && player.inventory.getAuxiliary().getType() != Item::Bow)
                     std::cout << "You do not have a bow!\n";

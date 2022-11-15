@@ -114,6 +114,17 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 
 	return pair;
 }
+int Actor::getItemMana(int slot) const
+{
+	int mana{ inventory.getItem(slot).getMana() };
+	if (mana == 0)
+		return 0;
+	else
+	{
+		mana = mana - getStatModifier(StatBlock::Focus);
+		return (mana > -1) ? -1 : mana;
+	}
+}
 void Actor::getChoices(ChoiceList& choices) const
 {
 	for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
@@ -129,7 +140,7 @@ string Actor::itemStr(int slot) const
 	std::ostringstream str{};
 
 	int stacks{ item.getEffect().stacks };
-	int cost{ item.getMana() };
+	int cost{ getItemMana(slot) };
 
 	if (item.physical())
 		stacks += stats.strength;
@@ -142,19 +153,13 @@ string Actor::itemStr(int slot) const
 		else
 			stacks += aux.getEffect().stacks;
 	}
-		
-	if (cost > 0 && aux.getType() == Item::Focus)
-	{
-		cost -= aux.getEffect().stacks;
-		cost = (cost < 1) ? 1 : cost;
-	}
 
 	str << item.getName() << ' ' << item.getEffect().data->name << '(' << stacks << ')';
 	if (item.getSpecial().stacks > 0)
 		str << ' ' << item.getSpecial().data->name << '(' << item.getEffect().stacks << ')';
 
-	if (item.getMana())
-		str << " Mp(" << cost << ')';
+	if (cost != 0)
+		str << " Mp(" << -cost << ')';
 
 	return str.str();
 }
@@ -175,9 +180,7 @@ void Actor::useItem(int slot, Actor& enemy)
 			enemy.addEffect(pair.second);
 	}
 	
-	int manacost{ -inventory.getItem(slot).getMana() + getStatModifier(StatBlock::Focus)};
-	manacost = (manacost > -1) ? -1 : manacost;
-	changemana(manacost);
+	changemana(getItemMana(slot));
 	inventory.useItem(slot);
 }
 // Encounter Methods
