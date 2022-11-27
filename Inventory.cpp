@@ -484,7 +484,7 @@ void Inventory::sort()
 }
 int Inventory::generalSlotsAvailable() const
 {
-	int empty{ std::count_if(slot_begin(), slot_end(),
+	int empty{ (int)std::count_if(slot_begin(), slot_end(),
 		[](const Item& i)
 		{
 			return i.isEmpty();

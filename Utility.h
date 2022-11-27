@@ -225,7 +225,7 @@ namespace util
 	char promptchar(const string& prompt);
 	// Choice prompter for an int range, [low, high]
 	int promptchoice(int low, int high);
-	// Int-based yes/no prompt (returns 0 or 1)
+	// Int-based yes/no prompt (returns yes:true or no:false)
 	bool promptyn();
 
 

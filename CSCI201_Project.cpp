@@ -106,30 +106,9 @@ bool debugGameFiles()
 
     return true;
 }
-void startGame(Actor& player)
-{
-    std::cout << "Starting a new game\n\nChoose your class:\n";
-    int i{};
-    for (auto ptr{ PlayerDataList.begin() }; ptr != PlayerDataList.end(); ++ptr)
-        std::cout << ++i << ". " << ptr->name << '\n';
-    i = util::promptchoice(1,i)-1;
-    auto temp{ PlayerDataList.getdata(i) };
-    std::cout << "You chose: " << temp.name << '\n';
-    temp.name = util::promptstr("Enter a name for your character: ");
-    player = temp.makeActor();
-    std::cout << "\nWelcome, " << player.getName() << ". You begin your journey to defeat a god.\n\n";
-}
 
-void printPlayerInfo(const Actor& player)
+void printInventory(const Inventory& inv)
 {
-    std::cout << "\n== == == == == == == == == == == == == ==\n"
-        << "| " << player.getName() << "  |  " << player.getLevel() << "  |  " << player.inventory.getGold() << " gp\n"
-        << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n"
-        << "| Health: " << player.getHealth() << '/' << player.getHealthMax() << "  |  Strength: " << player.getStrength() << '\n'
-        << "|   Mana: " << player.getMana() << '/' << player.getManaMax() << "  |  Aura: " << player.getAura() << '\n'
-        << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n";
-
-    const Inventory& inv{ player.inventory };
     const int strflag{ Item::flag_effects | Item::flag_weight };
 
     std::cout << "|      Armor: ";
@@ -148,7 +127,7 @@ void printPlayerInfo(const Actor& player)
     for (int i{ Inventory::Slot1 + hasaux }; i <= Inventory::Slot4; ++i)
     {
         const Item& item{ inv.getItem(i) };
-        std::cout << "\n|     Item "<< (i-Inventory::Slot1+1) << ": " << item.getStr(strflag);
+        std::cout << "\n|     Item " << (i - Inventory::Slot1 + 1) << ": " << item.getStr(strflag);
     }
 
     std::cout << "\n| Consumable: ";
@@ -165,6 +144,53 @@ void printPlayerInfo(const Actor& player)
         else
             std::cout << inv.getConsumable(true).getStr(strflag);
     }
+}
+void printActorData(const ActorData& data)
+{
+    std::cout << "\n== == == == == == == == == == == == == ==\n"
+        << "| " << data.name << "  |  Level: " << data.level << "  |  " << data.inventory.getGold() << " gp\n"
+        << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n"
+        << "| Health: "  << data.stats.healthMax << "  |  Strength: " << data.stats.strength << '\n'
+        << "|   Mana: " << data.stats.manaMax << "  |  Aura: " << data.stats.aura << '\n'
+        << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n";
+
+    printInventory(data.inventory);
+    
+    std::cout << "\n== == == == == == == == == == == == == ==\n\n";
+}
+void startGame(Actor& player)
+{
+    std::cout << "Starting a new game";
+    ActorData data;
+    bool ok{};
+    do
+    {
+        int i{};
+        std::cout << "\n\nChoose your class:\n";
+        for (auto ptr{ PlayerDataList.begin() }; ptr != PlayerDataList.end(); ++ptr)
+            std::cout << ++i << ". " << ptr->name << '\n';
+        i = util::promptchoice(1, i) - 1;
+        data = PlayerDataList.getdata(i);
+        printActorData(data);
+        std::cout << "\nIs this the class you want?";
+        ok = util::promptyn();
+    } while (!ok);
+
+    data.name = util::promptstr("Enter a name for your character: ");
+    player = data.makeActor();
+    std::cout << "\nWelcome, " << player.getName() << ". You begin your journey to defeat a god.\n\n";
+}
+
+void printPlayerInfo(const Actor& player)
+{
+    std::cout << "\n== == == == == == == == == == == == == ==\n"
+        << "| " << player.getName() << "  |  Level: " << player.getLevel() << "  |  " << player.inventory.getGold() << " gp\n"
+        << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n"
+        << "| Health: " << player.getHealth() << '/' << player.getHealthMax() << "  |  Strength: " << player.getStrength() << '\n'
+        << "|   Mana: " << player.getMana() << '/' << player.getManaMax() << "  |  Aura: " << player.getAura() << '\n'
+        << "|  -- -- -- -- -- -- -- -- -- -- -- -- --\n";
+
+    printInventory(player.inventory);
 
     std::cout << "\n== == == == == == == == == == == == == ==\n\n";
 }
@@ -467,8 +493,8 @@ void visitShop(Actor& player, NPC& npc)
             std::cout << "You do not have enough gold to buy this.\n\n";
         else if (promptTakeItem(player.inventory, item))
         {
-            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp. You have " << player.inventory.getGold() << "gp left.\n\n";
             player.inventory.spendGold(item.getPrice());
+            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp. You have " << player.inventory.getGold() << "gp left.\n\n";
             npc.removeItem(opt);
         }
         std::cout << npc.name() << ": Is there anything else I can get for you?";

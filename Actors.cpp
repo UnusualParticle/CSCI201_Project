@@ -116,14 +116,8 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 }
 int Actor::getItemMana(int slot) const
 {
-	int mana{ inventory.getItem(slot).getMana() };
-	if (mana == 0)
-		return 0;
-	else
-	{
-		mana = mana - getStatModifier(StatBlock::Focus);
-		return (mana > -1) ? -1 : mana;
-	}
+	int mana{ inventory.getItem(slot).getMana() - getStatModifier(StatBlock::Focus) };
+	return (mana < 0) ? 0 : mana;
 }
 void Actor::getChoices(ChoiceList& choices) const
 {
@@ -325,7 +319,7 @@ int Enemy::taketurn() const
 	while (!choiceOK)
 	{
 		choice = util::randint(0, max);
-		if (inventory.getItem(choices[choice]).getMana() <= getMana())
+		if (getItemMana(choice) <= getMana())
 			choiceOK = true;
 	}
 	return choices[choice];
