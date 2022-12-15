@@ -471,68 +471,90 @@ NPC::NPC(Shop shop, int level)
 		m_shopname = fname + s_shops[shop];
 
 	// Generate Items
-	Item::Type t1{};
-	Item::Type t2{};
-	Item::Type t3{};
-	Item::Type t4{};
-	Item::Type t5{};
+	const int ITEMS{ 5 };
+	Item::Type t[ITEMS]{};
+
+	int rand1{ util::randint(0,1) };
+	int rand2{ util::randint(0,2) };
 
 	switch (shop)
 	{
 	case Shop::Blacksmith:
-		t1 = Item::Melee;
-		t2 = Item::Quiver;
-		if (util::randint(0, 1))
-			t3 = Item::Shield;
-		else
-			t3 = Item::Bow;
-		++c_armor;
-		if (c_armor.done() || util::randint(0, 2) == 0)
+		t[0] = Item::Melee;
+		t[1] = Item::Quiver;
+
+		switch (rand2)
 		{
-			t4 = Item::Armor;
-			c_armor.reset();
+		case 0:
+			t[2] = Item::Shield;
+			if (rand1)
+				t[3] = Item::Bow;
+			else
+				t[3] = Item::Armor;
+			break;
+		case 1:
+			t[2] = Item::Bow;
+			if(rand1)
+				t[3] = Item::Shield;
+			else
+				t[3] = Item::Armor;
+			break;
+		case 2:
+			t[2] = Item::Armor;
+			if (rand1)
+				t[3] = Item::Bow;
+			else
+				t[3] = Item::Shield;
+			break;
 		}
+
+		if (util::randint(0, 1))
+			t[4] = Item::Arrow;
+		else
+			t[4] = Item::Tool;
 		break;
 	case Shop::Spellmaster:
-		t1 = Item::Spell;
-		t2 = Item::Spell;
-		++c_scroll;
-		if (c_scroll.done() || util::randint(0, 1))
-		{
-			t3 = Item::Scroll;
-			c_scroll.reset();
-		}
+		t[0] = Item::Spell;
+		t[1] = Item::Spell;
 		++c_robe;
-		if (c_robe.done() || util::randint(0, 2) == 0)
+		bool hasrobe{ rand2 };
+		if (c_robe.done() || hasrobe == 0)
 		{
-			t4 = Item::Robe;
+			t[2] = Item::Robe;
 			c_robe.reset();
 		}
+		else
+			t[2] = Item::Spell;
+		++c_scroll;
+		if (c_scroll.done() || !hasrobe || rand1)
+		{
+			t[3] = Item::Scroll;
+			c_scroll.reset();
+		}
+		else
+			t[3] = Item::Crystal;
 		break;
 	case Shop::Trader:
-		t1 = Item::Potion;
-		t2 = Item::Tool;
-		t3 = Item::Arrow;
-		t4 = Item::Crystal;
+		t[0] = Item::Potion;
+		t[1] = Item::Tool;
+		t[2] = Item::Arrow;
+		t[3] = Item::Crystal;
 		++c_cloak;
-		if (c_cloak.done() || util::randint(0, 2) == 0)
+		if (c_cloak.done() || rand2 == 0)
 		{
-			t5 = Item::Cloak;
+			t[4] = Item::Cloak;
 			c_cloak.reset();
 		}
+		else
+			t[4] = Item::Potion;
 		break;
 	}
 
-	if (t1 != Item::Empty)
-		m_items.push_back(generateItemByType(level, t1));
-	if (t2 != Item::Empty)
-		m_items.push_back(generateItemByType(level, t2));
-	if (t3 != Item::Empty)
-		m_items.push_back(generateItemByType(level, t3));
-	if (t4 != Item::Empty)
-		m_items.push_back(generateItemByType(level, t4));
-	if (t5 != Item::Empty)
-		m_items.push_back(generateItemByType(level, t5));
+	for (int i{}; i < ITEMS; ++i)
+	{
+		if (t[i] != Item::Empty)
+			m_items.push_back(generateItemByType(level, t[i]));
+	}
 }
 void NPC::load(std::vector<string>& errlist)
 {
