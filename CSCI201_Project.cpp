@@ -552,7 +552,7 @@ void visitTown(Actor& player)
     std::cout << "As you enter the town you feel a sense of comfort wash over you.\n"
         << "Which would you like to increase?\n"
         << "\t1. Max Health +" << phys.first << ", Strength +" << phys.second << '\n'
-        << "\t2. Max Mana +" << magk.first << ", Aura +" << magk.second << '\n';
+        << "\t2. Max Health +2, Max Mana +" << magk.first << ", Aura +" << magk.second << '\n';
     int opt{ util::promptchoice(1, 2) };
     if (opt == 1)
     {

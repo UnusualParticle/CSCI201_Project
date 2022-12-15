@@ -86,6 +86,8 @@ void Actor::levelPhysical(std::pair<int, int> p)
 }
 void Actor::levelMagikal(std::pair<int, int> p)
 {
+	stats.health += 2;
+	stats.healthMax += 2;
 	stats.mana += p.first;
 	stats.manaMax += p.first;
 	stats.aura += p.second;
