@@ -431,6 +431,13 @@ void startBattle(Actor& player)
         std::cout << "\nYou died to the " << enemy.getName() << '\n';
 }
 
+bool hasgold(const Actor& player, int price)
+{
+    if (player.inventory.getGold() >= price)
+        return true;
+    std::cout << "You do not have enough gold to buy this.\n\n";
+    return false;
+}
 int promptShopVisit(const Town& town)
 {
     int opt{};
@@ -479,23 +486,104 @@ int promptShopItems(const NPC& npc)
     opt = util::promptchoice(1, max);
     return (opt != max) ? opt - 1 : -1;
 }
+void promptInfuse(Actor& player, NPC& npc)
+{
+    using infusion_p = std::pair<const Item*, int>;
+    using infusion_v = std::vector<infusion_p>;
+    int cost{};
+
+    // Get the player's scrolls
+    infusion_v scrolls{};
+    for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+    {
+        const auto* playeritem{ &player.inventory.getItem(i) };
+        if (playeritem->getType() == Item::Scroll)
+            scrolls.push_back({ playeritem , playeritem->getPrice()/2 });
+    }
+    if (scrolls.size() == 0)
+    {
+        std::cout << "\nYou need a scroll to infuse an item";
+        return;
+    }
+
+    // Get the valid infusion targets
+    infusion_v items{};
+    for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
+    {
+        //   Valid: Weapons
+        // Invalid: Spells & the same scroll
+        const auto* playeritem{ &player.inventory.getItem(i) };
+        if (playeritem->getType() == Item::Spell)
+            continue;
+        if (playeritem->getSuper() != Item::Super::Weapon)
+            continue;
+        items.push_back({ playeritem, playeritem->getPrice() / 2 });
+    }
+    // Use 1 because of the scroll from earlier
+    if (items.size() == 1)
+    {
+        std::cout << "\nYou can only infuse Quivers, Melees, and Scrolls";
+        return;
+    }
+
+    // Select the scroll
+    std::cout << "\n\nSelect the scroll you'd like to infuse:";
+    for (int i{}; i < scrolls.size(); ++i)
+    {
+        std::cout << '\n\t' << i + 1 << ": " << scrolls[i].first->getStr(Item::flag_effects) << " Cost:+" << scrolls[i].second;
+    }
+    std::cout << std::endl;
+    int opt_scroll{util::promptchoice(1, scrolls.size())};
+    cost += scrolls[opt_scroll].second;
+    
+    // Remove the scroll that was selected
+    items.erase(std::find_if(items.begin(), items.end(),
+        [&](const infusion_p& p) {
+            return p.first == scrolls[opt_scroll].first;
+        }));
+
+    // Select the item
+    std::cout << "\n\n Select the item you'd like to infuse the scroll to:";
+    for (int i{}; i < items.size(); ++i)
+    {
+        std::cout << '\n\t' << i + 1 << ": " << items[i].first->getStr(Item::flag_effects) << " Cost:+" << items[i].second;
+    }
+    std::cout << std::endl;
+    int opt_item{ util::promptchoice(1, items.size()) };
+    cost += items[opt_item].second;
+
+    // Confirm
+    std::cout << "\n\nDo you want to give the effect [" << scrolls[opt_scroll].first->getEffect().data->getName()
+        << "] to the item " << items[opt_item].first->getName()
+        << " for " << cost << "gp?\n";
+    if(items[opt_item].first->getSpecial().data)
+
+}
 void visitShop(Actor& player, NPC& npc)
 {
     player.enterShop();
     std::cout << "\nYou enter " << npc.shopname() << ".\n";
     std::cout << npc.greet();
-    
+
     int opt{promptShopItems(npc)};
     while (opt != -1)
     {
         const Item& item{ npc.items()[opt] };
-        if (player.inventory.getGold() < item.getPrice())
-            std::cout << "You do not have enough gold to buy this.\n\n";
-        else if (promptTakeItem(player.inventory, item))
+        if (npc.getshop() == NPC::Spellmaster && opt == 4)
         {
-            player.inventory.spendGold(item.getPrice());
-            std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp. You have " << player.inventory.getGold() << "gp left.\n\n";
-            npc.removeItem(opt);
+            promptInfuse(player, npc);
+        }
+        else
+        {
+            if (hasgold(player, item.getPrice()))
+            {
+                if (promptTakeItem(player.inventory, item))
+                {
+                    player.inventory.spendGold(item.getPrice());
+                    std::cout << "You bought the " << item.getName() << " for " << item.getPrice() << " gp. You have " << player.inventory.getGold() << "gp left.\n\n";
+                    npc.removeItem(opt);
+                }
+            }
         }
         std::cout << npc.name() << ": Is there anything else I can get for you?";
         opt = promptShopItems(npc);

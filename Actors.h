@@ -98,6 +98,7 @@ public:
 
 	using SaleItems = std::vector<Item>;
 private:
+	Shop m_shop;
 	string m_firstname;
 	string m_name;
 	string m_greeting;
@@ -128,6 +129,7 @@ public:
 	string shopname() const;
 
 	const SaleItems& items() const;
+	Shop getshop() const;
 	void removeItem(int slot);
 
 	friend class Town;

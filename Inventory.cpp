@@ -106,93 +106,6 @@ Item& Item::operator=(const Item& other)
 
 	return *this;
 }
-std::ifstream& operator>>(std::ifstream& stream, Item& item)
-{
-	// Look for an opening bracket
-	stream.ignore(util::STREAMMAX, '[');
-	if (!stream.good())
-		return stream;
-
-	// Get the data
-	string str;
-	int num;
-
-	util::getline(stream, item.m_name);
-	stream >> item.m_level;
-
-	util::getline(stream, str);
-	item.m_type = Item::_typemap->getID(str);
-	switch (item.m_type)
-	{
-	case Item::Empty:
-		item.m_super = Item::Super::Empty;
-		break;
-	case Item::Unarmed:
-		item.m_usetype |= Item::flag_usable;
-		item.m_super = Item::Super::Unarmed;
-		break;
-	case Item::Armor:
-	case Item::Cloak:
-	case Item::Robe:
-		item.m_super = Item::Super::Clothing;
-		break;
-	case Item::Shield:
-	case Item::Bow:
-	case Item::Focus:
-		item.m_super = Item::Super::Auxiliary;
-		break;
-	case Item::Melee:
-	case Item::Quiver:
-	case Item::Scroll:
-	case Item::Spell:
-		item.m_usetype |= Item::flag_usable;
-		item.m_super = Item::Super::Weapon;
-		break;
-	case Item::Potion:
-	case Item::Arrow:
-	case Item::Tool:
-	case Item::Crystal:
-		item.m_usetype |= Item::flag_usable;
-		item.m_super = Item::Super::Consumable;
-		break;
-	}
-	switch (item.m_type)
-	{
-	case Item::Melee:
-	case Item::Tool:
-		item.m_usetype |= Item::flag_physical;
-		break;
-	case Item::Spell:
-	case Item::Crystal:
-		item.m_usetype |= Item::flag_magikal;
-		break;
-	case Item::Quiver:
-	case Item::Arrow:
-		item.m_usetype |= Item::flag_ranged;
-		break;
-	}
-
-	stream >> item.m_weight;
-	stream >> item.m_mana;
-	stream >> item.m_price;
-
-	util::getline(stream, str);
-	stream >> num;
-	item.m_effect = EffectDataList.getdatabyname(str)->make(num);
-	
-	stream >> std::ws;
-	if (stream.peek() != ']')
-	{
-		util::getline(stream, str);
-		stream >> num;
-		item.m_special = EffectDataList.getdatabyname(str)->make(num);
-	}
-
-	// Look for a closing bracket
-	stream.ignore(util::STREAMMAX, ']');
-
-	return stream;
-}
 util::CSV& operator>>(util::CSV& csv, Item& item)
 {
 	string temp_type;
@@ -269,6 +182,7 @@ util::CSV& operator>>(util::CSV& csv, Item& item)
 	{
 		try {
 			item.m_special = EffectDataList.getdatabyname(temp_special)->make(item.m_special.stacks);
+			item.m_infused = true;
 		}
 		catch (std::range_error& e)
 		{

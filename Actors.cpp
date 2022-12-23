@@ -447,6 +447,7 @@ std::vector<string> NPC::s_offers{};
 std::vector<string> NPC::s_shops{};
 
 NPC::NPC(Shop shop, int level)
+	: m_shop(shop)
 {
 	// Generate Names
 	string fname{};
@@ -555,6 +556,8 @@ NPC::NPC(Shop shop, int level)
 		if (t[i] != Item::Empty)
 			m_items.push_back(generateItemByType(level, t[i]));
 	}
+	if (shop == Shop::Spellmaster)
+		m_items.push_back(*ItemBaseList.getdatabyname("Infuse an Item"));
 }
 void NPC::load(std::vector<string>& errlist)
 {
@@ -582,6 +585,7 @@ string NPC::firstname() const { return m_firstname; }
 string NPC::name() const { return m_name; }
 string NPC::greet() const { return m_greeting; }
 string NPC::shopname() const { return m_shopname; }
+NPC::Shop NPC::getshop() const { return m_shop; }
 const NPC::SaleItems& NPC::items() const { return m_items; }
 void NPC::removeItem(int slot) { m_items.erase(m_items.begin() + slot); }
 
