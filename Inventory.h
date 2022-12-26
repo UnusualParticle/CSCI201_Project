@@ -70,8 +70,6 @@ private:
 	Effect m_special{};
 	int m_mana{};
 	int m_price{};
-
-	bool m_infused{};
 public:
 	// Type Methods
 	Type getType() const;
@@ -85,7 +83,6 @@ public:
 	Effect getSpecial() const;
 	int getMana() const;
 	int getPrice() const;
-	bool infused() const;
 
 	// String Methods
 	string strEffect() const;
@@ -186,6 +183,7 @@ public:
 	void addItem(const Item& item);
 	void useItem(int slot);
 	void dropItem(int slot);
+	void infuseItem(int slot, const Item& item);
 	void addGold(int gold);
 	void spendGold(int gold);
 };

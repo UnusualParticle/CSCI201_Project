@@ -48,9 +48,6 @@ void loadGameFiles(std::vector<string>& errlist)
     NPC::load(errlist);
     Town::load(errlist);
 
-    if (errlist.size())
-        throw std::exception{ "CSV files bad" };
-
     delete Item::_typemap;
     delete Item::_supermap;
     delete StatBlock::_namemap;
@@ -486,9 +483,10 @@ int promptShopItems(const NPC& npc)
     opt = util::promptchoice(1, max);
     return (opt != max) ? opt - 1 : -1;
 }
-void promptInfuse(Actor& player, NPC& npc)
+void promptInfuse(Actor& player)
 {
-    using infusion_p = std::pair<const Item*, int>;
+    // slot, cost
+    using infusion_p = std::pair<int, int>;
     using infusion_v = std::vector<infusion_p>;
     int cost{};
 
@@ -498,7 +496,7 @@ void promptInfuse(Actor& player, NPC& npc)
     {
         const auto* playeritem{ &player.inventory.getItem(i) };
         if (playeritem->getType() == Item::Scroll)
-            scrolls.push_back({ playeritem , playeritem->getPrice()/2 });
+            scrolls.push_back({ i , playeritem->getPrice()/2 });
     }
     if (scrolls.size() == 0)
     {
@@ -510,30 +508,25 @@ void promptInfuse(Actor& player, NPC& npc)
     infusion_v items{};
     for (int i{}; i < Inventory::SLOTS_TOTAL; ++i)
     {
-        //   Valid: Weapons
-        // Invalid: Spells & the same scroll
         const auto* playeritem{ &player.inventory.getItem(i) };
-        if (playeritem->getType() == Item::Spell)
-            continue;
-        if (playeritem->getSuper() != Item::Super::Weapon)
-            continue;
-        items.push_back({ playeritem, playeritem->getPrice() / 2 });
+        if (playeritem->infuseable())
+            items.push_back({ i, playeritem->getPrice() / 2 });
     }
     // Use 1 because of the scroll from earlier
     if (items.size() == 1)
     {
-        std::cout << "\nYou can only infuse Quivers, Melees, and Scrolls";
+        std::cout << "\nYou must have a Quiver, Melee, or Scroll to infuse";
         return;
     }
 
     // Select the scroll
     std::cout << "\n\nSelect the scroll you'd like to infuse:";
-    for (int i{}; i < scrolls.size(); ++i)
+    for (size_t i{}; i < scrolls.size(); ++i)
     {
-        std::cout << '\n\t' << i + 1 << ": " << scrolls[i].first->getStr(Item::flag_effects) << " Cost:+" << scrolls[i].second;
+        std::cout << "\n\t" << i + 1 << ": " << player.inventory.getItem(scrolls[i].first).getStr(Item::flag_effects) << " Cost:+" << scrolls[i].second;
     }
     std::cout << std::endl;
-    int opt_scroll{util::promptchoice(1, scrolls.size())};
+    int opt_scroll{ util::promptchoice(1, scrolls.size()) - 1 };
     cost += scrolls[opt_scroll].second;
     
     // Remove the scroll that was selected
@@ -543,21 +536,38 @@ void promptInfuse(Actor& player, NPC& npc)
         }));
 
     // Select the item
-    std::cout << "\n\n Select the item you'd like to infuse the scroll to:";
-    for (int i{}; i < items.size(); ++i)
+    std::cout << "\n\nSelect the item you'd like to infuse the scroll to:";
+    for (size_t i{}; i < items.size(); ++i)
     {
-        std::cout << '\n\t' << i + 1 << ": " << items[i].first->getStr(Item::flag_effects) << " Cost:+" << items[i].second;
+        std::cout << "\n\t" << i + 1 << ": " << player.inventory.getItem(items[i].first).getStr(Item::flag_effects) << " Cost:+" << items[i].second;
     }
     std::cout << std::endl;
-    int opt_item{ util::promptchoice(1, items.size()) };
+    int opt_item{ util::promptchoice(1, items.size()) - 1 };
     cost += items[opt_item].second;
 
     // Confirm
-    std::cout << "\n\nDo you want to give the effect [" << scrolls[opt_scroll].first->getEffect().data->getName()
-        << "] to the item " << items[opt_item].first->getName()
-        << " for " << cost << "gp?\n";
-    if(items[opt_item].first->getSpecial().data)
+    const auto& scroll{ player.inventory.getItem(scrolls[opt_scroll].first) };
+    auto& item{ player.inventory.getItem(items[opt_item].first) };
+    std::cout << "\n\nDo you want to give the effect [" << scroll.getEffect().data->getName()
+        << "] to the item " << item.getName()
+        << " for " << cost << "gp?\nWARNING: This will consume the scroll";
+    if (item.getSpecial().data)
+        std::cout << " and remove the [" << item.getSpecial().data->getName()
+        << "] effect from the item " << item.getName();
+    std::cout << ".\n";
+    if (util::promptyn())
+    {
+        if (player.inventory.getGold() < cost)
+        {
+            std::cout << "You do not have enough gold\n";
+            return;
+        }
+        player.inventory.spendGold(cost);
+        player.inventory.infuseItem(items[opt_item].first, scroll);
 
+        std::cout << item.getStr() << "\nYou have " << player.inventory.getGold() << "gp left.\n\n";
+        player.inventory.dropItem(scrolls[opt_scroll].first);
+    }
 }
 void visitShop(Actor& player, NPC& npc)
 {
@@ -569,9 +579,9 @@ void visitShop(Actor& player, NPC& npc)
     while (opt != -1)
     {
         const Item& item{ npc.items()[opt] };
-        if (npc.getshop() == NPC::Spellmaster && opt == 4)
+        if (npc.getshop() == NPC::Spellmaster && opt == npc.items().size()-1)
         {
-            promptInfuse(player, npc);
+            promptInfuse(player);
         }
         else
         {
@@ -759,13 +769,10 @@ void printlevel(int level, int stage)
 int main()
 {
     std::vector<string> errlist{};
-    try
-    {
-        std::cout << "Loading Data...\n" << std::endl;
-        loadGameFiles(errlist);
-        std::cout << "No errors occured\n\n";
-    }
-    catch (std::exception& e)
+
+    std::cout << "Loading Data...\n" << std::endl;
+    loadGameFiles(errlist);
+    if (errlist.size())
     {
         std::cout << "== Error List ==\n";
         for (const auto& e : errlist)
@@ -774,17 +781,12 @@ int main()
         }
         std::cout << '\n';
     }
+    else
+        std::cout << "No errors occured\n\n";
     errlist.clear();
 
     if (!debugGameFiles())
         return 1;
-
-    // Test
-    if (false)
-    {
-        Item item{ generateItemByType(1, Item::Armor) };
-        return 0;
-    }
 
     struct GameState
     {

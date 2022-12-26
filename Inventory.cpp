@@ -20,7 +20,6 @@ Effect Item::getEffect() const { return m_effect; }
 Effect Item::getSpecial() const { return m_special; }
 int Item::getMana() const { return m_mana; }
 int Item::getPrice() const { return m_price; }
-bool Item::infused() const { return m_infused; }
 // String Methods
 string Item::strEffect() const
 {
@@ -78,14 +77,14 @@ void Item::remove()
 }
 void Item::infuse(const Item& item)
 {
-	if (m_infused)
-		throw std::overflow_error{ "Item already infused" };
+	if (!infuseable())
+		throw std::exception{ "Item does not have infuseable flag set" };
+	if (item.getType() != Item::Scroll)
+		throw std::exception{ "Infusion source must be a scroll" };
 
 	m_name = m_name + ' ' + item.getName();
 	m_special = item.getEffect();
 	m_price += item.getPrice();
-
-	m_infused = true;
 }
 // Operator Methods/Functions
 Item& Item::operator=(const Item& other)
@@ -100,7 +99,6 @@ Item& Item::operator=(const Item& other)
 	m_mana = other.m_mana;
 	m_price = other.m_price;
 
-	m_infused = other.m_infused;
 	m_effect = other.m_effect;
 	m_special = other.m_special;
 
@@ -138,6 +136,7 @@ util::CSV& operator>>(util::CSV& csv, Item& item)
 	case Item::Melee:
 	case Item::Quiver:
 	case Item::Scroll:
+		item.m_usetype |= Item::flag_infuseable;
 	case Item::Spell:
 		item.m_usetype |= Item::flag_usable;
 		item.m_super = Item::Super::Weapon;
@@ -182,7 +181,6 @@ util::CSV& operator>>(util::CSV& csv, Item& item)
 	{
 		try {
 			item.m_special = EffectDataList.getdatabyname(temp_special)->make(item.m_special.stacks);
-			item.m_infused = true;
 		}
 		catch (std::range_error& e)
 		{
@@ -527,6 +525,10 @@ void Inventory::dropItem(int slot)
 	// Remove the item
 	m_items[slot].remove();
 	sort();
+}
+void Inventory::infuseItem(int slot, const Item& item)
+{
+	m_items[slot].infuse(item);
 }
 void Inventory::addGold(int gold)
 {

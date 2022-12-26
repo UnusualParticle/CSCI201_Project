@@ -2,6 +2,7 @@
 ## Defaults,,,,,,,,,,
 Empty,0,Empty,0,0,0,Damage,0,,,
 Unarmed,0,Unarmed,0,0,0,Damage,1,,,
+Infuse an Item,0,Spell,0,0,0,No Effect,0,,,
 ## Enemy Item,,,,,,,,,,
 Bite,0,Melee,0,0,0,Damage,1,,,
 Chomp,0,Melee,0,0,0,Damage,3,,,

@@ -48,7 +48,8 @@ void Actor::changehealth(int n, bool ignoreArmor)
 	}
 	else if (n < 0)
 	{
-		n += getArmor();
+		if(!ignoreArmor)
+			n += getArmor();
 		if (n > -1)
 			n = -1;
 		stats.health += n;
@@ -518,8 +519,7 @@ NPC::NPC(Shop shop, int level)
 		t[0] = Item::Spell;
 		t[1] = Item::Spell;
 		++c_robe;
-		bool hasrobe{ rand2 };
-		if (c_robe.done() || hasrobe == 0)
+		if (c_robe.done() || rand2 == 0)
 		{
 			t[2] = Item::Robe;
 			c_robe.reset();
@@ -527,7 +527,7 @@ NPC::NPC(Shop shop, int level)
 		else
 			t[2] = Item::Spell;
 		++c_scroll;
-		if (c_scroll.done() || !hasrobe || rand1)
+		if (c_scroll.done() || rand2 || rand1)
 		{
 			t[3] = Item::Scroll;
 			c_scroll.reset();
