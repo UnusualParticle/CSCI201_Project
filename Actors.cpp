@@ -120,7 +120,7 @@ std::pair<Effect, Effect> Actor::getItemEffects(int slot) const
 int Actor::getItemMana(int slot) const
 {
 	int mana{ inventory.getItem(slot).getMana() - getStatModifier(StatBlock::Focus) };
-	return (mana < 0) ? 0 : mana;
+	return (mana < 0) ? 0 : -mana;
 }
 void Actor::getChoices(ChoiceList& choices) const
 {
@@ -151,12 +151,13 @@ string Actor::itemStr(int slot) const
 			stacks += aux.getEffect().stacks;
 	}
 
-	str << item.getName() << ' ' << item.getEffect().data->name << '(' << stacks << ')';
+	str << item.getName() << " [" << item.getEffect().data->name << ':' << stacks;
 	if (item.getSpecial().stacks > 0)
-		str << ' ' << item.getSpecial().data->name << '(' << item.getEffect().stacks << ')';
+		str << ", " << item.getSpecial().data->name << ':' << item.getSpecial().stacks;
+	str << ']';
 
 	if (cost != 0)
-		str << " Mp(" << -cost << ')';
+		str << " Mp(" << cost << ')';
 
 	return str.str();
 }

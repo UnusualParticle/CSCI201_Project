@@ -607,7 +607,7 @@ void sleep(Actor& player, const Town& town, int price = 0)
         player.inventory.spendGold(town.getRoomPrice());
     else
         player.inventory.spendGold(price);
-    std::cout << town.npcs[NPC::Inn].firstname() << Town::INN_STAY << player.getHealthMax() / 4 << " points.";
+    std::cout << town.npcs[NPC::Inn].firstname() << Town::INN_STAY << player.getHealthMax() / 4 << " points.\n\n";
     player.changehealth(player.getHealthMax() / 4);
 }
 bool visitInn(Actor& player, const Town& town)

@@ -97,9 +97,9 @@ void EffectList::update()
 {
 	for (auto& e : v)
 	{
-		if (e.data->power > 0)
+		if (e.data->power >= 0)
 			--e.stacks;
 	}
-	auto discard{ std::remove_if(v.begin(), v.end(), [](const Effect& e) { return e.stacks == 0; }) };
+	v.erase(std::remove_if(v.begin(), v.end(), [](const Effect& e) { return e.stacks <= 0; }), v.end());
 }
 void EffectList::clear() { v.clear(); }
