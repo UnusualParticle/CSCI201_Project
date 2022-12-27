@@ -84,6 +84,7 @@ void Item::infuse(const Item& item)
 
 	m_name = m_name + ' ' + item.getName();
 	m_special = item.getEffect();
+	m_special.stacks = 1;
 	m_price += item.getPrice();
 }
 // Operator Methods/Functions
